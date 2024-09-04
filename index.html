@@ -257,7 +257,7 @@
 				// 更新引言、內文和簽名
                 document.getElementById('event-quote').textContent = `“${masterQuote}”`;
                 document.getElementById('event-main-text').textContent = masterDescription;
-                document.getElementById('event-signature').textContent = `本介紹文由主持人 ${authorDescription} 撰寫。  本文用於桃園TRPG推廣會活動使用。`;
+                document.getElementById('event-signature').innerHTML = `本介紹文由主持人 ${authorDescription} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
 
 				// 顯示內文區塊
 				contentContainer.style.display = 'block';
