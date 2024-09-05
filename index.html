@@ -56,13 +56,13 @@
             text-align: left; /* 文字部分左對齊 */
             width: 100%; /* 確保文字區塊佔滿父容器寬度 */
         }
-		
-		.quote {
+
+        .quote {
             font-style: italic;
             font-size: 1.2em;
             color: #555;
             margin-bottom: 10px;
-			white-space: pre-line;
+            white-space: pre-line;
         }
 
         .main-text {
@@ -70,7 +70,7 @@
             line-height: 1.6;
             color: #333;
             margin-bottom: 15px;
-			white-space: pre-line;
+            white-space: pre-line;
         }
 
         .signature {
@@ -79,10 +79,15 @@
             color: #888;
             text-align: right;
             margin-top: 20px;
-			white-space: pre-line;
+            white-space: pre-line;
         }
-		
-		.tab {
+
+        .tab-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tab {
             cursor: pointer;
             padding: 10px;
             margin: 5px;
@@ -90,7 +95,24 @@
             border-radius: 5px;
             display: inline-block;
         }
-        
+
+        .tab.active {
+            background-color: #5F9EA0;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none; /* 默认隐藏内容 */
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .tab-content.active {
+            display: block; /* 激活状态显示内容 */
+        }
+		
         .event-item {
             margin: 10px 0;
             padding: 10px;
@@ -101,8 +123,8 @@
         .events-container {
             margin-top: 20px;
         }
-		
-		a.event-link {
+
+        a.event-link {
             text-decoration: none; /* 移除默認的超連結下劃線 */
             color: inherit; /* 使用默認文字顏色 */
             display: block; /* 讓整個區塊可點擊 */
@@ -111,255 +133,324 @@
 </head>
 <body>
 
-    <div class="container">
-        <!-- 標題區塊 -->
-        <div class="header-container">
-            <h1>桃園TRPG推廣會系統介紹</h1>
+<div class="container">
+    <!-- 標題區塊 -->
+    <div class="header-container">
+        <h1>桃園TRPG推廣會系統介紹</h1>
+    </div>
+
+    <!-- 标签页容器 -->
+    <div class="tab-container">
+        <span class="tab active" data-tab="system-overview">系统介绍總表</span>
+        <span class="tab" data-tab="event-details">活動日期介绍</span>
+    </div>
+
+    <!-- 系统介绍总表内容 -->
+    <div id="system-overview" class="tab-content active">
+        <h2>系统介绍總表</h2>
+        <!-- 系统介绍总表的内容可以放在这里 -->
+        <p>這裡顯示系统介绍的總表内容。待更新整理。(๑•́ ₃ •̀๑)</p>
+    </div>
+
+    <!-- 活动日期内容介绍 -->
+    <div id="event-details" class="tab-content">
+        <h2>活動日期介紹</h2>
+        <!-- 动态生成的分类标签区 -->
+        <div id="categories-container">
+            <!-- 这里将通过 JavaScript 动态生成分类标签 -->
         </div>
-		
-		<!-- 動態生成的分類標籤區 -->
-		<div id="categories-container">
-			<!-- 這裡將通過 JavaScript 動態生成分類標籤 -->
-		</div>
-		
-		<!-- 活動顯示區 -->
-		<div class="events-container" id="events-container">
-			<!-- 根據點擊的標籤來顯示相應的活動 -->
-		</div>
+
+        <!-- 活动显示区 -->
+        <div class="events-container" id="events-container">
+            <!-- 根据点击的标签来显示相应的活动 -->
+        </div>
 
         <!-- 內文區塊，分為圖片和文字 -->
-		<div class="content-container" id="content-container" style="display: none;">
-		
-			<!-- 新增的標題區塊 -->
-			<h2 id="event-title" style="text-align: center; margin-bottom: 25px;"></h2>
+        <div class="content-container" id="content-container" style="display: none;">
+
+            <!-- 新增的標題區塊 -->
+            <h2 id="event-title" style="text-align: center; margin-bottom: 25px;"></h2>
+
+            <!-- 圖片區塊 -->
+            <div class="image-section" id="image-section">
+                <img src="" alt="示例圖片" id="event-image">
+                <img src="" alt="示例圖片2" id="event-image-2">
+            </div>
+
+            <!-- 文字區塊 -->
+            <div class="text-section">
+                <!-- 引言部分 -->
+                <p class="quote" id="event-quote">這裡是引言部分。</p>
+                <!-- 內文部分 -->
+                <p class="main-text" id="event-main-text">這裡是內文的文字範例。</p>
+                <!-- 簽名部分 -->
+                <p class="signature" id="event-signature">簽名部分</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 标签页切换逻辑
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            // 移除所有标签的激活状态
+            tabs.forEach(t => t.classList.remove('active'));
+            // 隐藏所有标签页内容
+            tabContents.forEach(tc => tc.classList.remove('active'));
+
+            // 激活当前标签并显示对应内容
+            tab.classList.add('active');
+            const contentId = tab.getAttribute('data-tab');
+            document.getElementById(contentId).classList.add('active');
+        });
+    });
+	
+	function activateTab(tabName, shouldScrollToContent = false) {
+		// 移除所有标签的激活状态
+		tabs.forEach(t => t.classList.remove('active'));
+		// 隐藏所有标签页内容
+		tabContents.forEach(tc => tc.classList.remove('active'));
+
+		// 激活指定标签并显示对应内容
+		const targetTab = Array.from(tabs).find(tab => tab.getAttribute('data-tab') === tabName);
+		const targetContent = document.getElementById(tabName);
+
+		if (targetTab && targetContent) {
+			targetTab.classList.add('active');
+			targetContent.classList.add('active');
 			
-			<!-- 圖片區塊 -->
-			<div class="image-section" id="image-section">
-				<img src="" alt="示例圖片" id="event-image">
-				<img src="" alt="示例圖片2" id="event-image-2">
-			</div>
-
-			<!-- 文字區塊 -->
-			<div class="text-section">
-				<!-- 引言部分 -->
-				<p class="quote" id="event-quote">這裡是引言部分。</p>
-				<!-- 內文部分 -->
-				<p class="main-text" id="event-main-text">這裡是內文的文字範例。</p>
-				<!-- 簽名部分 -->
-				<p class="signature" id="event-signature">簽名部分</p>
-			</div>
-		</div>
-
-    <script>
-		// 全局變量來存儲讀取的事件資料
-        let eventsData = [];
-        let uniqueCategories = new Set();
-		let detailData = {};
-		
-        // 讀取 JSON 文件並存儲事件資料
-        const fetchEventsData = fetch('event_date.json')
-            .then(response => response.json())
-            .then(data => {
-                eventsData = data.events;
-                generateCategoryTabs(eventsData);
-            })
-            .catch(error => {
-                console.error('讀取事件資料時出錯:', error);
-            });
-			
-		// 讀取 detail.json 文件並存儲詳細資料
-        const fetchDetailData = fetch('detail.json')
-            .then(response => response.json())
-            .then(data => {
-                detailData = data.details;
-            })
-            .catch(error => {
-                console.error('讀取詳細資料時出錯:', error);
-            });
-
-
-        // 動態生成分類標籤
-        function generateCategoryTabs(events) {
-            const categoriesContainer = document.getElementById('categories-container');
-            
-            // 根據每個事件的日期生成唯一的分類標籤
-            events.forEach(event => {
-                uniqueCategories.add(event.date); // 添加到集合中確保唯一性
-            });
-
-            // 為每個唯一的日期創建一個標籤
-            uniqueCategories.forEach(date => {
-                const tab = document.createElement('span');
-                tab.classList.add('tab');
-                tab.textContent = date;
-                tab.setAttribute('data-category', date);
-                tab.addEventListener('click', function() {
-                    displayEventsByDate(date);
-                });
-                categoriesContainer.appendChild(tab);
-            });
-        }
-
-		// 根據所選日期和 master 顯示詳細信息（圖片和文字）
-		function displayDetailsByDate(date, master, shouldUpdateUrl = true) {
-			const contentContainer = document.getElementById('content-container');
-			const filteredDetail = detailData.find(detail => detail.date === date);
-
-			if (filteredDetail) {
-				let masterName, masterImage1, masterImage2, masterSystem, masterDescription,authorDescription;
-
-				// 根據選擇的 master 設置相應的詳細信息
-				if (master === 'master1') {
-					masterName = filteredDetail.master1_name;
-					masterImage1 = filteredDetail.master1_image1;
-					masterImage2 = filteredDetail.master1_image2;
-					masterSystem = filteredDetail.master1_system;
-					masterQuote = filteredDetail.master1_quote;
-					masterDescription = filteredDetail.master1_description;
-					authorDescription = filteredDetail.system1_author;
-				} else if (master === 'master2') {
-					masterName = filteredDetail.master2_name;
-					masterImage1 = filteredDetail.master2_image1;
-					masterImage2 = filteredDetail.master2_image2;
-					masterSystem = filteredDetail.master2_system;
-					masterQuote = filteredDetail.master2_quote;
-					masterDescription = filteredDetail.master2_description;
-					authorDescription = filteredDetail.system2_author;
-				} else if (master === 'master3') {
-					masterName = filteredDetail.master3_name;
-					masterImage1 = filteredDetail.master3_image1;
-					masterImage2 = filteredDetail.master3_image2;
-					masterSystem = filteredDetail.master3_system;
-					masterQuote = filteredDetail.master3_quote;
-					masterDescription = filteredDetail.master3_description;
-					authorDescription = filteredDetail.system3_author;
-				} else {
-					console.error('未知的 Master：', master);
-					return;
-				}
-				
-				// 更新標題
-				document.getElementById('event-title').textContent = `${masterSystem}－桃園TRPG推廣會團務介紹`;
-				
-				// 更新圖片1 (Always show)
-				const imageElement1 = document.getElementById('event-image');
-				imageElement1.src = `image/${masterImage1}`; // 指向 image 文件夾中的圖片1
-
-				// Check Image 2
-				const imageElement2 = document.getElementById('event-image-2');
-				if (masterImage2) { // 如果圖片2的路径存在且不为空
-					imageElement2.src = `image/${masterImage2}`; // 指向 image 文件夹中的圖片2
-					imageElement2.style.display = 'block'; // 显示圖片2
-				} else {
-					imageElement2.style.display = 'none'; // 隐藏圖片2
-				}
-
-				// 更新引言、內文和簽名
-                document.getElementById('event-quote').textContent = `“${masterQuote}”`;
-                document.getElementById('event-main-text').textContent = masterDescription;
-                document.getElementById('event-signature').innerHTML = `本介紹文由主持人 ${authorDescription} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
-
-				// 顯示內文區塊
-				contentContainer.style.display = 'block';
-				
-				// 滾動到內文區塊
+			// 如果需要滚动到 content-container
+			if (shouldScrollToContent && tabName === 'event-details') {
+				const contentContainer = document.getElementById('content-container');
 				contentContainer.scrollIntoView({ behavior: 'smooth' });
-				
-				// 更新網址列
-				if (shouldUpdateUrl) {
-					const newUrl = `${window.location.pathname}?date=${date}&master=${master}`;
-					if (newUrl !== window.location.href) {  // 確保 URL 不重複
-						history.pushState({ date, master }, '', newUrl); // 使用 history.pushState() 更新 URL
-					}
-				}
-			} else {
-				contentContainer.style.display = 'none'; // 如果沒有對應的詳細資料則隱藏內文區塊
 			}
 		}
-		
-        // 根據所選日期顯示對應的活動
-        function displayEventsByDate(date) {
-            const eventsContainer = document.getElementById('events-container');
-            eventsContainer.innerHTML = ''; // 清空當前的活動顯示
+	}
 
-            const filteredEvents = eventsData.filter(event => event.date === date);
+	// 添加标签页点击事件
+	tabs.forEach(tab => {
+		tab.addEventListener('click', function () {
+			const contentId = tab.getAttribute('data-tab');
+			activateTab(contentId);
+		});
+	});
 
-            // 將篩選出的活動添加到容器中
-            if (filteredEvents.length > 0) {
-                filteredEvents.forEach(event => {
-                    // Master1 超連結
-                    const master1Link = document.createElement('a');
-                    master1Link.classList.add('event-link');
-                    master1Link.href = 'javascript:void(0)'; // 設置跳轉到內文區塊的超連結
-                    master1Link.addEventListener('click', function() {
-                        displayDetailsByDate(event.date, 'master1'); // 點擊時顯示 Master1 詳細內容
-                    });
+    // 全局變量來存儲讀取的事件資料
+    let eventsData = [];
+    let uniqueCategories = new Set();
+    let detailData = {};
 
-                    const master1Item = document.createElement('div');
-                    master1Item.classList.add('event-item');
-                    master1Item.innerHTML = `<p><strong>主持人1：</strong> ${event.master1} (${event.system1}, ${event.system1_EN})</p>`;
-                    
-                    master1Link.appendChild(master1Item);
-                    eventsContainer.appendChild(master1Link);
+    // 讀取 JSON 文件並存儲事件資料
+    const fetchEventsData = fetch('event_date.json')
+        .then(response => response.json())
+        .then(data => {
+            eventsData = data.events;
+            generateCategoryTabs(eventsData);
+        })
+        .catch(error => {
+            console.error('讀取事件資料時出錯:', error);
+        });
 
-                    // Master2 超連結
-                    const master2Link = document.createElement('a');
-                    master2Link.classList.add('event-link');
-                    master2Link.href = 'javascript:void(0)';
-                    master2Link.addEventListener('click', function() {
-                        displayDetailsByDate(event.date, 'master2'); // 點擊時顯示 Master2 詳細內容
-                    });
+    // 讀取 detail.json 文件並存儲詳細資料
+    const fetchDetailData = fetch('detail.json')
+        .then(response => response.json())
+        .then(data => {
+            detailData = data.details;
+        })
+        .catch(error => {
+            console.error('讀取詳細資料時出錯:', error);
+        });
 
-                    const master2Item = document.createElement('div');
-                    master2Item.classList.add('event-item');
-                    master2Item.innerHTML = `
-                        <p><strong>主持人2：</strong> ${event.master2} (${event.system2}, ${event.system2_EN})</p>
-                    `;
-                    
-                    master2Link.appendChild(master2Item);
-                    eventsContainer.appendChild(master2Link);
-
-                    // Master3 超連結
-                    const master3Link = document.createElement('a');
-                    master3Link.classList.add('event-link');
-                    master3Link.href = 'javascript:void(0)';
-                    master3Link.addEventListener('click', function() {
-                        displayDetailsByDate(event.date, 'master3'); // 點擊時顯示 Master3 詳細內容
-                    });
-
-                    const master3Item = document.createElement('div');
-                    master3Item.classList.add('event-item');
-                    master3Item.innerHTML = `
-                        <p><strong>主持人3：</strong> ${event.master3} (${event.system3}, ${event.system3_EN})</p>
-                    `;
-                    
-                    master3Link.appendChild(master3Item);
-                    eventsContainer.appendChild(master3Link);
-                });
-            } else {
-                eventsContainer.innerHTML = `<p>此日期下沒有活動。</p>`;
-            }
+    // 等待所有數據讀取完成後執行初始化
+    Promise.all([fetchEventsData, fetchDetailData]).then(() => {
+        // 初始化時檢查 URL，並根據 URL 的參數顯示相應的詳細信息
+        const params = new URLSearchParams(window.location.search);
+        const date = params.get('date');
+        const master = params.get('master');
+        if (date && master) {
+            document.getElementById('content-container').style.display = 'block';
+            displayDetailsByDate(date, master); // 自动显示详细信息
+			
+			// 自动切换到“活动日期内容介绍”标签页
+			activateTab('event-details',true);
         }
+    });
+	
+	// 動態生成分類標籤
+	function generateCategoryTabs(events) {
+		const categoriesContainer = document.getElementById('categories-container');
 		
-		// 處理瀏覽器的後退/前進按鈕，或直接訪問特定的 URL
-		window.addEventListener('popstate', function(event) {
-			if (event.state) {
-				displayDetailsByDate(event.state.date, event.state.master, false);
-			}
+		// 根據每個事件的日期生成唯一的分類標籤
+		events.forEach(event => {
+			uniqueCategories.add(event.date); // 添加到集合中確保唯一性
 		});
 
-		// 等待所有數據讀取完成後執行初始化
-		Promise.all([fetchEventsData, fetchDetailData]).then(() => {
-			// 初始化時檢查 URL，並根據 URL 的參數顯示相應的詳細信息
-			const params = new URLSearchParams(window.location.search);
-			const date = params.get('date');
-			const master = params.get('master');
-			if (date && master) {
-				// 顯示 content-container 並自動加載相應的詳細信息
-				document.getElementById('content-container').style.display = 'block';
-				displayDetailsByDate(date, master); // 自動顯示詳細信息
-			}
+		// 為每個唯一的日期創建一個標籤
+		uniqueCategories.forEach(date => {
+			const tab = document.createElement('span');
+			tab.classList.add('tab');
+			tab.textContent = date;
+			tab.setAttribute('data-category', date);
+			tab.addEventListener('click', function() {
+				displayEventsByDate(date);
+			});
+			categoriesContainer.appendChild(tab);
 		});
-    </script>
+	}
+
+	// 根據所選日期和 master 顯示詳細信息（圖片和文字）
+	function displayDetailsByDate(date, master, shouldUpdateUrl = true) {
+		const contentContainer = document.getElementById('content-container');
+		const filteredDetail = detailData.find(detail => detail.date === date);
+
+		if (filteredDetail) {
+			let masterName, masterImage1, masterImage2, masterSystem, masterDescription,authorDescription;
+
+			// 根據選擇的 master 設置相應的詳細信息
+			if (master === 'master1') {
+				masterName = filteredDetail.master1_name;
+				masterImage1 = filteredDetail.master1_image1;
+				masterImage2 = filteredDetail.master1_image2;
+				masterSystem = filteredDetail.master1_system;
+				masterQuote = filteredDetail.master1_quote;
+				masterDescription = filteredDetail.master1_description;
+				authorDescription = filteredDetail.system1_author;
+			} else if (master === 'master2') {
+				masterName = filteredDetail.master2_name;
+				masterImage1 = filteredDetail.master2_image1;
+				masterImage2 = filteredDetail.master2_image2;
+				masterSystem = filteredDetail.master2_system;
+				masterQuote = filteredDetail.master2_quote;
+				masterDescription = filteredDetail.master2_description;
+				authorDescription = filteredDetail.system2_author;
+			} else if (master === 'master3') {
+				masterName = filteredDetail.master3_name;
+				masterImage1 = filteredDetail.master3_image1;
+				masterImage2 = filteredDetail.master3_image2;
+				masterSystem = filteredDetail.master3_system;
+				masterQuote = filteredDetail.master3_quote;
+				masterDescription = filteredDetail.master3_description;
+				authorDescription = filteredDetail.system3_author;
+			} else {
+				console.error('未知的 Master：', master);
+				return;
+			}
+			
+			// 更新標題
+			document.getElementById('event-title').textContent = `${masterSystem}－桃園TRPG推廣會團務介紹`;
+			
+			// 更新圖片1 (Always show)
+			const imageElement1 = document.getElementById('event-image');
+			imageElement1.src = `image/${masterImage1}`; // 指向 image 文件夾中的圖片1
+
+			// Check Image 2
+			const imageElement2 = document.getElementById('event-image-2');
+			if (masterImage2) { // 如果圖片2的路径存在且不为空
+				imageElement2.src = `image/${masterImage2}`; // 指向 image 文件夹中的圖片2
+				imageElement2.style.display = 'block'; // 显示圖片2
+			} else {
+				imageElement2.style.display = 'none'; // 隐藏圖片2
+			}
+
+			// 更新引言、內文和簽名
+			document.getElementById('event-quote').textContent = `“${masterQuote}”`;
+			document.getElementById('event-main-text').textContent = masterDescription;
+			document.getElementById('event-signature').innerHTML = `本介紹文由主持人 ${authorDescription} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+
+			// 顯示內文區塊
+			contentContainer.style.display = 'block';
+			
+			// 滾動到內文區塊
+			contentContainer.scrollIntoView({ behavior: 'smooth' });
+			
+			// 更新網址列
+			if (shouldUpdateUrl) {
+				const newUrl = `${window.location.pathname}?date=${date}&master=${master}`;
+				if (newUrl !== window.location.href) {  // 確保 URL 不重複
+					history.pushState({ date, master }, '', newUrl); // 使用 history.pushState() 更新 URL
+				}
+			}
+		} else {
+			contentContainer.style.display = 'none'; // 如果沒有對應的詳細資料則隱藏內文區塊
+		}
+	}
+	
+	// 根據所選日期顯示對應的活動
+	function displayEventsByDate(date) {
+		const eventsContainer = document.getElementById('events-container');
+		eventsContainer.innerHTML = ''; // 清空當前的活動顯示
+
+		const filteredEvents = eventsData.filter(event => event.date === date);
+
+		// 將篩選出的活動添加到容器中
+		if (filteredEvents.length > 0) {
+			filteredEvents.forEach(event => {
+				// Master1 超連結
+				const master1Link = document.createElement('a');
+				master1Link.classList.add('event-link');
+				master1Link.href = 'javascript:void(0)'; // 設置跳轉到內文區塊的超連結
+				master1Link.addEventListener('click', function() {
+					displayDetailsByDate(event.date, 'master1'); // 點擊時顯示 Master1 詳細內容
+				});
+
+				const master1Item = document.createElement('div');
+				master1Item.classList.add('event-item');
+				master1Item.innerHTML = `<p><strong>主持人1：</strong> ${event.master1} (${event.system1}, ${event.system1_EN})</p>`;
+				
+				master1Link.appendChild(master1Item);
+				eventsContainer.appendChild(master1Link);
+
+				// Master2 超連結
+				const master2Link = document.createElement('a');
+				master2Link.classList.add('event-link');
+				master2Link.href = 'javascript:void(0)';
+				master2Link.addEventListener('click', function() {
+					displayDetailsByDate(event.date, 'master2'); // 點擊時顯示 Master2 詳細內容
+				});
+
+				const master2Item = document.createElement('div');
+				master2Item.classList.add('event-item');
+				master2Item.innerHTML = `
+					<p><strong>主持人2：</strong> ${event.master2} (${event.system2}, ${event.system2_EN})</p>
+				`;
+				
+				master2Link.appendChild(master2Item);
+				eventsContainer.appendChild(master2Link);
+
+				// Master3 超連結
+				const master3Link = document.createElement('a');
+				master3Link.classList.add('event-link');
+				master3Link.href = 'javascript:void(0)';
+				master3Link.addEventListener('click', function() {
+					displayDetailsByDate(event.date, 'master3'); // 點擊時顯示 Master3 詳細內容
+				});
+
+				const master3Item = document.createElement('div');
+				master3Item.classList.add('event-item');
+				master3Item.innerHTML = `
+					<p><strong>主持人3：</strong> ${event.master3} (${event.system3}, ${event.system3_EN})</p>
+				`;
+				
+				master3Link.appendChild(master3Item);
+				eventsContainer.appendChild(master3Link);
+			});
+		} else {
+			eventsContainer.innerHTML = `<p>此日期下沒有活動。</p>`;
+		}
+	}
+	
+	// 處理瀏覽器的後退/前進按鈕，或直接訪問特定的 URL
+	window.addEventListener('popstate', function(event) {
+		if (event.state) {
+			displayDetailsByDate(event.state.date, event.state.master, false);
+		}
+	});
+
+</script>
+
 </body>
 </html>
