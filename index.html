@@ -129,6 +129,16 @@
             color: inherit; /* 使用默認文字顏色 */
             display: block; /* 讓整個區塊可點擊 */
         }
+		
+		a.event-link:hover {
+			background-color: #B0E0E6; /* 悬停时的背景颜色 */
+		}
+
+		a.event-link.active {
+			background-color: #5F9EA0; /* 激活状态的背景颜色 */
+			color: #fff; /* 激活状态的文本颜色 */
+			font-weight: bold; /* 激活状态的文本加粗 */
+		}
     </style>
 </head>
 <body>
@@ -273,17 +283,25 @@
         const master = params.get('master');
         if (date && master) {
             document.getElementById('content-container').style.display = 'block';
+			displayEventsByDate(date); // 显示该日期下的事件
             displayDetailsByDate(date, master); // 自动显示详细信息
 			
 			// 自动切换到“活动日期内容介绍”标签页
 			activateTab('event-details',true);
+			
+			// 设置 categories-container 的 active 状态
+			activateCategoryTab(date);
+			
+			// 设置 events-container 的 active 状态
+			activateEventLink(date, master);
         }
     });
 	
 	// 動態生成分類標籤
 	function generateCategoryTabs(events) {
 		const categoriesContainer = document.getElementById('categories-container');
-		
+		categoriesContainer.innerHTML = ''; // 确保清空当前内容
+
 		// 根據每個事件的日期生成唯一的分類標籤
 		events.forEach(event => {
 			uniqueCategories.add(event.date); // 添加到集合中確保唯一性
@@ -297,8 +315,22 @@
 			tab.setAttribute('data-category', date);
 			tab.addEventListener('click', function() {
 				displayEventsByDate(date);
+				
+				// 设置 active 状态，并移除其他 tab 的 active 状态
+				document.querySelectorAll('#categories-container .tab').forEach(t => t.classList.remove('active'));
+				tab.classList.add('active');
 			});
 			categoriesContainer.appendChild(tab);
+		});
+	}
+	
+	// 激活 categories-container 中对应的日期标签
+	function activateCategoryTab(date) {
+		document.querySelectorAll('#categories-container .tab').forEach(t => {
+			t.classList.remove('active');
+			if (t.getAttribute('data-category') === date) {
+				t.classList.add('active');
+			}
 		});
 	}
 
@@ -306,7 +338,7 @@
 	function displayDetailsByDate(date, master, shouldUpdateUrl = true) {
 		const contentContainer = document.getElementById('content-container');
 		const filteredDetail = detailData.find(detail => detail.date === date);
-
+	
 		if (filteredDetail) {
 			let masterName, masterImage1, masterImage2, masterSystem, masterDescription,authorDescription;
 
@@ -395,6 +427,9 @@
 				master1Link.href = 'javascript:void(0)'; // 設置跳轉到內文區塊的超連結
 				master1Link.addEventListener('click', function() {
 					displayDetailsByDate(event.date, 'master1'); // 點擊時顯示 Master1 詳細內容
+					
+					// 配置 active 状态，移除其他链接的 active 状态
+					activateEventLink(date, 'master1');
 				});
 
 				const master1Item = document.createElement('div');
@@ -410,6 +445,9 @@
 				master2Link.href = 'javascript:void(0)';
 				master2Link.addEventListener('click', function() {
 					displayDetailsByDate(event.date, 'master2'); // 點擊時顯示 Master2 詳細內容
+					
+					// 配置 active 状态，移除其他链接的 active 状态
+					activateEventLink(date, 'master2');
 				});
 
 				const master2Item = document.createElement('div');
@@ -427,6 +465,9 @@
 				master3Link.href = 'javascript:void(0)';
 				master3Link.addEventListener('click', function() {
 					displayDetailsByDate(event.date, 'master3'); // 點擊時顯示 Master3 詳細內容
+					
+					// 配置 active 状态，移除其他链接的 active 状态
+					activateEventLink(date, 'master3');
 				});
 
 				const master3Item = document.createElement('div');
@@ -441,6 +482,18 @@
 		} else {
 			eventsContainer.innerHTML = `<p>此日期下沒有活動。</p>`;
 		}
+	}
+	
+	// 激活 events-container 中对应的活动链接
+	function activateEventLink(date, master) {
+		const masterNumber = master.replace('master', ''); // 提取 master 的数字部分
+		document.querySelectorAll('.event-link').forEach((link, index) => {
+			link.classList.remove('active');
+			// 根据 master 的数字来激活对应的链接
+			if (index === parseInt(masterNumber) - 1) {
+				link.classList.add('active');
+			}
+		});
 	}
 	
 	// 處理瀏覽器的後退/前進按鈕，或直接訪問特定的 URL
