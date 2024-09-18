@@ -32,6 +32,8 @@
             display: flex; /* 使內容部分為彈性佈局 */
             flex-direction: column; /* 初始為縱向佈局 */
             align-items: center; /* 使內部內容居中 */
+			max-width: 96%; /* 确保父容器的宽度不超过页面 */
+
         }
 
         .image-section {
@@ -107,6 +109,8 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
+			max-width: 96%; /* 确保父容器的宽度不超过页面 */
+
         }
 
         .tab-content.active {
@@ -120,11 +124,11 @@
             border-radius: 5px;
         }
 
-        .events-container {
+        .events-container, .systems-container {
             margin-top: 20px;
         }
 
-        a.event-link {
+        a.event-link, a.system-link {
             text-decoration: none; /* 移除默認的超連結下劃線 */
             color: inherit; /* 使用默認文字顏色 */
             display: block; /* 讓整個區塊可點擊 */
@@ -172,7 +176,33 @@
     <div id="system-overview" class="tab-content active">
         <h2>系统介绍總表</h2>
         <!-- 系统介绍总表的内容可以放在这里 -->
-        <p>這裡顯示系统介绍的總表内容。待更新整理。(๑•́ ₃ •̀๑)</p>
+        <p>這裡顯示系统介绍的總表内容。持續整理中。(๑•́ ₃ •̀๑)</p>
+		<!-- 动态生成的系统标签区 -->
+        <div id="systems-container">
+            <!-- 这里将通过 JavaScript 动态生成系统标签 -->
+        </div>
+		
+		<!-- 内文区块，分为图片和文字 -->
+        <div class="content-container" id="system-content-container" style="display: none;">
+            <!-- 新增的标题区块 -->
+            <h2 id="system-title" style="text-align: center; margin-bottom: 25px;"></h2>
+            
+            <!-- 图片区块 -->
+            <div class="image-section" id="system-image-section">
+                <img src="" alt="示例图片" id="system-image1">
+                <img src="" alt="示例图片2" id="system-image2">
+            </div>
+
+            <!-- 文字区块 -->
+            <div class="text-section">
+                <p class="quote" id="system-quote">这里是引言部分。</p>
+                <p class="main-text" id="system-main-text">这里是内文的文字范例。</p>
+                <p class="signature" id="system-signature">签名部分</p>
+            </div>
+        </div>
+		
+		<!-- 动态生成的系统详细信息容器 -->
+		<div id="dynamic-system-container"></div>
     </div>
 
     <!-- 活动日期内容介绍 -->
@@ -251,7 +281,10 @@
 			if (shouldScrollToContent && tabName === 'event-details') {
 				const contentContainer = document.getElementById('content-container');
 				contentContainer.scrollIntoView({ behavior: 'smooth' });
-			}
+			} else if (shouldScrollToContent && tabName === 'system-overview') {
+                const systemContentContainer = document.getElementById('system-content-container');
+                systemContentContainer.scrollIntoView({ behavior: 'smooth' });
+            }
 		}
 	}
 
@@ -264,9 +297,23 @@
 	});
 
     // 全局變量來存儲讀取的事件資料
+	let systemData = [];
     let eventsData = [];
     let uniqueCategories = new Set();
     let detailData = {};
+	let systenData = {};
+	
+	// 读取 system.json 文件并存储系统资料
+    const fetchSystemData = fetch('system.json')
+        .then(response => response.json())
+        .then(data => {
+            systemData = data.details;
+            generateSystemTabs(systemData);
+			displayAllSystems(); // 默认显示所有系统详细信息
+        })
+        .catch(error => {
+            console.error('读取系统资料时出错:', error);
+        });
 
     // 讀取 JSON 文件並存儲事件資料
     const fetchEventsData = fetch('event_date.json')
@@ -288,13 +335,16 @@
         .catch(error => {
             console.error('讀取詳細資料時出錯:', error);
         });
+		
+	
 
     // 等待所有數據讀取完成後執行初始化
-    Promise.all([fetchEventsData, fetchDetailData]).then(() => {
+    Promise.all([fetchSystemData, fetchEventsData, fetchDetailData]).then(() => {
         // 初始化時檢查 URL，並根據 URL 的參數顯示相應的詳細信息
         const params = new URLSearchParams(window.location.search);
         const date = params.get('date');
         const master = params.get('master');
+		const system = params.get('system');
         if (date && master) {
             document.getElementById('content-container').style.display = 'block';
 			displayEventsByDate(date); // 显示该日期下的事件
@@ -309,6 +359,12 @@
 			// 设置 events-container 的 active 状态
 			activateEventLink(date, master);
         }
+		else if(system)
+		{
+			activateTab('system-overview', true); // 切换到 system-overview 标签页并滑动到内容
+			displaySystemDetails(system); // 显示系统详细信息
+			activateSystemTab(system); // 激活系统标签
+		}
     });
 	
 	// 動態生成分類標籤
@@ -537,6 +593,142 @@
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		});
 	});
+	
+	// 显示所有系统的详细信息
+	function displayAllSystems() {
+		const singlesystemContentContainer = document.getElementById('system-content-container');
+		const systemContentContainer = document.getElementById('dynamic-system-container');
+		systemContentContainer.innerHTML = ''; // 清空当前的系统显示内容
+
+		systemData.forEach(system => {
+			const systemDetailBlock = createSystemDetailBlock(system);
+			systemContentContainer.appendChild(systemDetailBlock);
+		});
+
+		systemContentContainer.style.display = 'block'; // 显示系统内文区块
+		singlesystemContentContainer.style.display = 'none';
+		
+		// Clean URL buffer
+		const baseUrl = window.location.pathname; // 获取基础路径
+		history.pushState({}, '', baseUrl); // 更新 URL 到基础路径		
+	}
+	
+	// 动态生成系统标签
+    function generateSystemTabs(systems) {
+        const systemsContainer = document.getElementById('systems-container');
+        systemsContainer.innerHTML = ''; // 清空当前内容
+        
+        systems.forEach(system => {
+            const tab = document.createElement('span');
+            tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
+            tab.textContent = system.system+'《'+system.system_EN+'》';
+            tab.setAttribute('data-system', system.system);
+            tab.addEventListener('click', function() {
+                // 显示系统详细信息
+                displaySystemDetails(system.system, true);
+                // 设置 active 状态
+                document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+            systemsContainer.appendChild(tab);
+        });
+		
+		const all_tab = document.createElement('span');
+		all_tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
+		all_tab.textContent = "ShowAll";
+		all_tab.classList.add('active');
+		all_tab.addEventListener('click', function() {
+			displayAllSystems();
+			// 设置 active 状态
+			document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
+			all_tab.classList.add('active');
+		});
+		systemsContainer.appendChild(all_tab);
+
+    }
+
+    // 根据系统显示详细信息
+    function displaySystemDetails(systemName, shouldUpdateUrl = false) {
+        const systemContentContainer = document.getElementById('system-content-container');
+		const dynamicSystemContainer = document.getElementById('dynamic-system-container');
+		dynamicSystemContainer.innerHTML = ''; // 清空动态内容
+		const filteredSystem = systemData.find(system => system.system === systemName);
+
+        if (filteredSystem) {
+            document.getElementById('system-title').textContent = `${filteredSystem.system} 《${filteredSystem.system_EN}》- 系统介绍`;
+            
+            // 更新图片1 (Always show)
+            const imageElement1 = document.getElementById('system-image1');
+            imageElement1.src = `image/${filteredSystem.image1}`; // 指向 image 文件夹中的图片1
+
+            // 更新图片2
+            const imageElement2 = document.getElementById('system-image2');
+            if (filteredSystem.image2) { 
+                imageElement2.src = `image/${filteredSystem.image2}`; // 指向 image 文件夹中的图片2
+                imageElement2.style.display = 'block'; // 显示图片2
+            } else {
+                imageElement2.style.display = 'none'; // 隐藏图片2
+            }
+
+            document.getElementById('system-quote').textContent = `“${filteredSystem.Quote}”`;
+            document.getElementById('system-main-text').textContent = filteredSystem.Description;
+            document.getElementById('system-signature').innerHTML = `本介绍文由 ${filteredSystem.Author} 撰写。`;
+
+            systemContentContainer.style.display = 'block'; // 显示系统内文区块
+            systemContentContainer.scrollIntoView({ behavior: 'smooth' });
+			
+			// 更新网址列
+			if (shouldUpdateUrl) {
+				const newUrl = `${window.location.pathname}?system=${encodeURIComponent(systemName)}`;
+				if (newUrl !== window.location.href) {
+					history.pushState({ system: systemName }, '', newUrl); // 使用 history.pushState() 更新 URL
+				}
+			}
+        } else {
+            systemContentContainer.style.display = 'none'; // 如果没有对应的详细资料则隐藏系统内文区块
+        }
+    }
+	
+	// 创建系统详细信息块
+	function createSystemDetailBlock(system) {
+		const block = document.createElement('div');
+		block.classList.add('system-detail-block');
+
+		const title = document.createElement('h2');
+		title.textContent = `${system.system} 《${system.system_EN}》- 系统介绍`;
+		block.appendChild(title);
+
+		// 图片1
+		const imageElement1 = document.createElement('img');
+		imageElement1.src = `image/${system.image1}`;
+		imageElement1.alt = 'image1';
+		block.appendChild(imageElement1);
+
+		// 图片2
+		if (system.image2) {
+			const imageElement2 = document.createElement('img');
+			imageElement2.src = `image/${system.image2}`;
+			imageElement2.alt = 'image2';
+			block.appendChild(imageElement2);
+		}
+
+		const quote = document.createElement('p');
+		quote.classList.add('quote');
+		quote.textContent = `“${system.Quote}”`;
+		block.appendChild(quote);
+
+		const description = document.createElement('p');
+		description.classList.add('main-text');
+		description.textContent = system.Description;
+		block.appendChild(description);
+
+		const signature = document.createElement('p');
+		signature.classList.add('signature');
+		signature.innerHTML = `本介绍文由 ${system.Author} 撰寫。`;
+		block.appendChild(signature);
+
+		return block;
+	}
 
 </script>
 
