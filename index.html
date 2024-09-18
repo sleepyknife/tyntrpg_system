@@ -156,6 +156,13 @@
             border-radius: 5px;
             display: none; /* Initially hidden */
         }
+		
+		.system-image{
+            max-width: 50%; /* 圖片最大寬度為父容器的一半 */
+            width: 100%; /* 確保圖片寬度充滿容器 */
+            flex: 1; /* 讓圖片各自占一半寬度 */
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -671,8 +678,8 @@
             }
 
             document.getElementById('system-quote').textContent = `“${filteredSystem.Quote}”`;
-            document.getElementById('system-main-text').textContent = filteredSystem.Description;
-            document.getElementById('system-signature').innerHTML = `本介绍文由 ${filteredSystem.Author} 撰写。`;
+            document.getElementById('system-main-text').innerHTML = filteredSystem.Description;
+            document.getElementById('system-signature').innerHTML = `本介绍文由 ${filteredSystem.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
 
             systemContentContainer.style.display = 'block'; // 显示系统内文区块
             systemContentContainer.scrollIntoView({ behavior: 'smooth' });
@@ -702,6 +709,7 @@
 		const imageElement1 = document.createElement('img');
 		imageElement1.src = `image/${system.image1}`;
 		imageElement1.alt = 'image1';
+		imageElement1.classList.add('system-image'); // 为图片添加类
 		block.appendChild(imageElement1);
 
 		// 图片2
@@ -709,6 +717,7 @@
 			const imageElement2 = document.createElement('img');
 			imageElement2.src = `image/${system.image2}`;
 			imageElement2.alt = 'image2';
+			imageElement2.classList.add('system-image'); // 为图片添加类
 			block.appendChild(imageElement2);
 		}
 
@@ -719,12 +728,12 @@
 
 		const description = document.createElement('p');
 		description.classList.add('main-text');
-		description.textContent = system.Description;
+		description.innerHTML = system.Description;
 		block.appendChild(description);
 
 		const signature = document.createElement('p');
 		signature.classList.add('signature');
-		signature.innerHTML = `本介绍文由 ${system.Author} 撰寫。`;
+		signature.innerHTML = `本介绍文由 ${system.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
 		block.appendChild(signature);
 
 		return block;
