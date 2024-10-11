@@ -311,6 +311,7 @@
     let uniqueCategories = new Set();
     let detailData = {};
 	let systenData = {};
+	const paramsOnLoad = new URLSearchParams(window.location.search);
 	
 	// 读取 system.json 文件并存储系统资料
     const fetchSystemData = fetch('system.json')
@@ -349,11 +350,11 @@
 
     // 等待所有數據讀取完成後執行初始化
     Promise.all([fetchSystemData, fetchEventsData, fetchDetailData]).then(() => {
-        // 初始化時檢查 URL，並根據 URL 的參數顯示相應的詳細信息
-        const params = new URLSearchParams(window.location.search);
-        const date = params.get('date');
-        const master = params.get('master');
-		const system = params.get('system');
+        // 讀取完後，檢查參數
+        const date = paramsOnLoad.get('date');
+        const master = paramsOnLoad.get('master');
+		const system = paramsOnLoad.get('system');
+		
         if (date && master) {
             document.getElementById('content-container').style.display = 'block';
 			displayEventsByDate(date); // 显示该日期下的事件
@@ -371,7 +372,7 @@
 		else if(system)
 		{
 			activateTab('system-overview', true); // 切换到 system-overview 标签页并滑动到内容
-			displaySystemDetails(system); // 显示系统详细信息
+			displaySystemDetails(system, true); // 显示系统详细信息
 			activateSystemTab(system); // 激活系统标签
 		}
     });
