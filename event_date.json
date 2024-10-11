@@ -11,6 +11,18 @@
 			"master3": "史萊姆",
 			"system3": "龍與地下城 五版",
 			"system3_EN": "Dungeons & Dragons 5E"
+        },
+		{
+            "date": "2024-10-26",
+			"master1": "阿彥",
+			"system1": "本周主打怪",
+			"system1_EN": "Monster of the Week",
+			"master2": "iosef",
+			"system2": "替身大戰",
+			"system2_EN": "Over Arms",
+			"master3": "2200",
+			"system3": "劍世界2.5_巴巴羅薩之怒",
+			"system3_EN": "ソード・ワールド2.5_バルバロスレイジ"
         }
     ]
 }
