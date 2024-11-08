@@ -23,6 +23,18 @@
 			"master3": "2200",
 			"system3": "劍世界2.5_巴巴羅薩之怒",
 			"system3_EN": "ソード・ワールド2.5_バルバロスレイジ"
+        },
+		{
+            "date": "2024-11-23",
+			"master1": "Eagle",
+			"system1": "茂林源記",
+			"system1_EN": "Root",
+			"master2": "亞菲爾",
+			"system2": "獵魔士TRPG",
+			"system2_EN": "The Witcher",
+			"master3": "2200",
+			"system3": "法師：沉夢初醒",
+			"system3_EN": "Mage the Awakening   2nd Edition"
         }
     ]
 }
