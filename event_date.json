@@ -35,6 +35,18 @@
 			"master3": "2200",
 			"system3": "法師：沉夢初醒",
 			"system3_EN": "Mage the Awakening   2nd Edition"
+        },
+		{
+            "date": "2024-12-14",
+			"master1": "阿眠 (Ameniz)",
+			"system1": "克蘇魯的呼喚",
+			"system1_EN": "Call of Cthulhu 7th ed.",
+			"master2": "球球",
+			"system2": "夕色染空",
+			"system2_EN": "ゆうやけこやけ",
+			"master3": "阿爾法斯",
+			"system3": "戰錘40K:死亡守望",
+			"system3_EN": "Warhammer 40K: DEATHWATCH"
         }
     ]
 }
