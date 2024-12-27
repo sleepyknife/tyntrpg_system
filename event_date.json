@@ -47,6 +47,18 @@
 			"master3": "阿爾法斯",
 			"system3": "戰錘40K:死亡守望",
 			"system3_EN": "Warhammer 40K: DEATHWATCH"
+        },
+		{
+            "date": "2025-1-11",
+			"master1": "山骷樂彌",
+			"system1": "死靈年代記之永遠的後日談",
+			"system1_EN": "永い後日談のネクロニカ",
+			"master2": "小隼",
+			"system2": "克蘇魯的呼喚7版",
+			"system2_EN": "Call of Cthulhu 7th ed.",
+			"master3": "盧靜",
+			"system3": "幹片帝王",
+			"system3_EN": "Straight to VHS"
         }
     ]
 }
