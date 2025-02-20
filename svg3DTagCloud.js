@@ -54,7 +54,8 @@ THE SOFTWARE.
             tooltipFontToUpperCase: false,
             tooltipTextAnchor: 'left',
             tooltipDiffX: 0,
-            tooltipDiffY: 10
+            tooltipDiffY: 10,
+			onClick: null
  
         };
             
@@ -101,8 +102,15 @@ THE SOFTWARE.
  
             svg = document.createElementNS( svgNS, 'svg' );
             svg.addEventListener( 'mousemove', mouseMoveHandler );
- 
+			
+			// **加入觸控支援**
+			svg.addEventListener('touchstart', touchStartHandler, { passive: false });
+			svg.addEventListener('touchmove', touchMoveHandler, { passive: false });
+			svg.addEventListener('touchend', touchEndHandler);
+			
             element.appendChild( svg );
+			
+			
  
             if ( settings.bgDraw ) {
         
@@ -560,7 +568,7 @@ THE SOFTWARE.
         //---
  
         function mouseMoveHandler( event ) {
- 
+			
             mousePos = getMousePos( svg, event );
  
         };
@@ -577,6 +585,90 @@ THE SOFTWARE.
             };
  
         };
+		
+		//--- 
+		
+		let isTouching = false;
+		let lastTouchPos = { x: 0, y: 0 };
+		var dragDistance = { x: 0, y: 0 }; // 記錄滑動長度
+		var touchStartTime = 0; // 記錄點擊開始時間
+
+		function touchStartHandler(event) {
+			if (event.touches.length === 1) {
+				isTouching = true;
+				let touch = event.touches[0];
+				lastTouchPos = { x: touch.clientX, y: touch.clientY };
+
+				dragDistance = { x: 0, y: 0 }; // 重置拖動距離
+				touchStartTime = Date.now(); // 記錄點擊開始時間
+
+				event.preventDefault();
+			}
+		}
+
+		function touchMoveHandler(event) {
+			if (!isTouching || event.touches.length !== 1) return;
+
+			let touch = event.touches[0];
+			var rect = svg.getBoundingClientRect();
+			
+			// 計算滑動距離
+            let dx = touch.clientX - lastTouchPos.x;
+            let dy = touch.clientY - lastTouchPos.y;
+            dragDistance.x += dx;
+            dragDistance.y += dy;
+			
+			// 計算滑動長度
+            let distance = Math.sqrt(dragDistance.x ** 2 + dragDistance.y ** 2);
+
+            // 根據滑動距離來調整旋轉速度（距離越大，速度越快）
+            let centerX = rect.width / 2;
+            let centerY = rect.height / 2;
+            let maxDistance = Math.sqrt(centerX ** 2 + centerY ** 2); // 最大可能距離
+            let speedFactor = Math.min(1, distance / maxDistance); // 讓速度控制在 0~1 之間
+            
+            mousePos.x = centerX + (touch.clientX - centerX) * speedFactor;
+            mousePos.y = centerY + (touch.clientY - centerY) * speedFactor;
+
+            lastTouchPos = { x: touch.clientX, y: touch.clientY };
+
+
+			
+			
+			event.preventDefault();
+		}
+
+		function touchEndHandler(event) {
+			isTouching = false;
+			
+			let touchTime = Date.now() - touchStartTime; // 計算觸碰時間
+            let totalDistance = Math.sqrt(dragDistance.x ** 2 + dragDistance.y ** 2);
+
+            // **判斷是否為點擊（滑動距離短 & 時間短）**
+            if (totalDistance < 10 && touchTime < 200) {
+                let touch = event.changedTouches[0];
+                let element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+                // **確保點擊的是 `<text>` 物件**
+				if (element && element.tagName.toLowerCase() === "text") {
+					let entry = getEntryByElement(element); // 透過 `getEntryByElement` 取得對應的 `entry`
+					
+					if (entry && entry.element) {
+						let systemName = entry.element.textContent.trim(); // 獲取文字標籤內容
+						console.log("選擇的系統: ", systemName);
+						
+						// 🔥 透過 `settings.onClick` 呼叫外部函數
+						if (typeof settings.onClick === "function") {
+							settings.onClick(systemName);
+						}
+
+						event.preventDefault(); // 避免瀏覽器觸發額外行為
+					}
+				}
+            }
+
+		}
+
  
         //---
  
