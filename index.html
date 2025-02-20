@@ -164,6 +164,22 @@
             flex: 1; /* 讓圖片各自占一半寬度 */
             border-radius: 10px;
         }
+		
+		/* 讓 3D 文字雲的容器 `#word-cloud` 根據父物件大小變化 */
+		#word-cloud {
+			width: 100%; /* 讓寬度跟隨父容器 */
+			height: 100%; /* 讓高度根據內容變化 */
+			max-height: 600px;
+			background: #111; /* 深色背景，讓 3D 文字雲更明顯 */
+			overflow: hidden;
+		}
+
+		/* 讓 `svg` 內容也自適應 */
+		#word-cloud svg {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
     </style>
 </head>
 <body>
@@ -750,56 +766,73 @@
 	}
 	
 	document.addEventListener("DOMContentLoaded", function () {
-		// 獲取系統資料
-		fetch('system.json')
-			.then(response => response.json())
-			.then(data => {
-				let systemData = data.details;
+		function initializeWordCloud() {
+			// 取得 `#word-cloud` 容器的父物件
+			let parentElement = document.getElementById("word-cloud").parentElement;
+			let parentWidth = parentElement.clientWidth;
+			console.log(parentWidth);
 
-				// 生成 3D 文字雲的資料格式
-				let entries = systemData.map(system => ({
-					label: system.system + '《' + system.system_EN + '》',
-					systemName: system.system // 存儲系統名稱，之後用於 click 事件
-				}));
+			// 設定 `cloudSize` 為 `父容器的 80%`，確保不超出範圍
+			let cloudSize = Math.min(parentWidth * 0.8, 600); // 限制最大 800px
 
-				// 初始化 3D 文字雲
-				let settings = {
-					entries: entries,
-					width: 600,
-					height: 600,
-					radius: '50%',
-					radiusMin: 75,
-					bgDraw: true,
-					bgColor: "#222",
-					opacityOver: 1.0,
-					opacityOut: 0.05,
-					opacitySpeed: 6,
-					fov: 800,
-					speed: 0.8,
-					fontFamily: "Arial, sans-serif",
-					fontSize: "18",
-					fontColor: "#fff",
-					fontWeight: "bold",
-					fontStyle: "normal",
-					fontStretch: "normal",
-					fontToUpperCase: false
-				};
+			fetch('system.json')
+				.then(response => response.json())
+				.then(data => {
+					let systemData = data.details;
 
-				let tagCloud = new SVG3DTagCloud(document.getElementById("word-cloud"), settings);
+					// 生成 3D 文字雲的資料格式
+					let entries = systemData.map(system => ({
+						label: system.system + '《' + system.system_EN + '》',
+						systemName: system.system // 存儲系統名稱，之後用於 click 事件
+					}));
 
-				// 重新設定點擊事件，避免 `url` 導航
-				let textElements = document.querySelectorAll("#word-cloud text");
-				textElements.forEach((element, index) => {
-					element.style.cursor = "pointer"; // 讓滑鼠變成可點擊樣式
-					element.addEventListener("click", function () {
-						event.preventDefault(); // **防止任何預設行為（如開新分頁）**
-						let selectedSystem = entries[index].systemName;
-						console.log("選擇的系統: ", selectedSystem);
-						displaySystemDetails(selectedSystem, true); // 呼叫你的點擊事件
+					// 初始化 3D 文字雲
+					let settings = {
+						entries: entries,
+						width: parentWidth,   // 依據父容器大小變化
+						height: cloudSize,
+						radius: '50%',
+						radiusMin: 75,
+						bgDraw: false, // 背景由 CSS 控制
+						opacityOver: 1.0,
+						opacityOut: 0.05,
+						opacitySpeed: 6,
+						fov: 800,
+						speed: 0.7,
+						fontFamily: "Arial, sans-serif",
+						fontSize: "18",
+						fontColor: "#fff",
+						fontWeight: "bold",
+						fontStyle: "normal",
+						fontStretch: "normal",
+						fontToUpperCase: false
+					};
+
+					let tagCloud = new SVG3DTagCloud(document.getElementById("word-cloud"), settings);
+
+					// 綁定 `click` 事件到 3D 文字雲內的 `<text>` 標籤
+					let textElements = document.querySelectorAll("#word-cloud text");
+					textElements.forEach((element, index) => {
+						element.style.cursor = "pointer"; // 讓滑鼠變成可點擊樣式
+						element.addEventListener("click", function (event) {
+							event.preventDefault(); // 防止開新分頁
+							let selectedSystem = entries[index].systemName;
+							console.log("選擇的系統: ", selectedSystem);
+							displaySystemDetails(selectedSystem, true); // 呼叫你的點擊事件
+						});
 					});
-				});
-			})
-			.catch(error => console.error("讀取 system.json 錯誤:", error));
+				})
+				.catch(error => console.error("讀取 system.json 錯誤:", error));
+		}
+
+		// **當頁面載入時，初始化 3D 文字雲**
+		initializeWordCloud();
+
+		// **當視窗大小改變時，重新調整 3D 文字雲大小**
+		window.addEventListener("resize", function () {
+			document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+			initializeWordCloud();
+		});
 	});
 
 
