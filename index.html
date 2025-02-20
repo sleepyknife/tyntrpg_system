@@ -163,6 +163,54 @@
             flex: 1; /* 讓圖片各自占一半寬度 */
             border-radius: 10px;
         }
+		
+		/* Word Cloud CSS*/
+		/* 🔹 外層容器，確保它不會與其他內容重疊 */
+		#word-cloud-container {
+			width: 600px;  /* 固定大小 */
+			height: 600px; /* 確保不影響其他內容 */
+			position: relative;
+			margin: 50px auto; /* 讓它置中，不影響其他內容 */
+			border: 2px solid #ccc;
+			border-radius: 10px;
+			background: #f9f9f9;
+			overflow: hidden;
+			cursor: grab;
+		}
+		/* 讓內部元素擁有較大範圍 */
+		#systems-container {
+			position: absolute; /* 讓它可以自由移動 */
+			width: 1000px;  /* 讓 `tab` 有足夠的排列空間 */
+			height: 1000px;
+			left: -200px;  /* 初始位置 */
+			top: -200px;
+			user-select: none;
+		}
+
+		/* 文字雲效果 - 預設為純文字 */
+		#systems-container .tab {
+			position: absolute; /* 絕對定位，讓它們能隨機分佈 */
+			color: #333; /* 預設文字顏色 */
+			font-weight: bold;
+			text-align: center;
+			white-space: nowrap;
+			cursor: pointer;
+			transition: background 0.3s ease, color 0.3s ease;
+			font-size: var(--size); /* 動態字體大小 */
+		}
+		
+		/* 當前選中的 Tab 才有背景顏色 */
+		#systems-container .tab.active {
+			background: rgba(52, 152, 219, 0.8);
+			color: white;
+			padding: 5px 10px;
+			border-radius: 5px;
+		}
+
+		/* 當拖動時變成抓取狀態 */
+		#word-cloud-container:active {
+			cursor: grabbing;
+		}		
     </style>
 </head>
 <body>
@@ -186,10 +234,12 @@
         <h2>系统介绍總表</h2>
         <!-- 系统介绍总表的内容可以放在这里 -->
         <p>這裡顯示系统介绍的總表内容。持續整理中。(๑•́ ₃ •̀๑)</p>
-		<!-- 动态生成的系统标签区 -->
-        <div id="systems-container">
-            <!-- 这里将通过 JavaScript 动态生成系统标签 -->
-        </div>
+		<!-- 🔹 這是獨立的互動區，不影響其他內容 Word Cloud-->
+		<div id="word-cloud-container">
+			<div id="systems-container">
+				<!-- JavaScript 會在這裡動態產生 `tab` -->
+			</div>
+		</div>
 		
 		<!-- 内文区块，分为图片和文字 -->
         <div class="content-container" id="system-content-container" style="display: none;">
@@ -378,35 +428,130 @@
     });
 	
 	// 動態生成分類標籤
-	function generateCategoryTabs(events) {
-		const categoriesContainer = document.getElementById('categories-container');
-		categoriesContainer.innerHTML = ''; // 确保清空当前内容
+	function generateSystemTabs(systems) {
+		const systemsContainer = document.getElementById('systems-container');
+		systemsContainer.innerHTML = ''; // 清空當前內容
 
-		// 根據每個事件的日期生成唯一的分類標籤
-		events.forEach(event => {
-			uniqueCategories.add(event.date); // 添加到集合中確保唯一性
+		const containerWidth = 600; // 讓範圍更大
+		const containerHeight = 600;
+
+		const centerX = containerWidth / 2; // 中心點
+		const centerY = containerHeight / 2;
+		const radius = 200; // 球體的半徑
+
+		
+		systems.forEach((system, index) => {
+			const tab = document.createElement('span');
+			tab.classList.add('tab'); // 添加樣式類
+			tab.textContent = system.system + '《' + system.system_EN + '》';
+			tab.setAttribute('data-system', system.system);
+
+			// 隨機字體大小
+			const fontSize = Math.random() * 0.8 + 0.6; // 0.6em - 1.4em
+			tab.style.setProperty('--size', `${fontSize}em`);
+
+			// 計算球體的分佈座標
+			const angle = (index / systems.length) * Math.PI * 2; // 環狀排列
+			const yAngle = (Math.random() - 0.5) * Math.PI; // 隨機高度
+			const xPos = centerX + radius * Math.cos(angle) * Math.cos(yAngle);
+			const yPos = centerY + radius * Math.sin(angle) * Math.cos(yAngle);
+
+			tab.style.left = `${xPos}px`;
+			tab.style.top = `${yPos}px`;
+
+			tab.addEventListener('click', function () {
+				displaySystemDetails(system.system, true);
+				document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
+				tab.classList.add('active');
+			});
+
+			systemsContainer.appendChild(tab);
 		});
 
-		// 為每個唯一的日期創建一個標籤
-		uniqueCategories.forEach(date => {
-			const tab = document.createElement('span');
-			tab.classList.add('tab');
-			tab.textContent = date;
-			tab.setAttribute('data-category', date);
-			tab.addEventListener('click', function() {
-				displayEventsByDate(date);
-				
-				// 设置 active 状态，并移除其他 tab 的 active 状态
-				document.querySelectorAll('#categories-container .tab').forEach(t => t.classList.remove('active'));
-				tab.classList.add('active');
-				
-				// 自動滾動到events-container
-				<!-- const contentContainer = document.getElementById('events-container'); -->
-				<!-- contentContainer.scrollIntoView({ behavior: 'smooth' }); -->
-			});
-			categoriesContainer.appendChild(tab);
+		// 啟用滑動拖曳
+		enableDragScrolling(document.getElementById('scroll-box'), systemsContainer);
+	}
+
+	
+	// 讓滑動區域支援拖曳滾動
+	function enableDragScrolling(container, scrollableElement) {
+		let isDown = false;
+		let startX, startY;
+		let elementX = 0, elementY = 0;
+
+		// 設定初始位置
+		scrollableElement.style.position = 'absolute';
+		scrollableElement.style.left = '-200px';  // 讓它初始居中
+		scrollableElement.style.top = '-200px';
+
+		container.addEventListener('mousedown', (e) => {
+			isDown = true;
+			container.classList.add('active');
+			startX = e.clientX;
+			startY = e.clientY;
+			elementX = parseInt(scrollableElement.style.left, 10);
+			elementY = parseInt(scrollableElement.style.top, 10);
+		});
+
+		container.addEventListener('mouseleave', () => {
+			isDown = false;
+			container.classList.remove('active');
+		});
+
+		container.addEventListener('mouseup', () => {
+			isDown = false;
+			container.classList.remove('active');
+		});
+
+		container.addEventListener('mousemove', (e) => {
+			if (!isDown) return;
+			e.preventDefault();
+			let moveX = elementX + (e.clientX - startX);
+			let moveY = elementY + (e.clientY - startY);
+
+			// 限制移動範圍，避免 `tab` 移動到不可見區域
+			const minX = -400;
+			const maxX = 200;
+			const minY = -400;
+			const maxY = 200;
+
+			moveX = Math.min(maxX, Math.max(minX, moveX));
+			moveY = Math.min(maxY, Math.max(minY, moveY));
+
+			// 移動 `#systems-container` 來讓 `tab` 也跟著動
+			scrollableElement.style.left = `${moveX}px`;
+			scrollableElement.style.top = `${moveY}px`;
+		});
+
+		// 手機觸控支援
+		container.addEventListener('touchstart', (e) => {
+			isDown = true;
+			startX = e.touches[0].clientX;
+			startY = e.touches[0].clientY;
+			elementX = parseInt(scrollableElement.style.left, 10);
+			elementY = parseInt(scrollableElement.style.top, 10);
+		});
+
+		container.addEventListener('touchend', () => {
+			isDown = false;
+		});
+
+		container.addEventListener('touchmove', (e) => {
+			if (!isDown) return;
+			e.preventDefault();
+			let moveX = elementX + (e.touches[0].clientX - startX);
+			let moveY = elementY + (e.touches[0].clientY - startY);
+
+			// 限制移動範圍
+			moveX = Math.min(0, Math.max(-400, moveX));
+			moveY = Math.min(0, Math.max(-400, moveY));
+
+			scrollableElement.style.left = `${moveX}px`;
+			scrollableElement.style.top = `${moveY}px`;
 		});
 	}
+
+
 	
 	// 激活 categories-container 中对应的日期标签
 	function activateCategoryTab(date) {
@@ -623,39 +768,7 @@
 		history.pushState({}, '', baseUrl); // 更新 URL 到基础路径		
 	}
 	
-	// 动态生成系统标签
-    function generateSystemTabs(systems) {
-        const systemsContainer = document.getElementById('systems-container');
-        systemsContainer.innerHTML = ''; // 清空当前内容
-        
-        systems.forEach(system => {
-            const tab = document.createElement('span');
-            tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
-            tab.textContent = system.system+'《'+system.system_EN+'》';
-            tab.setAttribute('data-system', system.system);
-            tab.addEventListener('click', function() {
-                // 显示系统详细信息
-                displaySystemDetails(system.system, true);
-                // 设置 active 状态
-                document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-            });
-            systemsContainer.appendChild(tab);
-        });
-		
-		const all_tab = document.createElement('span');
-		all_tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
-		all_tab.textContent = "ShowAll";
-		all_tab.classList.add('active');
-		all_tab.addEventListener('click', function() {
-			displayAllSystems();
-			// 设置 active 状态
-			document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
-			all_tab.classList.add('active');
-		});
-		systemsContainer.appendChild(all_tab);
-
-    }
+	
 
     // 根据系统显示详细信息
     function displaySystemDetails(systemName, shouldUpdateUrl = false) {
