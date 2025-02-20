@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="svg3DTagCloud.js"></script>
     <title>桃園TRPG推廣會系統介紹</title>
     <style>
         body {
@@ -186,6 +187,11 @@
         <h2>系统介绍總表</h2>
         <!-- 系统介绍总表的内容可以放在这里 -->
         <p>這裡顯示系统介绍的總表内容。持續整理中。(๑•́ ₃ •̀๑)</p>
+		<p>點選系統會自動跳到該系統介紹，下面ShowAll則會顯示全部內容~</p>
+		
+		<!-- Display Cloud Words -->
+		<div id="word-cloud"></div>
+		
 		<!-- 动态生成的系统标签区 -->
         <div id="systems-container">
             <!-- 这里将通过 JavaScript 动态生成系统标签 -->
@@ -628,6 +634,7 @@
         const systemsContainer = document.getElementById('systems-container');
         systemsContainer.innerHTML = ''; // 清空当前内容
         
+		/*
         systems.forEach(system => {
             const tab = document.createElement('span');
             tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
@@ -641,7 +648,7 @@
                 tab.classList.add('active');
             });
             systemsContainer.appendChild(tab);
-        });
+        });*/
 		
 		const all_tab = document.createElement('span');
 		all_tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
@@ -741,6 +748,61 @@
 
 		return block;
 	}
+	
+	document.addEventListener("DOMContentLoaded", function () {
+		// 獲取系統資料
+		fetch('system.json')
+			.then(response => response.json())
+			.then(data => {
+				let systemData = data.details;
+
+				// 生成 3D 文字雲的資料格式
+				let entries = systemData.map(system => ({
+					label: system.system + '《' + system.system_EN + '》',
+					systemName: system.system // 存儲系統名稱，之後用於 click 事件
+				}));
+
+				// 初始化 3D 文字雲
+				let settings = {
+					entries: entries,
+					width: 600,
+					height: 600,
+					radius: '50%',
+					radiusMin: 75,
+					bgDraw: true,
+					bgColor: "#222",
+					opacityOver: 1.0,
+					opacityOut: 0.05,
+					opacitySpeed: 6,
+					fov: 800,
+					speed: 0.8,
+					fontFamily: "Arial, sans-serif",
+					fontSize: "18",
+					fontColor: "#fff",
+					fontWeight: "bold",
+					fontStyle: "normal",
+					fontStretch: "normal",
+					fontToUpperCase: false
+				};
+
+				let tagCloud = new SVG3DTagCloud(document.getElementById("word-cloud"), settings);
+
+				// 重新設定點擊事件，避免 `url` 導航
+				let textElements = document.querySelectorAll("#word-cloud text");
+				textElements.forEach((element, index) => {
+					element.style.cursor = "pointer"; // 讓滑鼠變成可點擊樣式
+					element.addEventListener("click", function () {
+						event.preventDefault(); // **防止任何預設行為（如開新分頁）**
+						let selectedSystem = entries[index].systemName;
+						console.log("選擇的系統: ", selectedSystem);
+						displaySystemDetails(selectedSystem, true); // 呼叫你的點擊事件
+					});
+				});
+			})
+			.catch(error => console.error("讀取 system.json 錯誤:", error));
+	});
+
+
 
 </script>
 
