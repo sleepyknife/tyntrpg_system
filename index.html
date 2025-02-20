@@ -785,22 +785,25 @@
 						label: system.system + '《' + system.system_EN + '》',
 						systemName: system.system // 存儲系統名稱，之後用於 click 事件
 					}));
+					
+					// **判斷是否為手機裝置**
+					let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 					// 初始化 3D 文字雲
 					let settings = {
 						entries: entries,
 						width: parentWidth,   // 依據父容器大小變化
-						height: cloudSize,
-						radius: '50%',
+						height: isMobile? cloudSize+100 : isMobile,
+						radius: '100%',
 						radiusMin: 75,
 						bgDraw: false, // 背景由 CSS 控制
 						opacityOver: 1.0,
 						opacityOut: 0.05,
 						opacitySpeed: 6,
 						fov: 800,
-						speed: 0.7,
+						speed: isMobile ? 0.3 : 0.7, // ✅ 手機停用自動旋轉，電腦保持 0.7
 						fontFamily: "Arial, sans-serif",
-						fontSize: "18",
+						fontSize: isMobile ? 13 : 18,
 						fontColor: "#fff",
 						fontWeight: "bold",
 						fontStyle: "normal",
@@ -821,6 +824,7 @@
 							displaySystemDetails(selectedSystem, true); // 呼叫你的點擊事件
 						});
 					});
+				
 				})
 				.catch(error => console.error("讀取 system.json 錯誤:", error));
 		}
@@ -833,6 +837,8 @@
 			document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
 			initializeWordCloud();
 		});
+		
+		
 	});
 
 
