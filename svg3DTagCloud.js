@@ -276,11 +276,23 @@ THE SOFTWARE.
                     entry.diffX = entryObj.width / 2;
                     entry.diffY = entryObj.height / 2;
                     
+					// 📌 **讓 `<image>` 變成可點擊**
+					entry.element.style.cursor = "pointer"; 
+					entry.element.addEventListener("click", function(event) {
+						let systemName = entryObj.systemName; // ✅ **確保 `systemName` 正確**
+						console.log("點擊圖片，選擇的系統:", systemName);
+
+						if (typeof settings.onClick === "function") {
+							settings.onClick(systemName);
+						}
+
+						event.preventDefault();
+					});
                 }
  
                 entry.link = document.createElementNS( svgNS, 'a' );
-                entry.link.setAttributeNS( 'http://www.w3.org/1999/xlink', 'xlink:href', entryObj.url );
-                entry.link.setAttribute( 'target', entryObj.target );
+                //entry.link.setAttributeNS( 'http://www.w3.org/1999/xlink', 'xlink:href', entryObj.url );
+                //entry.link.setAttribute( 'target', entryObj.target );
                 entry.link.addEventListener( 'mouseover', mouseOverHandler, true );
                 entry.link.addEventListener( 'mouseout', mouseOutHandler, true );
                 entry.link.appendChild( entry.element );
@@ -658,10 +670,7 @@ THE SOFTWARE.
 
             // **判斷是否為點擊（滑動距離短 & 時間短）**
             if (totalDistance < 10 && touchTime < 200) {
-                let touch = event.changedTouches[0];
-                let element = document.elementFromPoint(touch.clientX, touch.clientY);
-
-                // **確保點擊的是 `<text>` 物件**
+				// **確保點擊的是 `<text>` 物件**
 				if (element && element.tagName.toLowerCase() === "text") {
 					let entry = getEntryByElement(element); // 透過 `getEntryByElement` 取得對應的 `entry`
 					
@@ -677,6 +686,7 @@ THE SOFTWARE.
 						event.preventDefault(); // 避免瀏覽器觸發額外行為
 					}
 				}
+				
             }
 
 		}

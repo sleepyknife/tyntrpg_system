@@ -796,6 +796,13 @@
 						systemName: system.system // 存儲系統名稱，之後用於 click 事件
 					}));
 					
+					// 生成 3D 文字雲的資料格式(圖片)
+					let img_entries = systemData.map(system => ({
+						image: './image/' + system.image1 ,
+						width: 100, height: 100,
+						systemName: system.system // 存儲系統名稱，之後用於 click 事件
+					}));
+					
 					// **判斷是否為手機裝置**
 					let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
