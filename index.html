@@ -207,6 +207,13 @@
 		#toggle-buttons button:hover {
 			background: rgba(0, 0, 0, 0.8);
 		}
+		/* ✅ 通用 active 樣式 */
+		#systems-container td.active {
+			background: #5F9EA0 !important; /* 深色背景 */
+			color: #fff !important; /* 白色文字 */
+			font-weight: bold; /* 加粗 */
+			border: 2px solid #4682B4; /* 外框更明顯 */
+		}
     </style>
 </head>
 <body>
@@ -680,38 +687,92 @@
 		history.pushState({}, '', baseUrl); // 更新 URL 到基础路径		
 	}
 	
-	// 动态生成系统标签
+	// 动态生成系统标签，Table
     function generateSystemTabs(systems) {
         const systemsContainer = document.getElementById('systems-container');
         systemsContainer.innerHTML = ''; // 清空当前内容
         
 		
-        systems.forEach(system => {
-            const tab = document.createElement('span');
-            tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
-            tab.textContent = system.system+'《'+system.system_EN+'》';
-            tab.setAttribute('data-system', system.system);
-            tab.addEventListener('click', function() {
-                // 显示系统详细信息
-                displaySystemDetails(system.system, true);
-                // 设置 active 状态
-                document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-            });
-            systemsContainer.appendChild(tab);
-        });
-		
-		const all_tab = document.createElement('span');
-		all_tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
-		all_tab.textContent = "ShowAll";
-		all_tab.classList.add('active');
-		all_tab.addEventListener('click', function() {
-			displayAllSystems();
-			// 设置 active 状态
-			document.querySelectorAll('#systems-container .tab').forEach(t => t.classList.remove('active'));
-			all_tab.classList.add('active');
+        // 創建表格
+		const table = document.createElement('table');
+		table.style.width = "100%";
+		table.style.borderCollapse = "collapse";
+
+		// **第一行 - ShowAll 按鈕**
+		const showAllRow = document.createElement('tr');
+		const showAllCell = document.createElement('td');
+		showAllCell.textContent = "ShowAll";
+		showAllCell.colSpan = 4; // ✅ **跨 4 列**
+		showAllCell.style.border = "1px solid #ddd";
+		showAllCell.style.padding = "15px";
+		showAllCell.style.textAlign = "center";
+		showAllCell.style.cursor = "pointer";
+		showAllCell.style.background = "#8DEEEE";
+		showAllCell.style.fontWeight = "bold";
+		showAllCell.style.fontSize = "18px";
+		showAllCell.style.transition = "background 0.3s ease-in-out";
+
+		// 滑鼠懸停效果
+		showAllCell.addEventListener("mouseover", () => {
+			showAllCell.style.background = "#5F9EA0";
+			showAllCell.style.color = "#fff";
 		});
-		systemsContainer.appendChild(all_tab);
+		showAllCell.addEventListener("mouseout", () => {
+			showAllCell.style.background = "#8DEEEE";
+			showAllCell.style.color = "#000";
+		});
+
+		// 點擊事件
+		showAllCell.addEventListener('click', function () {
+			displayAllSystems();
+			document.querySelectorAll('#systems-container td').forEach(td => td.classList.remove('active'));
+			showAllCell.classList.add('active');
+		});
+
+		showAllRow.appendChild(showAllCell);
+		table.appendChild(showAllRow); // ✅ **將 ShowAll 置於第一行**
+
+		// **第二行開始 - 系統內容**
+		let row;
+		systems.forEach((system, index) => {
+			// 每 4 個換一行
+			if (index % 4 === 0) {
+				row = document.createElement('tr');
+				table.appendChild(row);
+			}
+
+			// 創建單元格
+			const cell = document.createElement('td');
+			cell.textContent = system.system + '《' + system.system_EN + '》';
+			cell.setAttribute('data-system', system.system);
+			cell.style.border = "1px solid #ddd";
+			cell.style.padding = "10px";
+			cell.style.textAlign = "center";
+			cell.style.cursor = "pointer";
+			cell.style.background = "#f9f9f9";
+			cell.style.transition = "background 0.3s ease-in-out";
+
+			// 滑鼠懸停效果
+			cell.addEventListener("mouseover", () => {
+				cell.style.background = "#d0e9ff";
+			});
+			cell.addEventListener("mouseout", () => {
+				if (!cell.classList.contains("active")) {
+					cell.style.background = "#f9f9f9";
+				}
+			});
+
+			// 點擊事件
+			cell.addEventListener('click', function () {
+				displaySystemDetails(system.system, true);
+				document.querySelectorAll('#systems-container td').forEach(td => td.classList.remove('active'));
+				cell.classList.add('active');
+			});
+
+			row.appendChild(cell);
+		});
+
+		systemsContainer.appendChild(table);
 
     }
 
