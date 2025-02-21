@@ -33,6 +33,7 @@ THE SOFTWARE.
             radiusMin: 75,
             bgDraw: true,
             bgColor: '#000',
+			bgImage: null,
             opacityOver: 1.00,
             opacityOut: 0.05,
             opacitySpeed: 6,
@@ -111,8 +112,18 @@ THE SOFTWARE.
             element.appendChild( svg );
 			
 			
- 
-            if ( settings.bgDraw ) {
+			if(settings.bgImage) {
+				let bgImage = document.createElementNS(svgNS, 'image');
+				bgImage.setAttributeNS('http://www.w3.org/1999/xlink', 'href', settings.bgImage); // **使用傳入的圖片路徑**
+				bgImage.setAttribute('x', 0);
+				bgImage.setAttribute('y', 0);
+				bgImage.setAttribute('width', '100%');
+				bgImage.setAttribute('height', '100%');
+
+				svg.appendChild(bgImage); // **將背景圖片插入 SVG**
+
+			}
+            else if ( settings.bgDraw ) {
         
                 bg = document.createElementNS( svgNS, 'rect' );
                 bg.setAttribute( 'x', 0 );
