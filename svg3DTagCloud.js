@@ -262,6 +262,18 @@ THE SOFTWARE.
                     entry.element.setAttribute( 'font-stretch', settings.fontStretch );
                     entry.element.setAttribute( 'text-anchor', 'middle' );
                     entry.element.textContent = settings.fontToUpperCase ? entryObj.label.toUpperCase() : entryObj.label;
+					
+					entry.element.style.cursor = "pointer"; 
+					entry.element.addEventListener("click", function(event) {
+						let systemName = entryObj.systemName; // ✅ **確保 `systemName` 正確**
+						console.log("點擊圖片，選擇的系統:", systemName);
+
+						if (typeof settings.onClick === "function") {
+							settings.onClick(systemName);
+						}
+
+						event.preventDefault();
+					});
  
                 } else if ( typeof entryObj.image != 'undefined' ) {
  
@@ -291,8 +303,8 @@ THE SOFTWARE.
                 }
  
                 entry.link = document.createElementNS( svgNS, 'a' );
-                //entry.link.setAttributeNS( 'http://www.w3.org/1999/xlink', 'xlink:href', entryObj.url );
-                //entry.link.setAttribute( 'target', entryObj.target );
+                entry.link.setAttributeNS( 'http://www.w3.org/1999/xlink', 'xlink:href', entryObj.url );
+                entry.link.setAttribute( 'target', entryObj.target );
                 entry.link.addEventListener( 'mouseover', mouseOverHandler, true );
                 entry.link.addEventListener( 'mouseout', mouseOutHandler, true );
                 entry.link.appendChild( entry.element );

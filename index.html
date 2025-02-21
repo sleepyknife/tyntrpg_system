@@ -180,6 +180,33 @@
 			height: 100%;
 			display: block;
 		}
+		#word-cloud-container {
+			position: relative;
+			display: inline-block;
+			width: 100%;
+		}
+		#toggle-buttons {
+			position: absolute;
+			top: 50%;
+			right: 10px;
+			transform: translateY(-50%);
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+		#toggle-buttons button {
+			background: rgba(100, 0, 147, 0.5); /* 半透明黑色 */
+			color: white;
+			border: none;
+			padding: 10px 15px;
+			cursor: pointer;
+			border-radius: 5px;
+			font-size: 14px;
+		}
+
+		#toggle-buttons button:hover {
+			background: rgba(0, 0, 0, 0.8);
+		}
     </style>
 </head>
 <body>
@@ -207,7 +234,14 @@
 		<p>(原本覺得列表看起來太無聊讓它動起來，結果看久有點想吐(´･ω･`)</p>
 		
 		<!-- Display Cloud Words -->
-		<div id="word-cloud"></div>
+		<div id="word-cloud-container">
+			<div id="word-cloud"></div>
+			<div id="toggle-buttons">
+				<button id="toggle-text">顯示文字</button>
+				<button id="toggle-image">顯示圖片</button>
+				<button id="toggle-chaos">0k{8&Gn|</button>
+			</div>
+		</div>
 		
 		<!-- 动态生成的系统标签区 -->
         <div id="systems-container">
@@ -651,7 +685,7 @@
         const systemsContainer = document.getElementById('systems-container');
         systemsContainer.innerHTML = ''; // 清空当前内容
         
-		/*
+		
         systems.forEach(system => {
             const tab = document.createElement('span');
             tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
@@ -665,7 +699,7 @@
                 tab.classList.add('active');
             });
             systemsContainer.appendChild(tab);
-        });*/
+        });
 		
 		const all_tab = document.createElement('span');
 		all_tab.classList.add('tab'); // 使用与主 tab 相同的类，以共享样式和行为
@@ -770,13 +804,27 @@
 		return block;
 	}
 	
+	function generateUTF8Text(length) {
+		let randomText = "";
+		
+		for (let i = 0; i < length; i++) {
+			const randomChar = String.fromCharCode(0x4E00 + Math.floor(Math.random() * 2000)); // 中文常見範圍
+			randomText += randomChar;
+		}
+		
+		return randomText;
+	}
+
+	
 	document.addEventListener("DOMContentLoaded", function () {
 		function isMobile() {
 			return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 		}
+		let currentMode = "image"; // 預設顯示文字
+		let wordCloudElement = document.getElementById("word-cloud");
 
 		
-		function initializeWordCloud() {
+		function initializeWordCloud(mode) {
 			// 取得 `#word-cloud` 容器的父物件
 			let parentElement = document.getElementById("word-cloud").parentElement;
 			let parentWidth = parentElement.clientWidth;
@@ -789,19 +837,32 @@
 				.then(response => response.json())
 				.then(data => {
 					let systemData = data.details;
-
-					// 生成 3D 文字雲的資料格式
-					let entries = systemData.map(system => ({
-						label: system.system + '《' + system.system_EN + '》',
-						systemName: system.system // 存儲系統名稱，之後用於 click 事件
-					}));
+			
+					// Mixed with parameter
+					let entries = systemData.map(system => {
+						var sys_len = Math.floor(Math.random() * 7) + 4;
+						var sys_en_len = Math.floor(Math.random() * 7) + 4;
+						if (mode === "text") {
+							return { label: system.system + '《' + system.system_EN + '》', systemName: system.system };
+						} else if (mode === "image") {
+							return { image: './image/' + system.image1, width: 100, height: 100, systemName: system.system };
+						} else if(mode === "chaos") {
+							return { 
+							label: generateUTF8Text(sys_len) + '《' + generateUTF8Text(sys_en_len) + '》', systemName: system.system };
+						}
+					});
+					<!-- // 生成 3D 文字雲的資料格式 -->
+					<!-- let entries = systemData.map(system => ({ -->
+						<!-- label: system.system + '《' + system.system_EN + '》', -->
+						<!-- systemName: system.system // 存儲系統名稱，之後用於 click 事件 -->
+					<!-- })); -->
 					
-					// 生成 3D 文字雲的資料格式(圖片)
-					let img_entries = systemData.map(system => ({
-						image: './image/' + system.image1 ,
-						width: 100, height: 100,
-						systemName: system.system // 存儲系統名稱，之後用於 click 事件
-					}));
+					<!-- // 生成 3D 文字雲的資料格式(圖片) -->
+					<!-- let img_entries = systemData.map(system => ({ -->
+						<!-- image: './image/' + system.image1 , -->
+						<!-- width: 100, height: 100, -->
+						<!-- systemName: system.system // 存儲系統名稱，之後用於 click 事件 -->
+					<!-- })); -->
 					
 					// **判斷是否為手機裝置**
 					let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -839,93 +900,46 @@
 					// 📌 **修正 `textElements` 的作用域**
 					let textElements = Array.from(document.querySelectorAll("#word-cloud text"));
 					
-					// 綁定 `click` 事件到 3D 文字雲內的 `<text>` 標籤
-					if(1)
-					{
-						
-						let textElements = document.querySelectorAll("#word-cloud text");
-						textElements.forEach((element, index) => {
-							element.style.cursor = "pointer"; // 讓滑鼠變成可點擊樣式
-							element.addEventListener("click", function (event) {
-								event.preventDefault(); // 防止開新分頁
-								let selectedSystem = entries[index].systemName;
-								console.log("選擇的系統: ", selectedSystem);
-								let parsedSystemName = selectedSystem.split("《")[0].trim(); // 擷取 "《" 之前的文字
-								console.log("解析後的系統名稱:", parsedSystemName);
-
-								displaySystemDetails(parsedSystemName, true); // 呼叫你的點擊事件
-							});
-						});
-					}
-					
-					// 📌 **手機：點擊與滑動區分**
-					// if (isMobile) {
-						// let wordCloud = document.getElementById("word-cloud");
-						// let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
-						// let isDragging = false;
-
-						// wordCloud.addEventListener("touchstart", function (event) {
-							// let touch = event.touches[0];
-							// touchStartX = touch.clientX;
-							// touchStartY = touch.clientY;
-							// isDragging = false;
-							// console.log(tagCloud.speed);
-							// tagCloud.speed = 0;
-							
-							// event.preventDefault(); // 阻止頁面滾動
-						// }, { passive: false });
-
-						// wordCloud.addEventListener("touchmove", function (event) {
-							// isDragging = true;
-							// let touch = event.touches[0];
-							// touchEndX = touch.clientX;
-							// touchEndY = touch.clientY;
-						// });
-
-						// wordCloud.addEventListener("touchend", function (event) {
-							// let dx = Math.abs(touchEndX - touchStartX);
-							// let dy = Math.abs(touchEndY - touchStartY);
-							// let moveThreshold = 5; // 📌 **設定滑動閾值**
-
-							// if (dx < moveThreshold && dy < moveThreshold) {
-								// // 📌 **手指移動很小，觸發點擊**
-								// let touchedElement = document.elementFromPoint(touchEndX, touchEndY);
-								// if (touchedElement && touchedElement.tagName === "text") {
-									// let index = Array.from(textElements).indexOf(touchedElement);
-									// if (index !== -1) {
-										// let selectedSystem = entries[index].systemName;
-										// event.preventDefault(); // 📌 **防止開新分頁**
-
-										// displaySystemDetails(selectedSystem, true);
-									// }
-								// }
-							// }
-
-							// // 📌 **模擬滑鼠停留**
-							// let mouseEvent = new MouseEvent("mousemove", {
-								// clientX: touchEndX,
-								// clientY: touchEndY,
-								// bubbles: true
-							// });
-							// console.log("x:",touchEndX);
-							// console.log("y:",touchEndY);
-							// document.dispatchEvent(mouseEvent);
-						// });
-					// }
 				
 				})
 				.catch(error => console.error("讀取 system.json 錯誤:", error));
 		}
 
 		// **當頁面載入時，初始化 3D 文字雲**
-		initializeWordCloud();
+		initializeWordCloud(currentMode);
 
 		// **當視窗大小改變時，重新調整 3D 文字雲大小**
 		window.addEventListener("resize", function () {
 			document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
-			initializeWordCloud();
+			initializeWordCloud(currentMode);
 		});
 		
+		// 文字按鈕點擊事件
+		document.getElementById("toggle-text").addEventListener("click", function () {
+			if (currentMode !== "text") {
+				currentMode = "text";
+				document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+				initializeWordCloud("text");
+			}
+		});
+
+		// 圖片按鈕點擊事件
+		document.getElementById("toggle-image").addEventListener("click", function () {
+			if (currentMode !== "image") {
+				currentMode = "image";
+				document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+				initializeWordCloud("image");
+			}
+		});
+		
+		// Chaos按鈕點擊事件
+		document.getElementById("toggle-chaos").addEventListener("click", function () {
+			if (currentMode !== "chaos") {
+				currentMode = "chaos";
+				document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+				initializeWordCloud("chaos");
+			}
+		});
 
 	});
 
