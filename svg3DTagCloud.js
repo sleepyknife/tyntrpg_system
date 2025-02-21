@@ -119,6 +119,7 @@ THE SOFTWARE.
 				bgImage.setAttribute('y', 0);
 				bgImage.setAttribute('width', '100%');
 				bgImage.setAttribute('height', '100%');
+				bgImage.setAttribute('preserveAspectRatio', 'xMidYMid slice'); // **確保填滿**
 
 				svg.appendChild(bgImage); // **將背景圖片插入 SVG**
 
