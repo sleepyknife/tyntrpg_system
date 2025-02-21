@@ -45,7 +45,7 @@ THE SOFTWARE.
             fontStyle: 'normal',//italic 
             fontStretch: 'normal',//wider, narrower, ultra-condensed, extra-condensed, condensed, semi-condensed, semi-expanded, expanded, extra-expanded, ultra-expanded
             fontToUpperCase: false,
-            tooltipFontFamily: 'Arial, sans-serif',
+            tooltipFontFamily: "'Microsoft JhengHei', 'PingFang TC', 'Noto Sans TC', sans-serif",
             tooltipFontSize: '15',
             tooltipFontColor: '#fff',
             tooltipFontWeight: 'normal',//bold
