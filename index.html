@@ -688,6 +688,7 @@
 			const dynamicSystemContainer = document.getElementById('dynamic-system-container');
 			dynamicSystemContainer.innerHTML = ''; // 清空动态内容
 			const filteredSystem = systemData.find(system => system.system === systemName);
+			console.log("執行 displaySystemDetails:", systemName, shouldUpdateUrl);
 
 			if (filteredSystem) {
 				document.getElementById('system-title').textContent = `${filteredSystem.system} 《${filteredSystem.system_EN}》- 系统介绍`;
@@ -720,6 +721,7 @@
 					}
 				}
 			} else {
+				console.error("找不到系統資料:", systemName);
 				systemContentContainer.style.display = 'none'; // 如果没有对应的详细资料则隐藏系统内文区块
 			}
 		};
@@ -819,7 +821,9 @@
 						fontToUpperCase: false,
 						onClick: function(systemName) {
 							console.log("點選系統:", systemName);
-							displaySystemDetails(systemName, true);
+							let parsedSystemName = systemName.split("《")[0].trim(); // 擷取 "《" 之前的文字
+							console.log("解析後的系統名稱:", parsedSystemName);
+							window.displaySystemDetails(parsedSystemName, true);
 						}
 					};
 
@@ -838,7 +842,10 @@
 								event.preventDefault(); // 防止開新分頁
 								let selectedSystem = entries[index].systemName;
 								console.log("選擇的系統: ", selectedSystem);
-								displaySystemDetails(selectedSystem, true); // 呼叫你的點擊事件
+								let parsedSystemName = selectedSystem.split("《")[0].trim(); // 擷取 "《" 之前的文字
+								console.log("解析後的系統名稱:", parsedSystemName);
+
+								displaySystemDetails(parsedSystemName, true); // 呼叫你的點擊事件
 							});
 						});
 					}
