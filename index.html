@@ -228,15 +228,15 @@
 
     <!-- 标签页容器 -->
     <div class="tab-container">
-        <span class="tab active" data-tab="system-overview">系統介绍總表</span>
-        <span class="tab" data-tab="event-details">活動日期介绍</span>
+        <span class="tab active" data-tab="system-overview">系統介紹總表</span>
+        <span class="tab" data-tab="event-details">活動日期介紹</span>
     </div>
 
-    <!-- 系统介绍总表内容 -->
+    <!-- 系统介紹总表内容 -->
     <div id="system-overview" class="tab-content active">
-        <h2>系統介绍總表</h2>
-        <!-- 系统介绍总表的内容可以放在这里 -->
-        <p>這裡顯示系統介绍的總表内容。持續整理中。(๑•́ ₃ •̀๑)</p>
+        <h2>系統介紹總表</h2>
+        <!-- 系统介紹总表的内容可以放在这里 -->
+        <p>這裡顯示系統介紹的總表内容。持續整理中。(๑•́ ₃ •̀๑)</p>
 		<p>點選系統會自動跳到該系統介紹，下面ShowAll則會顯示全部內容~</p>
 		<p>(原本覺得列表看起來太無聊讓它動起來，結果看久有點想吐(´･ω･`)</p>
 		
@@ -278,7 +278,7 @@
 		<div id="dynamic-system-container"></div>
     </div>
 
-    <!-- 活动日期内容介绍 -->
+    <!-- 活动日期内容介紹 -->
     <div id="event-details" class="tab-content">
         <h2>活動日期介紹</h2>
         <!-- 动态生成的分类标签区 -->
@@ -424,7 +424,7 @@
 			displayEventsByDate(date); // 显示该日期下的事件
             displayDetailsByDate(date, master); // 自动显示详细信息
 			
-			// 自动切换到“活动日期内容介绍”标签页
+			// 自动切换到“活动日期内容介紹”标签页
 			activateTab('event-details',true);
 			
 			// 设置 categories-container 的 active 状态
@@ -786,7 +786,7 @@
 			console.log("執行 displaySystemDetails:", systemName, shouldUpdateUrl);
 
 			if (filteredSystem) {
-				document.getElementById('system-title').textContent = `${filteredSystem.system} 《${filteredSystem.system_EN}》- 系統介绍`;
+				document.getElementById('system-title').textContent = `${filteredSystem.system} 《${filteredSystem.system_EN}》- 系統介紹`;
 				
 				// 更新图片1 (Always show)
 				const imageElement1 = document.getElementById('system-image1');
@@ -803,7 +803,7 @@
 
 				document.getElementById('system-quote').textContent = `“${filteredSystem.Quote}”`;
 				document.getElementById('system-main-text').innerHTML = filteredSystem.Description;
-				document.getElementById('system-signature').innerHTML = `本介绍文由 ${filteredSystem.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+				document.getElementById('system-signature').innerHTML = `本介紹文由 ${filteredSystem.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
 
 				systemContentContainer.style.display = 'block'; // 显示系统内文区块
 				systemContentContainer.scrollIntoView({ behavior: 'smooth' });
@@ -828,7 +828,7 @@
 		block.classList.add('system-detail-block');
 
 		const title = document.createElement('h2');
-		title.textContent = `${system.system} 《${system.system_EN}》- 系統介绍`;
+		title.textContent = `${system.system} 《${system.system_EN}》- 系統介紹`;
 		block.appendChild(title);
 
 		// 图片1
@@ -859,7 +859,7 @@
 
 		const signature = document.createElement('p');
 		signature.classList.add('signature');
-		signature.innerHTML = `本介绍文由 ${system.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+		signature.innerHTML = `本介紹文由 ${system.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
 		block.appendChild(signature);
 
 		return block;
