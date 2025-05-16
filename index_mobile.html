@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="svg3DTagCloud.js"></script>
+    <title>桃園TRPG推廣會系統介紹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto; /* 調整容器的頂部間距和水平居中 */
+        }
+
+        .header-container, .date-container, .content-container {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: #97FFFF;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .content-container {
+            display: flex; /* 使內容部分為彈性佈局 */
+            flex-direction: column; /* 初始為縱向佈局 */
+            align-items: center; /* 使內部內容居中 */
+			max-width: 96%; /* 确保父容器的宽度不超过页面 */
+
+        }
+
+        .image-section {
+            display: flex; /* 使用 Flexbox 使圖片並排 */
+            justify-content: space-between; /* 確保圖片之間的間距 */
+            width: 100%; /* 確保圖片區塊佔滿父容器寬度 */
+            gap: 10px; /* 設置圖片之間的間隔 */
+            margin-bottom: 15px;
+        }
+
+        .image-section img {
+            max-width: 50%; /* 圖片最大寬度為父容器的一半 */
+            width: 100%; /* 確保圖片寬度充滿容器 */
+            flex: 1; /* 讓圖片各自占一半寬度 */
+            border-radius: 10px;
+        }
+
+        .text-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left; /* 文字部分左對齊 */
+            width: 100%; /* 確保文字區塊佔滿父容器寬度 */
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 10px;
+            white-space: pre-line;
+        }
+
+        .main-text {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+            white-space: pre-line;
+        }
+
+        .signature {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #888;
+            text-align: right;
+            margin-top: 20px;
+            white-space: pre-line;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tab {
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px;
+            background-color: #8DEEEE;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .tab.active {
+            background-color: #5F9EA0;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none; /* 默认隐藏内容 */
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+			max-width: 96%; /* 确保父容器的宽度不超过页面 */
+
+        }
+
+        .tab-content.active {
+            display: block; /* 激活状态显示内容 */
+        }
+		
+        .event-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #79CDCD;
+            border-radius: 5px;
+        }
+
+        .events-container, .systems-container {
+            margin-top: 20px;
+        }
+
+        a.event-link, a.system-link {
+            text-decoration: none; /* 移除默認的超連結下劃線 */
+            color: inherit; /* 使用默認文字顏色 */
+            display: block; /* 讓整個區塊可點擊 */
+        }
+		
+		a.event-link:hover {
+			background-color: #B0E0E6; /* 悬停时的背景颜色 */
+		}
+
+		a.event-link.active {
+			background-color: #5F9EA0; /* 激活状态的背景颜色 */
+			color: #fff; /* 激活状态的文本颜色 */
+			font-weight: bold; /* 激活状态的文本加粗 */
+		}
+		
+		#backToTopBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
+		
+		.system-image{
+            max-width: 50%; /* 圖片最大寬度為父容器的一半 */
+            width: 100%; /* 確保圖片寬度充滿容器 */
+            flex: 1; /* 讓圖片各自占一半寬度 */
+            border-radius: 10px;
+        }
+		
+		/* 讓 3D 文字雲的容器 `#word-cloud` 根據父物件大小變化 */
+		#word-cloud {
+			width: 100%; /* 讓寬度跟隨父容器 */
+			height: 100%; /* 讓高度根據內容變化 */
+			max-height: 600px;
+			background: #111; /* 深色背景，讓 3D 文字雲更明顯 */
+			overflow: hidden;
+		}
+
+		/* 讓 `svg` 內容也自適應 */
+		#word-cloud svg {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
+		#word-cloud-container {
+			position: relative;
+			display: inline-block;
+			width: 100%;
+		}
+		#toggle-buttons {
+			position: absolute;
+			top: 50%;
+			right: 10px;
+			transform: translateY(-50%);
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+		#toggle-buttons button {
+			background: rgba(100, 0, 147, 0.5); /* 半透明黑色 */
+			color: white;
+			border: none;
+			padding: 10px 15px;
+			cursor: pointer;
+			border-radius: 5px;
+			font-size: 14px;
+		}
+
+		#toggle-buttons button:hover {
+			background: rgba(0, 0, 0, 0.8);
+		}
+		/* ✅ 通用 active 樣式 */
+		#systems-container td.active {
+			background: #5F9EA0 !important; /* 深色背景 */
+			color: #fff !important; /* 白色文字 */
+			font-weight: bold; /* 加粗 */
+			border: 2px solid #4682B4; /* 外框更明顯 */
+		}
+    </style>
+</head>
+<body>
+
+<div class="container">
+	<a href="https://sleepyknife.github.io/tyntrpg_system/" target="_blank">
+		<!-- 標題區塊 -->
+		<div class="header-container">
+			<h1>桃園TRPG推廣會系統介紹</h1>
+		</div>
+	</a>
+
+    <!-- 标签页容器 -->
+    <div class="tab-container">
+        <span class="tab active" data-tab="system-overview">系統介紹總表</span>
+        <span class="tab" data-tab="event-details">活動日期介紹</span>
+    </div>
+
+    <!-- 系统介紹总表内容 -->
+    <div id="system-overview" class="tab-content active">
+        <h2>系統介紹總表</h2>
+        <!-- 系统介紹总表的内容可以放在这里 -->
+        <p>這裡顯示系統介紹的總表内容。持續整理中。(๑•́ ₃ •̀๑)</p>
+		<p>點選系統會自動跳到該系統介紹，下面ShowAll則會顯示全部內容~</p>
+		<p>(原本覺得列表看起來太無聊讓它動起來，結果看久有點想吐(´･ω･`)</p>
+		
+		<!-- Display Cloud Words -->
+		<div id="word-cloud-container">
+			<div id="word-cloud"></div>
+			<div id="toggle-buttons">
+				<button id="toggle-text">顯示文字</button>
+				<button id="toggle-image">顯示圖片</button>
+				<button id="toggle-chaos">0k{8&Gn|</button>
+			</div>
+		</div>
+		
+		<!-- 动态生成的系统标签区 -->
+        <div id="systems-container">
+            <!-- 这里将通过 JavaScript 动态生成系统标签 -->
+        </div>
+		
+		<!-- 内文区块，分为图片和文字 -->
+        <div class="content-container" id="system-content-container" style="display: none;">
+            <!-- 新增的标题区块 -->
+            <h2 id="system-title" style="text-align: center; margin-bottom: 25px;"></h2>
+            
+            <!-- 图片区块 -->
+            <div class="image-section" id="system-image-section">
+                <img src="" alt="示例图片" id="system-image1">
+                <img src="" alt="示例图片2" id="system-image2">
+            </div>
+
+            <!-- 文字区块 -->
+            <div class="text-section">
+                <p class="quote" id="system-quote">这里是引言部分。</p>
+                <p class="main-text" id="system-main-text">这里是内文的文字范例。</p>
+                <p class="signature" id="system-signature">签名部分</p>
+            </div>
+        </div>
+		
+		<!-- 动态生成的系统详细信息容器 -->
+		<div id="dynamic-system-container"></div>
+    </div>
+
+    <!-- 活动日期内容介紹 -->
+    <div id="event-details" class="tab-content">
+        <h2>活動日期介紹</h2>
+        <!-- 动态生成的分类标签区 -->
+        <div id="categories-container">
+            <!-- 这里将通过 JavaScript 动态生成分类标签 -->
+        </div>
+
+        <!-- 活动显示区 -->
+        <div class="events-container" id="events-container">
+            <!-- 根据点击的标签来显示相应的活动 -->
+        </div>
+
+        <!-- 內文區塊，分為圖片和文字 -->
+        <div class="content-container" id="content-container" style="display: none;">
+
+            <!-- 新增的標題區塊 -->
+            <h2 id="event-title" style="text-align: center; margin-bottom: 25px;"></h2>
+
+            <!-- 圖片區塊 -->
+            <div class="image-section" id="image-section">
+                <img src="" alt="示例圖片" id="event-image">
+                <img src="" alt="示例圖片2" id="event-image-2">
+            </div>
+
+            <!-- 文字區塊 -->
+            <div class="text-section">
+                <!-- 引言部分 -->
+                <p class="quote" id="event-quote">這裡是引言部分。</p>
+                <!-- 內文部分 -->
+                <p class="main-text" id="event-main-text">這裡是內文的文字範例。</p>
+                <!-- 簽名部分 -->
+                <p class="signature" id="event-signature">簽名部分</p>
+            </div>
+        </div>
+    </div>	
+</div>
+	<button id="backToTopBtn">回到最上面</button>
+
+<script>
+    // 标签页切换逻辑
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            // 移除所有标签的激活状态
+            tabs.forEach(t => t.classList.remove('active'));
+            // 隐藏所有标签页内容
+            tabContents.forEach(tc => tc.classList.remove('active'));
+
+            // 激活当前标签并显示对应内容
+            tab.classList.add('active');
+            const contentId = tab.getAttribute('data-tab');
+            document.getElementById(contentId).classList.add('active');
+        });
+    });
+	
+	function activateTab(tabName, shouldScrollToContent = false) {
+		// 移除所有标签的激活状态
+		tabs.forEach(t => t.classList.remove('active'));
+		// 隐藏所有标签页内容
+		tabContents.forEach(tc => tc.classList.remove('active'));
+
+		// 激活指定标签并显示对应内容
+		const targetTab = Array.from(tabs).find(tab => tab.getAttribute('data-tab') === tabName);
+		const targetContent = document.getElementById(tabName);
+
+		if (targetTab && targetContent) {
+			targetTab.classList.add('active');
+			targetContent.classList.add('active');
+			
+			// 如果需要滚动到 content-container
+			if (shouldScrollToContent && tabName === 'event-details') {
+				const contentContainer = document.getElementById('content-container');
+				contentContainer.scrollIntoView({ behavior: 'smooth' });
+			} else if (shouldScrollToContent && tabName === 'system-overview') {
+                const systemContentContainer = document.getElementById('system-content-container');
+                systemContentContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+		}
+	}
+
+	// 添加标签页点击事件
+	tabs.forEach(tab => {
+		tab.addEventListener('click', function () {
+			const contentId = tab.getAttribute('data-tab');
+			activateTab(contentId);
+		});
+	});
+
+    // 全局變量來存儲讀取的事件資料
+	let systemData = [];
+    let eventsData = [];
+    let uniqueCategories = new Set();
+    let detailData = {};
+	let systenData = {};
+	const paramsOnLoad = new URLSearchParams(window.location.search);
+	
+	// 读取 system.json 文件并存储系统资料
+    const fetchSystemData = fetch('system.json')
+        .then(response => response.json())
+        .then(data => {
+            systemData = data.details;
+            generateSystemTabs(systemData);
+			displayAllSystems(); // 默认显示所有系统详细信息
+        })
+        .catch(error => {
+            console.error('读取系统资料时出错:', error);
+        });
+
+    // 讀取 JSON 文件並存儲事件資料
+    const fetchEventsData = fetch('event_date.json')
+        .then(response => response.json())
+        .then(data => {
+            eventsData = data.events;
+            generateCategoryTabs(eventsData);
+        })
+        .catch(error => {
+            console.error('讀取事件資料時出錯:', error);
+        });
+
+    // 讀取 detail.json 文件並存儲詳細資料
+    const fetchDetailData = fetch('detail.json')
+        .then(response => response.json())
+        .then(data => {
+            detailData = data.details;
+        })
+        .catch(error => {
+            console.error('讀取詳細資料時出錯:', error);
+        });
+		
+	
+
+    // 等待所有數據讀取完成後執行初始化
+    Promise.all([fetchSystemData, fetchEventsData, fetchDetailData]).then(() => {
+        // 讀取完後，檢查參數
+        const date = paramsOnLoad.get('date');
+        const master = paramsOnLoad.get('master');
+		const system = paramsOnLoad.get('system');
+		
+        if (date && master) {
+            document.getElementById('content-container').style.display = 'block';
+			displayEventsByDate(date); // 显示该日期下的事件
+            displayDetailsByDate(date, master); // 自动显示详细信息
+			
+			// 自动切换到“活动日期内容介紹”标签页
+			activateTab('event-details',true);
+			
+			// 设置 categories-container 的 active 状态
+			activateCategoryTab(date);
+			
+			// 设置 events-container 的 active 状态
+			activateEventLink(date, master);
+        }
+		else if(system)
+		{
+			activateTab('system-overview', true); // 切换到 system-overview 标签页并滑动到内容
+			displaySystemDetails(system, true); // 显示系统详细信息
+			activateSystemTab(system); // 激活系统标签
+		}
+    });
+	
+	// 動態生成分類標籤
+	function generateCategoryTabs(events) {
+		const categoriesContainer = document.getElementById('categories-container');
+		categoriesContainer.innerHTML = ''; // 确保清空当前内容
+
+		// 根據每個事件的日期生成唯一的分類標籤
+		events.forEach(event => {
+			uniqueCategories.add(event.date); // 添加到集合中確保唯一性
+		});
+
+		// 為每個唯一的日期創建一個標籤
+		uniqueCategories.forEach(date => {
+			const tab = document.createElement('span');
+			tab.classList.add('tab');
+			tab.textContent = date;
+			tab.setAttribute('data-category', date);
+			tab.addEventListener('click', function() {
+				displayEventsByDate(date);
+				
+				// 设置 active 状态，并移除其他 tab 的 active 状态
+				document.querySelectorAll('#categories-container .tab').forEach(t => t.classList.remove('active'));
+				tab.classList.add('active');
+				
+				// 自動滾動到events-container
+				<!-- const contentContainer = document.getElementById('events-container'); -->
+				<!-- contentContainer.scrollIntoView({ behavior: 'smooth' }); -->
+			});
+			categoriesContainer.appendChild(tab);
+		});
+	}
+	
+	// 激活 categories-container 中对应的日期标签
+	function activateCategoryTab(date) {
+		document.querySelectorAll('#categories-container .tab').forEach(t => {
+			t.classList.remove('active');
+			if (t.getAttribute('data-category') === date) {
+				t.classList.add('active');
+			}
+		});
+	}
+
+	// 根據所選日期和 master 顯示詳細信息（圖片和文字）
+	function displayDetailsByDate(date, master, shouldUpdateUrl = true) {
+		const contentContainer = document.getElementById('content-container');
+		const filteredDetail = detailData.find(detail => detail.date === date);
+	
+		if (filteredDetail) {
+			let masterName, masterImage1, masterImage2, masterSystem, masterDescription,authorDescription;
+
+			// 根據選擇的 master 設置相應的詳細信息
+			if (master === 'master1') {
+				masterName = filteredDetail.master1_name;
+				masterImage1 = filteredDetail.master1_image1;
+				masterImage2 = filteredDetail.master1_image2;
+				masterSystem = filteredDetail.master1_system;
+				masterQuote = filteredDetail.master1_quote;
+				masterDescription = filteredDetail.master1_description;
+				authorDescription = filteredDetail.system1_author;
+			} else if (master === 'master2') {
+				masterName = filteredDetail.master2_name;
+				masterImage1 = filteredDetail.master2_image1;
+				masterImage2 = filteredDetail.master2_image2;
+				masterSystem = filteredDetail.master2_system;
+				masterQuote = filteredDetail.master2_quote;
+				masterDescription = filteredDetail.master2_description;
+				authorDescription = filteredDetail.system2_author;
+			} else if (master === 'master3') {
+				masterName = filteredDetail.master3_name;
+				masterImage1 = filteredDetail.master3_image1;
+				masterImage2 = filteredDetail.master3_image2;
+				masterSystem = filteredDetail.master3_system;
+				masterQuote = filteredDetail.master3_quote;
+				masterDescription = filteredDetail.master3_description;
+				authorDescription = filteredDetail.system3_author;
+			} else {
+				console.error('未知的 Master：', master);
+				return;
+			}
+			
+			// 更新標題
+			document.getElementById('event-title').textContent = `${masterSystem}－桃園TRPG推廣會團務介紹`;
+			
+			// 更新圖片1 (Always show)
+			const imageElement1 = document.getElementById('event-image');
+			imageElement1.src = `image/${masterImage1}`; // 指向 image 文件夾中的圖片1
+
+			// Check Image 2
+			const imageElement2 = document.getElementById('event-image-2');
+			if (masterImage2) { // 如果圖片2的路径存在且不为空
+				imageElement2.src = `image/${masterImage2}`; // 指向 image 文件夹中的圖片2
+				imageElement2.style.display = 'block'; // 显示圖片2
+			} else {
+				imageElement2.style.display = 'none'; // 隐藏圖片2
+			}
+
+			// 更新引言、內文和簽名
+			document.getElementById('event-quote').textContent = `“${masterQuote}”`;
+			document.getElementById('event-main-text').textContent = masterDescription;
+			document.getElementById('event-signature').innerHTML = `本介紹文由主持人 ${authorDescription} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+
+			// 顯示內文區塊
+			contentContainer.style.display = 'block';
+			
+			// 滾動到內文區塊
+			contentContainer.scrollIntoView({ behavior: 'smooth' });
+			
+			// 更新網址列
+			if (shouldUpdateUrl) {
+				const newUrl = `${window.location.pathname}?date=${date}&master=${master}`;
+				if (newUrl !== window.location.href) {  // 確保 URL 不重複
+					history.pushState({ date, master }, '', newUrl); // 使用 history.pushState() 更新 URL
+				}
+			}
+		} else {
+			contentContainer.style.display = 'none'; // 如果沒有對應的詳細資料則隱藏內文區塊
+		}
+	}
+	
+	// 根據所選日期顯示對應的活動
+	function displayEventsByDate(date) {
+		const eventsContainer = document.getElementById('events-container');
+		eventsContainer.innerHTML = ''; // 清空當前的活動顯示
+
+		const filteredEvents = eventsData.filter(event => event.date === date);
+
+		// 將篩選出的活動添加到容器中
+		if (filteredEvents.length > 0) {
+			filteredEvents.forEach(event => {
+				// Master1 超連結
+				const master1Link = document.createElement('a');
+				master1Link.classList.add('event-link');
+				master1Link.href = 'javascript:void(0)'; // 設置跳轉到內文區塊的超連結
+				master1Link.addEventListener('click', function() {
+					displayDetailsByDate(event.date, 'master1'); // 點擊時顯示 Master1 詳細內容
+					
+					// 配置 active 状态，移除其他链接的 active 状态
+					activateEventLink(date, 'master1');
+				});
+
+				const master1Item = document.createElement('div');
+				master1Item.classList.add('event-item');
+				master1Item.innerHTML = `<p><strong>主持人1：</strong> ${event.master1} (${event.system1}, ${event.system1_EN})</p>`;
+				
+				master1Link.appendChild(master1Item);
+				eventsContainer.appendChild(master1Link);
+
+				// Master2 超連結
+				const master2Link = document.createElement('a');
+				master2Link.classList.add('event-link');
+				master2Link.href = 'javascript:void(0)';
+				master2Link.addEventListener('click', function() {
+					displayDetailsByDate(event.date, 'master2'); // 點擊時顯示 Master2 詳細內容
+					
+					// 配置 active 状态，移除其他链接的 active 状态
+					activateEventLink(date, 'master2');
+				});
+
+				const master2Item = document.createElement('div');
+				master2Item.classList.add('event-item');
+				master2Item.innerHTML = `
+					<p><strong>主持人2：</strong> ${event.master2} (${event.system2}, ${event.system2_EN})</p>
+				`;
+				
+				master2Link.appendChild(master2Item);
+				eventsContainer.appendChild(master2Link);
+
+				// Master3 超連結
+				const master3Link = document.createElement('a');
+				master3Link.classList.add('event-link');
+				master3Link.href = 'javascript:void(0)';
+				master3Link.addEventListener('click', function() {
+					displayDetailsByDate(event.date, 'master3'); // 點擊時顯示 Master3 詳細內容
+					
+					// 配置 active 状态，移除其他链接的 active 状态
+					activateEventLink(date, 'master3');
+				});
+
+				const master3Item = document.createElement('div');
+				master3Item.classList.add('event-item');
+				master3Item.innerHTML = `
+					<p><strong>主持人3：</strong> ${event.master3} (${event.system3}, ${event.system3_EN})</p>
+				`;
+				
+				master3Link.appendChild(master3Item);
+				eventsContainer.appendChild(master3Link);
+			});
+		} else {
+			eventsContainer.innerHTML = `<p>此日期下沒有活動。</p>`;
+		}
+	}
+	
+	// 激活 events-container 中对应的活动链接
+	function activateEventLink(date, master) {
+		const masterNumber = master.replace('master', ''); // 提取 master 的数字部分
+		document.querySelectorAll('.event-link').forEach((link, index) => {
+			link.classList.remove('active');
+			// 根据 master 的数字来激活对应的链接
+			if (index === parseInt(masterNumber) - 1) {
+				link.classList.add('active');
+			}
+		});
+	}
+	
+	// 處理瀏覽器的後退/前進按鈕，或直接訪問特定的 URL
+	window.addEventListener('popstate', function(event) {
+		if (event.state) {
+			displayDetailsByDate(event.state.date, event.state.master, false);
+		}
+	});
+	
+	document.addEventListener('DOMContentLoaded', () => {
+		
+		const backToTopBtn = document.getElementById('backToTopBtn');
+		// backToTopBtn
+		window.addEventListener('scroll', () => {
+			if (window.scrollY > 200) {
+				backToTopBtn.style.display = 'block';
+			} else {
+				backToTopBtn.style.display = 'none';
+			}
+		});
+
+		backToTopBtn.addEventListener('click', () => {
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		});
+	});
+	
+	// 显示所有系统的详细信息
+	function displayAllSystems() {
+		const singlesystemContentContainer = document.getElementById('system-content-container');
+		const systemContentContainer = document.getElementById('dynamic-system-container');
+		systemContentContainer.innerHTML = ''; // 清空当前的系统显示内容
+
+		systemData.forEach(system => {
+			const systemDetailBlock = createSystemDetailBlock(system);
+			systemContentContainer.appendChild(systemDetailBlock);
+		});
+
+		systemContentContainer.style.display = 'block'; // 显示系统内文区块
+		singlesystemContentContainer.style.display = 'none';
+		
+		// Clean URL buffer
+		const baseUrl = window.location.pathname; // 获取基础路径
+		history.pushState({}, '', baseUrl); // 更新 URL 到基础路径		
+	}
+	
+	// 动态生成系统标签，Table
+    function generateSystemTabs(systems) {
+        const systemsContainer = document.getElementById('systems-container');
+        systemsContainer.innerHTML = ''; // 清空当前内容
+        
+		
+        // 創建表格
+		const table = document.createElement('table');
+		table.style.width = "100%";
+		table.style.borderCollapse = "collapse";
+
+		// **第一行 - ShowAll 按鈕**
+		const showAllRow = document.createElement('tr');
+		const showAllCell = document.createElement('td');
+		showAllCell.textContent = "ShowAll";
+		showAllCell.colSpan = 4; // ✅ **跨 4 列**
+		showAllCell.style.border = "1px solid #ddd";
+		showAllCell.style.padding = "15px";
+		showAllCell.style.textAlign = "center";
+		showAllCell.style.cursor = "pointer";
+		showAllCell.style.background = "#8DEEEE";
+		showAllCell.style.fontWeight = "bold";
+		showAllCell.style.fontSize = "18px";
+		showAllCell.style.transition = "background 0.3s ease-in-out";
+
+		// 滑鼠懸停效果
+		showAllCell.addEventListener("mouseover", () => {
+			showAllCell.style.background = "#5F9EA0";
+			showAllCell.style.color = "#fff";
+		});
+		showAllCell.addEventListener("mouseout", () => {
+			showAllCell.style.background = "#8DEEEE";
+			showAllCell.style.color = "#000";
+		});
+
+		// 點擊事件
+		showAllCell.addEventListener('click', function () {
+			displayAllSystems();
+			document.querySelectorAll('#systems-container td').forEach(td => td.classList.remove('active'));
+			showAllCell.classList.add('active');
+		});
+
+		showAllRow.appendChild(showAllCell);
+		table.appendChild(showAllRow); // ✅ **將 ShowAll 置於第一行**
+
+		// **第二行開始 - 系統內容**
+		let row;
+		systems.forEach((system, index) => {
+			// 每 4 個換一行
+			if (index % 4 === 0) {
+				row = document.createElement('tr');
+				table.appendChild(row);
+			}
+
+			// 創建單元格
+			const cell = document.createElement('td');
+			cell.textContent = system.system + '《' + system.system_EN + '》';
+			cell.setAttribute('data-system', system.system);
+			cell.style.border = "1px solid #ddd";
+			cell.style.padding = "10px";
+			cell.style.textAlign = "center";
+			cell.style.cursor = "pointer";
+			cell.style.background = "#f9f9f9";
+			cell.style.transition = "background 0.3s ease-in-out";
+
+			// 滑鼠懸停效果
+			cell.addEventListener("mouseover", () => {
+				cell.style.background = "#d0e9ff";
+			});
+			cell.addEventListener("mouseout", () => {
+				if (!cell.classList.contains("active")) {
+					cell.style.background = "#f9f9f9";
+				}
+			});
+
+			// 點擊事件
+			cell.addEventListener('click', function () {
+				displaySystemDetails(system.system, true);
+				document.querySelectorAll('#systems-container td').forEach(td => td.classList.remove('active'));
+				cell.classList.add('active');
+			});
+
+			row.appendChild(cell);
+		});
+
+		systemsContainer.appendChild(table);
+
+    }
+
+    // 根据系统显示详细信息
+    document.addEventListener("DOMContentLoaded", function () {
+		window.displaySystemDetails = function (systemName, shouldUpdateUrl = false) {
+			const systemContentContainer = document.getElementById('system-content-container');
+			const dynamicSystemContainer = document.getElementById('dynamic-system-container');
+			dynamicSystemContainer.innerHTML = ''; // 清空动态内容
+			const filteredSystem = systemData.find(system => system.system === systemName);
+			console.log("執行 displaySystemDetails:", systemName, shouldUpdateUrl);
+
+			if (filteredSystem) {
+				document.getElementById('system-title').textContent = `${filteredSystem.system} 《${filteredSystem.system_EN}》- 系統介紹`;
+				
+				// 更新图片1 (Always show)
+				const imageElement1 = document.getElementById('system-image1');
+				imageElement1.src = `image/${filteredSystem.image1}`; // 指向 image 文件夹中的图片1
+
+				// 更新图片2
+				const imageElement2 = document.getElementById('system-image2');
+				if (filteredSystem.image2) { 
+					imageElement2.src = `image/${filteredSystem.image2}`; // 指向 image 文件夹中的图片2
+					imageElement2.style.display = 'block'; // 显示图片2
+				} else {
+					imageElement2.style.display = 'none'; // 隐藏图片2
+				}
+
+				document.getElementById('system-quote').textContent = `“${filteredSystem.Quote}”`;
+				document.getElementById('system-main-text').innerHTML = filteredSystem.Description;
+				document.getElementById('system-signature').innerHTML = `本介紹文由 ${filteredSystem.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+
+				systemContentContainer.style.display = 'block'; // 显示系统内文区块
+				systemContentContainer.scrollIntoView({ behavior: 'smooth' });
+				
+				// 更新网址列
+				if (shouldUpdateUrl) {
+					const newUrl = `${window.location.pathname}?system=${encodeURIComponent(systemName)}`;
+					if (newUrl !== window.location.href) {
+						history.pushState({ system: systemName }, '', newUrl); // 使用 history.pushState() 更新 URL
+					}
+				}
+			} else {
+				console.error("找不到系統資料:", systemName);
+				systemContentContainer.style.display = 'none'; // 如果没有对应的详细资料则隐藏系统内文区块
+			}
+		};
+	});	
+	
+	// 创建系统详细信息块
+	function createSystemDetailBlock(system) {
+		const block = document.createElement('div');
+		block.classList.add('system-detail-block');
+
+		const title = document.createElement('h2');
+		title.textContent = `${system.system} 《${system.system_EN}》- 系統介紹`;
+		block.appendChild(title);
+
+		// 图片1
+		const imageElement1 = document.createElement('img');
+		imageElement1.src = `image/${system.image1}`;
+		imageElement1.alt = 'image1';
+		imageElement1.classList.add('system-image'); // 为图片添加类
+		block.appendChild(imageElement1);
+
+		// 图片2
+		if (system.image2) {
+			const imageElement2 = document.createElement('img');
+			imageElement2.src = `image/${system.image2}`;
+			imageElement2.alt = 'image2';
+			imageElement2.classList.add('system-image'); // 为图片添加类
+			block.appendChild(imageElement2);
+		}
+
+		const quote = document.createElement('p');
+		quote.classList.add('quote');
+		quote.textContent = `“${system.Quote}”`;
+		block.appendChild(quote);
+
+		const description = document.createElement('p');
+		description.classList.add('main-text');
+		description.innerHTML = system.Description;
+		block.appendChild(description);
+
+		const signature = document.createElement('p');
+		signature.classList.add('signature');
+		signature.innerHTML = `本介紹文由 ${system.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+		block.appendChild(signature);
+
+		return block;
+	}
+	
+	function generateUTF8Text(length) {
+		let randomText = "";
+		
+		for (let i = 0; i < length; i++) {
+			const randomChar = String.fromCharCode(0x4E00 + Math.floor(Math.random() * 2000)); // 中文常見範圍
+			randomText += randomChar;
+		}
+		
+		return randomText;
+	}
+
+	
+	document.addEventListener("DOMContentLoaded", function () {
+		function isMobile() {
+			return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+		}
+		let currentMode = "image"; // 預設顯示文字
+		let wordCloudElement = document.getElementById("word-cloud");
+
+		
+		function initializeWordCloud(mode) {
+			// 取得 `#word-cloud` 容器的父物件
+			let parentElement = document.getElementById("word-cloud").parentElement;
+			let parentWidth = parentElement.clientWidth;
+			console.log(parentWidth);
+
+			// 設定 `cloudSize` 為 `父容器的 80%`，確保不超出範圍
+			let cloudSize = Math.min(parentWidth * 0.8, 600); // 限制最大 800px
+
+			fetch('system.json')
+				.then(response => response.json())
+				.then(data => {
+					let systemData = data.details;
+			
+					// Mixed with parameter
+					let entries = systemData.map(system => {
+						var sys_len = Math.floor(Math.random() * 7) + 4;
+						var sys_en_len = Math.floor(Math.random() * 7) + 4;
+						if (mode === "text") {
+							return { label: system.system + '《' + system.system_EN + '》', systemName: system.system };
+						} else if (mode === "image") {
+							return { image: './image/' + system.image1, width: 100, height: 100, systemName: system.system };
+						} else if(mode === "chaos") {
+							return { 
+							label: generateUTF8Text(sys_len) + '《' + generateUTF8Text(sys_en_len) + '》', systemName: system.system };
+						}
+					});
+					<!-- // 生成 3D 文字雲的資料格式 -->
+					<!-- let entries = systemData.map(system => ({ -->
+						<!-- label: system.system + '《' + system.system_EN + '》', -->
+						<!-- systemName: system.system // 存儲系統名稱，之後用於 click 事件 -->
+					<!-- })); -->
+					
+					<!-- // 生成 3D 文字雲的資料格式(圖片) -->
+					<!-- let img_entries = systemData.map(system => ({ -->
+						<!-- image: './image/' + system.image1 , -->
+						<!-- width: 100, height: 100, -->
+						<!-- systemName: system.system // 存儲系統名稱，之後用於 click 事件 -->
+					<!-- })); -->
+					
+					// **判斷是否為手機裝置**
+					let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+					// 初始化 3D 文字雲
+					let settings = {
+						entries: entries,
+						width: parentWidth,   // 依據父容器大小變化
+						height: isMobile? cloudSize+100 : cloudSize,
+						radius: '100%',
+						radiusMin: 75,
+						bgDraw: false, // 背景由 CSS 控制
+						bgImage: "./image/word-cloud-bg.jpeg",
+						opacityOver: 1.0,
+						opacityOut: 0.05,
+						opacitySpeed: 6,
+						fov: 800,
+						speed: isMobile ? 0.3 : 0.7, // ✅ 手機停用自動旋轉，電腦保持 0.7
+						fontFamily: "Arial, sans-serif",
+						fontSize: isMobile ? 13 : 18,
+						fontColor: "#fff",
+						fontWeight: "bold",
+						fontStyle: "normal",
+						fontStretch: "normal",
+						fontToUpperCase: false,
+						onClick: function(systemName) {
+							console.log("點選系統:", systemName);
+							let parsedSystemName = systemName.split("《")[0].trim(); // 擷取 "《" 之前的文字
+							console.log("解析後的系統名稱:", parsedSystemName);
+							window.displaySystemDetails(parsedSystemName, true);
+						}
+					};
+
+					let tagCloud = new SVG3DTagCloud(document.getElementById("word-cloud"), settings);
+					// 📌 **修正 `textElements` 的作用域**
+					let textElements = Array.from(document.querySelectorAll("#word-cloud text"));
+					
+				
+				})
+				.catch(error => console.error("讀取 system.json 錯誤:", error));
+		}
+
+		// **當頁面載入時，初始化 3D 文字雲**
+		initializeWordCloud(currentMode);
+
+		// **當視窗大小改變時，重新調整 3D 文字雲大小**
+		window.addEventListener("resize", function () {
+			document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+			initializeWordCloud(currentMode);
+		});
+		
+		// 文字按鈕點擊事件
+		document.getElementById("toggle-text").addEventListener("click", function () {
+			if (currentMode !== "text") {
+				currentMode = "text";
+				document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+				initializeWordCloud("text");
+			}
+		});
+
+		// 圖片按鈕點擊事件
+		document.getElementById("toggle-image").addEventListener("click", function () {
+			if (currentMode !== "image") {
+				currentMode = "image";
+				document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+				initializeWordCloud("image");
+			}
+		});
+		
+		// Chaos按鈕點擊事件
+		document.getElementById("toggle-chaos").addEventListener("click", function () {
+			if (currentMode !== "chaos") {
+				currentMode = "chaos";
+				document.getElementById("word-cloud").innerHTML = ""; // 清除舊的 3D 文字雲
+				initializeWordCloud("chaos");
+			}
+		});
+
+	});
+
+
+
+</script>
+
+</body>
+</html>
