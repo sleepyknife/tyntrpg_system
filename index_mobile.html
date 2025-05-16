@@ -1,3 +1,9 @@
+<script>
+  // 檢查視窗寬度是否大於 600，如果是就導向 index.html
+  if (screen.width > 600 && !location.pathname.includes("index.html")) {
+    location.href = "index.html" + location.search;
+  }
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
