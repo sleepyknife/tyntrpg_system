@@ -107,6 +107,18 @@
 			"master3": "威爺",
 			"system3": "大槍女子漢",
 			"system3_EN": "Macho Women with Guns"
+        },
+		{
+            "date": "2025-6-21",
+			"master1": "小隼",
+			"system1": "克蘇魯的呼喚7版",
+			"system1_EN": "Call of Cthulhu 7th ed.",
+			"master2": "盧靜",
+			"system2": "吸血鬼之千年避世",
+			"system2_EN": "Vampire: the Masquerade",
+			"master3": "Roger",
+			"system3": "龍與地下城 五版",
+			"system3_EN": "Dungeons & Dragons 5ed."
         }
     ]
 }
