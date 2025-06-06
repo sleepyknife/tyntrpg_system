@@ -429,16 +429,30 @@
 
             systemsContainer.appendChild(table);
         }
+		
+		function clean(str) {
+		  return str
+			?.toString()
+			.replace(/[\u200B-\u200D\uFEFF]/g, '') // 清掉零寬空白、FEFF、其他奇怪字元
+			.replace(/\s/g, '') // 清掉可見空白（半形、全形、tab）
+			.trim();
+		}
 
 		// 根据系统显示详细信息
         function displaySystemDetails(systemName,systemUpdate ,shouldUpdateUrl = false) {
 			const systemContentContainer = document.getElementById('system-content-container');
 			let filteredSystem;
 			
+
 			if (systemUpdate != null) {
-                filteredSystem = systemData.find(system => system.system === systemName && system.update === systemUpdate);
+                filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)) && item.update === systemUpdate);
+				if(!filteredSystem)
+				{
+					filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)));
+				}
             }
-                 filteredSystem = systemData.find(system => system.system === systemName);
+			else
+                 filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)));
 
             if (!filteredSystem) {
                 console.error("找不到系統資料:", systemName, systemUpdate);
