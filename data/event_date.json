@@ -119,6 +119,18 @@
 			"master3": "Roger",
 			"system3": "龍與地下城 五版",
 			"system3_EN": "Dungeons & Dragons 5ed."
+        },
+		{
+            "date": "2025-7-19",
+			"master1": "愛睏",
+			"system1": "閾界",
+			"system1_EN": "Liminal",
+			"master2": "FM龍",
+			"system2": "去他的DND",
+			"system2_EN": "Damn of Dungeon and Dragon",
+			"master3": "鳴海步",
+			"system3": "十燭",
+			"system3_EN": "Ten Candles"
         }
     ]
 }
