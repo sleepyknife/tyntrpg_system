@@ -143,6 +143,18 @@
 			"master3": "球球",
 			"system3": "天啟症候群",
 			"system3_EN": "Beaster Carrier"
+        },
+		{
+            "date": "2025-9-20",
+			"master1": "愛睏",
+			"system1": "午夜騎士",
+			"system1_EN": "Knights of Underbed",
+			"master2": "說說",
+			"system2": "夕燒小燒",
+			"system2_EN": "ゆうやけこやけ",
+			"master3": "盧靜",
+			"system3": "黑暗年代記",
+			"system3_EN": "Chronicles of Darkness"
         }
     ]
 }
