@@ -25,13 +25,15 @@
 <body>
 	<div class="container">
 		<!--標題區域-->
-		<div class="header-container">
+		<div class="header-container ">
 			<div class="col-lg-12">
 				<div class="row d-flex align-items-center">
 					<div class="col-md-7 col-12 text-left p-3">
 						<a href="https://sleepyknife.github.io/tyntrpg_system/" target="_blank" class="header-title">
-							桌上角色扮演遊戲（TRPG）<br>
-							系統全面導覽
+                            <span >
+                                桌上角色扮演遊戲（TRPG )<br>
+                                系統全面導覽
+                            </span>
 						</a>
 					</div>
 					<div class="col-md-5 col-12 text-left p-3">
@@ -45,10 +47,10 @@
 				<div class="col-lg-12 system-introduction">
 
 					<div class="row d-flex align-items-center" style="padding-top: 2%; padding-bottom: 2%; padding-right: 5%; padding-left: 5%; ">
-						<span style="font-size: 2.5rem; font-weight: bold; margin-bottom: 2%">
+						<span   class="title-text" style="margin-bottom: 2%">
 							什麼是TRPG系統？基本概念解析<br />
 						</span>
-						<span>
+						<span  id="Description">
 							TRPG系統是設計用於桌上角色扮演遊戲的規則集，它提供了一個結構和框架，讓玩家可以扮演虛構的角色並參與一個共同的故事。TRPG系統通常包含角色創建規則、戰鬥系統、技能系統、魔法系統以及其他遊戲機制。</br>
 							簡單來說，TRPG系統就是一個遊戲規則手冊，它讓玩家可以自由地創作故事，並在一個充滿想像力的世界中探索和冒險。TRPG系統通常使用骰子來解決遊戲中各種事件的結果，例如戰鬥、技能檢定、角色的行動等。
 						</span>
@@ -62,7 +64,7 @@
 			<div class="system-section">
 				<div class="col-lg-12">
 					<div class="row d-flex align-items-center" style="padding-top: 2%; padding-bottom: 2%; padding-right: 5%; padding-left: 5%; text-align: center;">
-						<span style="font-size: 3rem; font-weight: bold;">主要TRPG系統類型及特點介紹</span>
+						<span  class="title-text">主要TRPG系統類型及特點介紹</span>
 					</div>
 				</div>
 				<div id="category-container" style="margin: 1% 0; display: flex; justify-content: center; flex-wrap: wrap; "></div>
@@ -70,7 +72,7 @@
 				<div id="SystemContent-container" class="accordding-container">
 					<div class="col-lg-12 ">
 						<div class="row d-flex align-items-center" style="padding-top: 4%; padding-bottom: 2%; padding-right: 5%; padding-left: 5%; text-align: left; ">
-							<span class="fade-text" id="SystemStyle" style="font-size: 2rem; font-weight: bold;margin-bottom : 2%">
+							<span class="fade-text" id="SystemStyle" style="margin-bottom : 2%">
 								TRPG系統百百種，選對口味才玩得開心！<br />
 							</span>
 							<span class="fade-text" id="SystemStyle-Description" style="min-height:150px">
@@ -101,7 +103,7 @@
 					<!-- 左側文字 -->
 					<div class="col-lg-6 text-section">
 						<span id="system-title" style="margin-bottom: 20px; font-weight: bold;"></span>
-						<p class="quote" id="system-quote">这里是引言部分。</p>
+						<p class="quote" id="system-quote">这里是引言部分。</p><br />
 						<p class="main-text" id="system-main-text">这里是内文的文字范例。</p>
 						<p class="signature" id="system-signature">签名部分</p>
 					</div>
@@ -121,7 +123,7 @@
 					<div class="row d-flex align-items-center justify-content-center text-center"
 						 style="padding: 2% 5%;">
 						<div class="col-lg-8">
-							<span style="font-size: 2.5rem; font-weight: bold; display: block; margin-bottom: 1%;">
+							<span class="title-text" style=" margin-bottom: 1%;">
 								快速探索系統風格
 							</span>
 							<span style="font-size: 1.1rem;">
@@ -144,7 +146,7 @@
 		</div>
 		<!--事件區域-->
 		<div class="event-section">
-			<div class="col-lg-12 outer-container">
+			<!--<div class="col-lg-12 outer-container">-->
 				<div class="col-lg-12 system-introduction">
 					<div class="row d-flex align-items-center justify-content-center text-center" style="padding: 2% 5%;">
 						<div class="col-lg-8">
@@ -163,7 +165,7 @@
 					<div class="events-container" id="events-container"></div>
 
 				</div>
-			</div>
+			<!--div-->
 		</div>
 
 	</div>
@@ -238,10 +240,15 @@
 				const systemName = findSystemByDateAndMaster(date, master);
 				if(systemName)
 				{
-					const newUrl = `${window.location.pathname}?system=${encodeURIComponent(systemName)}`;
-					if (newUrl !== window.location.href) {
-						history.pushState({ system: systemName }, '', newUrl);
-					}
+                    // ✅ 先顯示該日期的活動 & 主持人詳情
+                    renderEventCards(date);
+                    displaySystemDetails(systemName, date.replace(/-/g, '/'), true);
+
+                    // ✅ 再更新網址
+                    const newUrl = `${window.location.pathname}?system=${encodeURIComponent(systemName)}`;
+                    if (newUrl !== window.location.href) {
+                        history.pushState({ system: systemName }, '', newUrl);
+                    }
 				}
 				else
 				{
