@@ -1,9 +1,9 @@
 <script>
   // 檢查視窗寬度是否小於 600，如果是就導向 index_mobile.html
-  console.log(screen.width);
-  if (screen.width < 600 && !location.pathname.includes("index_mobile.html")) {
-    location.href = "index_mobile.html" + location.search;
-  }
+  //console.log(screen.width);
+  //if (screen.width < 600 && !location.pathname.includes("index_mobile.html")) {
+  //  location.href = "index_mobile.html" + location.search;
+  //}
 </script>
 <!DOCTYPE html>
 <html lang="en">
@@ -177,7 +177,6 @@
 		let eventsData = [];
 		let uniqueCategories = new Set();
 		let detailData = {};
-		let systenData = {};
         let SystemDescriptionData = {};        
 		const paramsOnLoad = new URLSearchParams(window.location.search);
 
@@ -189,7 +188,7 @@
 
                 if (system) {
                     // 根據網址指定系統名稱，自動顯示細節
-                    displaySystemDetails(system, date,true);
+                    displaySystemDetails(system,null,  date,true);
                 }
             });
         });
@@ -203,7 +202,11 @@
                 const jsonFiles = manifest.files;
 
                 const fetches = jsonFiles.map(filename =>
-                    fetch(`${folderPath}${filename}`).then(res => res.json())
+                    fetch(`${folderPath}${filename}?t=${Date.now()}`)
+                        .then(res => {
+                            if (!res.ok) throw new Error(`讀取失敗：${filename} (${res.status})`);
+                            return res.json();
+                        })
                 );
 
 				const results = await Promise.all(fetches);
@@ -236,19 +239,13 @@
 			const master = paramsOnLoad.get('master');
 			const system = paramsOnLoad.get('system');
 
-			if (date && master) {
-				const systemName = findSystemByDateAndMaster(date, master);
-				if(systemName)
+			if (date) {				
+                if (master && date)
 				{
                     // ✅ 先顯示該日期的活動 & 主持人詳情
                     renderEventCards(date);
-                    displaySystemDetails(systemName, date.replace(/-/g, '/'), true);
-
-                    // ✅ 再更新網址
-                    const newUrl = `${window.location.pathname}?system=${encodeURIComponent(systemName)}`;
-                    if (newUrl !== window.location.href) {
-                        history.pushState({ system: systemName }, '', newUrl);
-                    }
+                    displaySystemDetails(null, master, date, true);
+                   
 				}
 				else
 				{
@@ -256,7 +253,7 @@
 				}
 			}
 			else if (system) {
-                displaySystemDetails(system, null, true);
+                displaySystemDetails(system, null,  null, true);
                 document.getElementById('system-content-container')?.scrollIntoView({ behavior: 'smooth' });
 			}
 		});
@@ -312,7 +309,7 @@
 						<span>系統：${system}（${system_EN}）</span>
 					`;
 					card.addEventListener('click', () => {
-                        displaySystemDetails(system, TargetData.replace(/-/g, '/') , true);
+                        displaySystemDetails(system, masterKey,TargetData , true);
                         document.querySelectorAll('.event-card').forEach(c => c.classList.remove('active'));
                         card.classList.add('active');
                     });
@@ -323,16 +320,36 @@
 		
         // 處理瀏覽器返回時顯示活動詳情
         window.addEventListener('popstate', e => {
-            if (e.state) displayDetailsByDate(e.state.date, e.state.master, false);
+            if (e.state?.system) {
+                displaySystemDetails(
+                    e.state.master || null,
+                    e.state.system,
+                    e.state.date || null,
+                    false 
+                );
+            }
         });
         // 回到頂部按鈕功能
         document.addEventListener('DOMContentLoaded', () => {
+            // 回到頂部按鈕功能
             const btn = document.getElementById('backToTopBtn');
             window.addEventListener('scroll', () => {
                 btn.style.display = window.scrollY > 200 ? 'block' : 'none';
             });
             btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        });		
+            
+            const params = new URLSearchParams(window.location.search);
+            const systemParam = params.get('system');
+
+            if (systemParam) {
+                displaySystemDetails(
+                    history.state?.master || null,
+                    systemParam,
+                    history.state?.date || null,
+                    false
+                );
+            }
+        });
 
         // 顯示系統風格的介紹
         function ShowSystemStyleDescription(SystemStyle) {
@@ -428,7 +445,7 @@
                     const container = document.getElementById('system-content-container');
                     container.style.display = 'block';
                     container.classList.remove('hide');
-                    displaySystemDetails(system.system, system.update, true);
+                    displaySystemDetails(system.system, null,  system.update, true);
                 });
 
                 row.appendChild(cell);
@@ -446,39 +463,62 @@
 		}
 
 		// 根据系统显示详细信息
-        function displaySystemDetails(systemName,systemUpdate ,shouldUpdateUrl = false) {
-			const systemContentContainer = document.getElementById('system-content-container');
-			let filteredSystem;
-			
+        function displaySystemDetails(systemName, systemMaster, systemUpdate, shouldUpdateUrl = false) {
+            const systemContentContainer = document.getElementById('system-content-container');
+            let filteredSystem = null;
+            let fromDetailData = false;
 
-			if (systemUpdate != null) {
-                filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)) && item.update === systemUpdate);
-				if(!filteredSystem)
-				{
-					filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)));
-				}
+            // 判斷來源
+            if (systemUpdate) {
+                if (systemMaster) {
+                    // 有日期 + 主持人 → 從 detailData 找
+                    filteredSystem = detailData.find(item => item.date === systemUpdate);
+                    fromDetailData = true;
+                } else {
+                    // 有日期 + 系統名稱 → 從 systemData 找
+                    filteredSystem = systemData.find(item => item.date === systemUpdate || clean(item.system).includes(clean(systemName)));
+                }
+            } else {
+                // 沒日期 → 從 systemData 找
+                filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)));
             }
-			else
-                 filteredSystem = systemData.find(item => clean(item.system).includes(clean(systemName)));
 
             if (!filteredSystem) {
-                console.error("找不到系統資料:", systemName, systemUpdate);
+                console.error("找不到系統資料:", { systemMaster, systemName, systemUpdate });
                 systemContentContainer.style.display = 'none';
                 return;
             }
 
+            // ✅ 動態決定 Key（避免 systemMaster 為 undefined）
+            const SystemKey = fromDetailData && systemMaster ? `${systemMaster}_system` : "system";
+            const MasterKey = fromDetailData && systemMaster ? `${systemMaster}_name` : "Author";
+            const QuoteKey = fromDetailData && systemMaster ? `${systemMaster}_quote` : "Quote";
+            const DescriptionKey = fromDetailData && systemMaster ? `${systemMaster}_description` : "Description";
+            const ImageKeys = fromDetailData && systemMaster
+                ? [`${systemMaster}_image1`, `${systemMaster}_image2`]
+                : ["image1", "image2"];
+
             // 更新標題與文字
-            document.getElementById('system-title').innerHTML = `${filteredSystem.system} <br>《${filteredSystem.system_EN}》`;
-            document.getElementById('system-quote').textContent = `“${filteredSystem.Quote}”`;
-            document.getElementById('system-main-text').innerHTML = filteredSystem.Description;
-            document.getElementById('system-signature').innerHTML = `本介紹文由 ${filteredSystem.Author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+            document.getElementById('system-title').innerHTML = `《 ${filteredSystem[SystemKey]} 》`;
+            document.getElementById('system-quote').textContent = filteredSystem[QuoteKey] ? `“${filteredSystem[QuoteKey]}”` : "";
+            document.getElementById('system-main-text').innerHTML = filteredSystem[DescriptionKey] || "";
+            document.getElementById('system-signature').innerHTML =
+                `本介紹文由 ${filteredSystem[MasterKey]} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
 
             // 更新圖片
             // 清除現有的 Swiper slide
             const swiperWrapper = document.getElementById('system-swiper-wrapper');
             swiperWrapper.innerHTML = '';
-            
-            ['image1', 'image2'].forEach((key, index) => {
+
+            let imageKeys = [];
+            if (fromDetailData) {
+                imageKeys = [`${systemMaster}_image1`, `${systemMaster}_image2`];
+            } else {
+                // systemData 可能有固定命名，例如 image1, image2
+                imageKeys = ['image1', 'image2'];
+            }
+
+            imageKeys.forEach((key, index) => {
                 const imagePath = filteredSystem[key];
                 if (imagePath) {
                     const slide = document.createElement('div');
@@ -519,10 +559,14 @@
 
             // 更新網址
             if (shouldUpdateUrl) {
-                const newUrl = `${window.location.pathname}?system=${encodeURIComponent(systemName)}`;
-                if (newUrl !== window.location.href) {
-                    history.pushState({ system: systemName }, '', newUrl);
-                }
+                const systemValue = filteredSystem[SystemKey];
+                const stateData = {
+                    system: systemValue,
+                    date: systemUpdate || null,
+                    master: systemMaster || null
+                };
+
+              
             }
 		}		
 
@@ -546,7 +590,7 @@
 
                         if (mode === "random") {
                             const randomSystem = systemData[Math.floor(Math.random() * systemData.length)];
-                            window.displaySystemDetails(randomSystem.system, randomSystem.update, true);
+                            window.displaySystemDetails(null, randomSystem.system, randomSystem.update, true);
                             return;
                         }
 
@@ -585,7 +629,7 @@
                             fontToUpperCase: false,
                             onClick(systemName) {
                                 const parsed = systemName.split("《")[0].trim();
-                                window.displaySystemDetails(parsed, null, true);
+                                window.displaySystemDetails(parsed, null,  null, true);
                             }
                         };
 
@@ -702,14 +746,6 @@
 				document.getElementById("btn-text-mode").classList.add("active");
 				// 這裡加上切換文字的邏輯
 			}
-		}
-		function findSystemByDateAndMaster(date, master) {
-			const match = eventsData.find(e => e.date === date);
-			if (!match) return null;
-			
-			const systemKey = master.replace("master", "system");
-			
-			return match[systemKey] || null;
 		}
 
        

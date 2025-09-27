@@ -624,4 +624,8 @@ a:hover, a:visited, a:link, a:active {
         display: block;
         margin-bottom: 12px;
     }
+
+    #word-cloud-container, .Word-Cloud {
+        display: none !important;
+    }
 }

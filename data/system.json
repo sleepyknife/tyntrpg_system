@@ -5,7 +5,7 @@
 
 	"details": [
 		{
-			"update": "2024/09/18",
+			"update": "2024-09-18",
 			"system": "克蘇魯的呼喚 七版",
 			"system_EN": "Call of Cthulhu 7th ed.",
 			"image1": "coc1.png",
@@ -16,7 +16,7 @@
 			"category": "現實、恐怖"
 		},
 		{
-			"update": "2024/09/18",
+			"update": "2024-09-18",
 			"system": "龍與地下城 五版",
 			"system_EN": "Dungeons & Dragons 5ed.",
 			"image1": "DND5_1.jpg",
@@ -27,7 +27,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2024/09/18",
+			"update": "2024-09-18",
 			"system": "肌肉陸戰隊",
 			"system_EN": "LIFTS: Ultimate Pump Edition",
 			"image1": "LIFTS_1.jpg",
@@ -38,7 +38,7 @@
 			"category": "奇妙系統"
 		},
 		{
-			"update": "2024/10/11",
+			"update": "2024-10-11",
 			"system": "替身大戰",
 			"system_EN": "Over Arms",
 			"image1": "OverArms.jpg",
@@ -49,7 +49,7 @@
 			"category": "奇幻、恐怖"
 		},
 		{
-			"update": "2024/10/11",
+			"update": "2024-10-11",
 			"system": "劍世界2.5_巴巴羅薩之怒",
 			"system_EN": "ソード・ワールド2.5_バルバロスレイジ",
 			"image1": "SW2.5_1026.jpg",
@@ -60,7 +60,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2024/10/11",
+			"update": "2024-10-11",
 			"system": "本周主打怪",
 			"system_EN": "Monster of the Week",
 			"image1": "Monster_of_the_Week1.jpg",
@@ -71,7 +71,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2024/11/8",
+			"update": "2024-11-8",
 			"system": "茂林源記",
 			"system_EN": "Root",
 			"image1": "Root1.jpg",
@@ -82,7 +82,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2024/11/8",
+			"update": "2024-11-8",
 			"system": "獵魔士TRPG",
 			"system_EN": "The Witcher",
 			"image1": "Witcher1.jpg",
@@ -93,7 +93,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2024/11/8",
+			"update": "2024-11-8",
 			"system": "法師：沉夢初醒",
 			"system_EN": "Mage the Awakening   2nd Edition",
 			"image1": "mage1.png",
@@ -104,7 +104,7 @@
 			"category": "奇幻、恐怖"
 		},
 		{
-			"update": "2024/12/14",
+			"update": "2024-12-14",
 			"system": "夕色染空",
 			"system_EN": "ゆうやけこやけ",
 			"image1": "yau.jpg",
@@ -115,7 +115,7 @@
 			"category": "奇幻、日常"
 		},
 		{
-			"update": "2024/12/14",
+			"update": "2024-12-14",
 			"system": "戰錘40K:死亡守望",
 			"system_EN": "Warhammer 40K: DEATHWATCH",
 			"image1": "40k_1.jpg",
@@ -126,7 +126,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/1/11",
+			"update": "2025-1-11",
 			"system": "死靈年代記之永遠的後日談",
 			"system_EN": "永い後日談のネクロニカ",
 			"image1": "20250111_S1_1.jpg",
@@ -137,7 +137,7 @@
 			"category": "末日、生存"
 		},
 		{
-			"update": "2025/1/11",
+			"update": "2025-1-11",
 			"system": "克蘇魯的呼喚7版",
 			"system_EN": "Call of Cthulhu 7th ed.",
 			"image1": "20250111_S2_2.jpg",
@@ -148,7 +148,7 @@
 			"category": "現實、恐怖"
 		},
 		{
-			"update": "2025/1/11",
+			"update": "2025-1-11",
 			"system": "幹片帝王",
 			"system_EN": "Straight to VHS",
 			"image1": "20250111_S3_1.jpg",
@@ -159,7 +159,7 @@
 			"category": "奇妙系統"
 		},
 		{
-			"update": "2025/2/15",
+			"update": "2025-2-15",
 			"system": "嗚嘎嘎原始人",
 			"system_EN": "OG",
 			"image1": "20250215_S1_1.jpg",
@@ -170,7 +170,7 @@
 			"category": "奇妙系統"
 		},
 		{
-			"update": "2025/2/15",
+			"update": "2025-2-15",
 			"system": "電馭叛客：邊緣行者",
 			"system_EN": "Cyberpunk Edgerunner",
 			"image1": "20250215_S2_1.jpg",
@@ -181,7 +181,7 @@
 			"category": "賽博龐克"
 		},
 		{
-			"update": "2025/2/15",
+			"update": "2025-2-15",
 			"system": "天啟症候群​​",
 			"system_EN": "Beaster Carrier",
 			"image1": "20250215_S3_1.jpg",
@@ -192,7 +192,7 @@
 			"category": "末日、生存"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "黑暗年代記",
 			"system_EN": "Chronicles of Darkness",
 			"image1": "Chronicles_of_Darkness.jpg",
@@ -203,7 +203,7 @@
 			"category": "奇幻、恐怖"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "狼人：樂園棄民 二版",
 			"system_EN": "Werewolf: the Forsaken Second Edition",
 			"image1": "Werewolf.jpg",
@@ -214,7 +214,7 @@
 			"category": "奇幻、恐怖"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "竊據靈：迷途失返二版",
 			"system_EN": "Changeling: the Lost Second Edition",
 			"image1": "Changeling.jpg",
@@ -225,7 +225,7 @@
 			"category": "奇幻、恐怖"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "北歐奇譚",
 			"system_EN": "Vaesen",
 			"image1": "Vaesen.jpg",
@@ -236,7 +236,7 @@
 			"category": "奇幻、恐怖、冒險"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "替魔鬼偷故事",
 			"system_EN": "Stealing Stories for the Devil",
 			"image1": "Stealing.jpg",
@@ -247,7 +247,7 @@
 			"category": "奇幻、冒險、賽博龐克"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "閾界",
 			"system_EN": "Liminal",
 			"image1": "20250719_S1_1.jpg",
@@ -258,7 +258,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/2/21",
+			"update": "2025-2-21",
 			"system": "探索者第二版",
 			"system_EN": "Pathfinder 2 edition",
 			"image1": "Pathfinder2.png",
@@ -269,7 +269,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/2/27",
+			"update": "2025-2-27",
 			"system": "大槍女子漢",
 			"system_EN": "Macho Women with Guns",
 			"image1": "20250315_S2_1.jpg",
@@ -280,7 +280,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/4/19",
+			"update": "2025-4-19",
 			"system": "微小酒館",
 			"system_EN": "Tiny Taverns",
 			"image1": "20250419_S1_1.jpg",
@@ -291,7 +291,7 @@
 			"category": "奇幻、日常"
 		},
 		{
-			"update": "2025/4/19",
+			"update": "2025-4-19",
 			"system": "熱浪社區",
 			"system_EN": "Valley Heat",
 			"image1": "20250419_S3_1.jpg",
@@ -302,7 +302,7 @@
 			"category": "現實、日常"
 		},
 		{
-			"update": "2025/5/17",
+			"update": "2025-5-17",
 			"system": "蒙面少俠",
 			"system_EN": "Masks: A New Generation",
 			"image1": "20250517_S2.jpg",
@@ -313,7 +313,7 @@
 			"category": "現實、冒險"
 		},
 		{
-			"update": "2025/6/21",
+			"update": "2025-6-21",
 			"system": "吸血鬼之千年避世",
 			"system_EN": "Vampire: the Masquerade",
 			"image1": "20250621_S2_1.jpg",
@@ -324,7 +324,7 @@
 			"category": "奇幻、恐怖"
 		},
 		{
-			"update": "2025/7/19",
+			"update": "2025-7-19",
 			"system": "去他的DND",
 			"system_EN": "Damn of Dungeon and Dragon",
 			"image1": "20250719_S2.png",
@@ -335,7 +335,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/7/19",
+			"update": "2025-7-19",
 			"system": "夕色染空／夕燒小燒",
 			"system_EN": "夕色染空／夕燒小燒",
 			"image1": "yau.jpg",
@@ -346,7 +346,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/8/16",
+			"update": "2025-8-16",
 			"system": "不能睡",
 			"system_EN": "Don't Rest Your Head",
 			"image1": "20250816_S1.jpg",
@@ -357,7 +357,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/8/16",
+			"update": "2025-8-16",
 			"system": "幽冥鬼差",
 			"system_EN": "幽冥鬼差",
 			"image1": "20250816_S2.jpg",
@@ -368,7 +368,7 @@
 			"category": "奇幻、冒險"
 		},
 		{
-			"update": "2025/9/20",
+			"update": "2025-9-20",
 			"system": "午夜騎士",
 			"system_EN": "Knights of Underbed",
 			"image1": "20250920_S1.jpg",
