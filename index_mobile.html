@@ -376,27 +376,25 @@
 	});
 
     // 全局變量來存儲讀取的事件資料
-	let systemData = [];
+    let systemData = [];
     let eventsData = [];
     let uniqueCategories = new Set();
-    let detailData = {};
-	let systenData = {};
-	const paramsOnLoad = new URLSearchParams(window.location.search);
-	
-	// 读取 system.json 文件并存储系统资料
-    const fetchSystemData = fetch('system.json')
+    const paramsOnLoad = new URLSearchParams(window.location.search);
+
+    // 读取 system.json 文件并存储系统资料
+    const fetchSystemData = fetch('data/system.json')
         .then(response => response.json())
         .then(data => {
             systemData = data.details;
             generateSystemTabs(systemData);
-			displayAllSystems(); // 默认显示所有系统详细信息
+            displayAllSystems(); // 默认显示所有系统详细信息
         })
         .catch(error => {
             console.error('读取系统资料时出错:', error);
         });
 
-    // 讀取 JSON 文件並存儲事件資料
-    const fetchEventsData = fetch('event_date.json')
+    // 讀取新的 events.json 文件
+    const fetchEventsData = fetch('data/events.json')
         .then(response => response.json())
         .then(data => {
             eventsData = data.events;
@@ -406,45 +404,31 @@
             console.error('讀取事件資料時出錯:', error);
         });
 
-    // 讀取 detail.json 文件並存儲詳細資料
-    const fetchDetailData = fetch('detail.json')
-        .then(response => response.json())
-        .then(data => {
-            detailData = data.details;
-        })
-        .catch(error => {
-            console.error('讀取詳細資料時出錯:', error);
-        });
-		
-	
-
     // 等待所有數據讀取完成後執行初始化
-    Promise.all([fetchSystemData, fetchEventsData, fetchDetailData]).then(() => {
+    Promise.all([fetchSystemData, fetchEventsData]).then(() => {
         // 讀取完後，檢查參數
         const date = paramsOnLoad.get('date');
-        const master = paramsOnLoad.get('master');
-		const system = paramsOnLoad.get('system');
-		
-        if (date && master) {
+        const masterId = paramsOnLoad.get('master');
+        const system = paramsOnLoad.get('system');
+
+        if (date && masterId) {
             document.getElementById('content-container').style.display = 'block';
-			displayEventsByDate(date); // 显示该日期下的事件
-            displayDetailsByDate(date, master); // 自动显示详细信息
-			
-			// 自动切换到“活动日期内容介紹”标签页
-			activateTab('event-details',true);
-			
-			// 设置 categories-container 的 active 状态
-			activateCategoryTab(date);
-			
-			// 设置 events-container 的 active 状态
-			activateEventLink(date, master);
+            displayEventsByDate(date); // 显示该日期下的事件
+            displayDetailsByDate(date, masterId); // 自动显示详细信息
+
+            // 自动切换到“活动日期内容介紹”标签页
+            activateTab('event-details', true);
+
+            // 设置 categories-container 的 active 状态
+            activateCategoryTab(date);
+
+            // 设置 events-container 的 active 状态
+            activateEventLink(date, masterId);
+        } else if (system) {
+            activateTab('system-overview', true); // 切换到 system-overview 标签页并滑动到内容
+            displaySystemDetails(system, true); // 显示系统详细信息
+            activateSystemTab(system); // 激活系统标签
         }
-		else if(system)
-		{
-			activateTab('system-overview', true); // 切换到 system-overview 标签页并滑动到内容
-			displaySystemDetails(system, true); // 显示系统详细信息
-			activateSystemTab(system); // 激活系统标签
-		}
     });
 	
 	// 動態生成分類標籤
@@ -488,80 +472,55 @@
 		});
 	}
 
-	// 根據所選日期和 master 顯示詳細信息（圖片和文字）
-	function displayDetailsByDate(date, master, shouldUpdateUrl = true) {
+	// 根據所選日期和 master ID 顯示詳細信息（圖片和文字）
+	function displayDetailsByDate(date, masterId, shouldUpdateUrl = true) {
 		const contentContainer = document.getElementById('content-container');
-		const filteredDetail = detailData.find(detail => detail.date === date);
-	
-		if (filteredDetail) {
-			let masterName, masterImage1, masterImage2, masterSystem, masterDescription,authorDescription;
+		const event = eventsData.find(e => e.date === date);
 
-			// 根據選擇的 master 設置相應的詳細信息
-			if (master === 'master1') {
-				masterName = filteredDetail.master1_name;
-				masterImage1 = filteredDetail.master1_image1;
-				masterImage2 = filteredDetail.master1_image2;
-				masterSystem = filteredDetail.master1_system;
-				masterQuote = filteredDetail.master1_quote;
-				masterDescription = filteredDetail.master1_description;
-				authorDescription = filteredDetail.system1_author;
-			} else if (master === 'master2') {
-				masterName = filteredDetail.master2_name;
-				masterImage1 = filteredDetail.master2_image1;
-				masterImage2 = filteredDetail.master2_image2;
-				masterSystem = filteredDetail.master2_system;
-				masterQuote = filteredDetail.master2_quote;
-				masterDescription = filteredDetail.master2_description;
-				authorDescription = filteredDetail.system2_author;
-			} else if (master === 'master3') {
-				masterName = filteredDetail.master3_name;
-				masterImage1 = filteredDetail.master3_image1;
-				masterImage2 = filteredDetail.master3_image2;
-				masterSystem = filteredDetail.master3_system;
-				masterQuote = filteredDetail.master3_quote;
-				masterDescription = filteredDetail.master3_description;
-				authorDescription = filteredDetail.system3_author;
-			} else {
-				console.error('未知的 Master：', master);
-				return;
-			}
-			
-			// 更新標題
-			document.getElementById('event-title').textContent = `${masterSystem}－桃園TRPG推廣會團務介紹`;
-			
-			// 更新圖片1 (Always show)
-			const imageElement1 = document.getElementById('event-image');
-			imageElement1.src = `image/${masterImage1}`; // 指向 image 文件夾中的圖片1
+		if (event) {
+			const master = event.masters.find(m => m.id === masterId);
 
-			// Check Image 2
-			const imageElement2 = document.getElementById('event-image-2');
-			if (masterImage2) { // 如果圖片2的路径存在且不为空
-				imageElement2.src = `image/${masterImage2}`; // 指向 image 文件夹中的圖片2
-				imageElement2.style.display = 'block'; // 显示圖片2
-			} else {
-				imageElement2.style.display = 'none'; // 隐藏圖片2
-			}
+			if (master) {
+				// 更新標題
+				document.getElementById('event-title').textContent = `${master.system}－桃園TRPG推廣會團務介紹`;
 
-			// 更新引言、內文和簽名
-			document.getElementById('event-quote').textContent = `“${masterQuote}”`;
-			document.getElementById('event-main-text').textContent = masterDescription;
-			document.getElementById('event-signature').innerHTML = `本介紹文由主持人 ${authorDescription} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+				// 更新圖片1 (Always show)
+				const imageElement1 = document.getElementById('event-image');
+				imageElement1.src = `image/${master.image1}`;
 
-			// 顯示內文區塊
-			contentContainer.style.display = 'block';
-			
-			// 滾動到內文區塊
-			contentContainer.scrollIntoView({ behavior: 'smooth' });
-			
-			// 更新網址列
-			if (shouldUpdateUrl) {
-				const newUrl = `${window.location.pathname}?date=${date}&master=${master}`;
-				if (newUrl !== window.location.href) {  // 確保 URL 不重複
-					history.pushState({ date, master }, '', newUrl); // 使用 history.pushState() 更新 URL
+				// Check Image 2
+				const imageElement2 = document.getElementById('event-image-2');
+				if (master.image2) {
+					imageElement2.src = `image/${master.image2}`;
+					imageElement2.style.display = 'block';
+				} else {
+					imageElement2.style.display = 'none';
 				}
+
+				// 更新引言、內文和簽名
+				document.getElementById('event-quote').textContent = `“${master.quote}”`;
+				document.getElementById('event-main-text').textContent = master.description;
+				document.getElementById('event-signature').innerHTML = `本介紹文由主持人 ${master.author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+
+				// 顯示內文區塊
+				contentContainer.style.display = 'block';
+
+				// 滾動到內文區塊
+				contentContainer.scrollIntoView({ behavior: 'smooth' });
+
+				// 更新網址列
+				if (shouldUpdateUrl) {
+					const newUrl = `${window.location.pathname}?date=${date}&master=${masterId}`;
+					if (newUrl !== window.location.href) {
+						history.pushState({ date, master: masterId }, '', newUrl);
+					}
+				}
+			} else {
+				console.error('未知的 Master ID：', masterId);
+				contentContainer.style.display = 'none';
 			}
 		} else {
-			contentContainer.style.display = 'none'; // 如果沒有對應的詳細資料則隱藏內文區塊
+			contentContainer.style.display = 'none';
 		}
 	}
 	
@@ -570,68 +529,25 @@
 		const eventsContainer = document.getElementById('events-container');
 		eventsContainer.innerHTML = ''; // 清空當前的活動顯示
 
-		const filteredEvents = eventsData.filter(event => event.date === date);
+		const event = eventsData.find(e => e.date === date);
 
-		// 將篩選出的活動添加到容器中
-		if (filteredEvents.length > 0) {
-			filteredEvents.forEach(event => {
-				// Master1 超連結
-				const master1Link = document.createElement('a');
-				master1Link.classList.add('event-link');
-				master1Link.href = 'javascript:void(0)'; // 設置跳轉到內文區塊的超連結
-				master1Link.addEventListener('click', function() {
-					displayDetailsByDate(event.date, 'master1'); // 點擊時顯示 Master1 詳細內容
-					
-					// 配置 active 状态，移除其他链接的 active 状态
-					activateEventLink(date, 'master1');
+		if (event && event.masters) {
+			event.masters.forEach((master, index) => {
+				const masterLink = document.createElement('a');
+				masterLink.classList.add('event-link');
+				masterLink.href = 'javascript:void(0)';
+				masterLink.dataset.masterId = master.id; // Store master.id for activation
+				masterLink.addEventListener('click', function() {
+					displayDetailsByDate(event.date, master.id);
+					activateEventLink(date, master.id);
 				});
 
-				const master1Item = document.createElement('div');
-				master1Item.classList.add('event-item');
-				master1Item.innerHTML = `<p><strong>主持人1：</strong> ${event.master1} (${event.system1}, ${event.system1_EN})</p>`;
-				
-				master1Link.appendChild(master1Item);
-				eventsContainer.appendChild(master1Link);
+				const masterItem = document.createElement('div');
+				masterItem.classList.add('event-item');
+				masterItem.innerHTML = `<p><strong>主持人${index + 1}：</strong> ${master.name} (${master.system}, ${master.system_EN})</p>`;
 
-				// Master2 超連結
-				const master2Link = document.createElement('a');
-				master2Link.classList.add('event-link');
-				master2Link.href = 'javascript:void(0)';
-				master2Link.addEventListener('click', function() {
-					displayDetailsByDate(event.date, 'master2'); // 點擊時顯示 Master2 詳細內容
-					
-					// 配置 active 状态，移除其他链接的 active 状态
-					activateEventLink(date, 'master2');
-				});
-
-				const master2Item = document.createElement('div');
-				master2Item.classList.add('event-item');
-				master2Item.innerHTML = `
-					<p><strong>主持人2：</strong> ${event.master2} (${event.system2}, ${event.system2_EN})</p>
-				`;
-				
-				master2Link.appendChild(master2Item);
-				eventsContainer.appendChild(master2Link);
-
-				// Master3 超連結
-				const master3Link = document.createElement('a');
-				master3Link.classList.add('event-link');
-				master3Link.href = 'javascript:void(0)';
-				master3Link.addEventListener('click', function() {
-					displayDetailsByDate(event.date, 'master3'); // 點擊時顯示 Master3 詳細內容
-					
-					// 配置 active 状态，移除其他链接的 active 状态
-					activateEventLink(date, 'master3');
-				});
-
-				const master3Item = document.createElement('div');
-				master3Item.classList.add('event-item');
-				master3Item.innerHTML = `
-					<p><strong>主持人3：</strong> ${event.master3} (${event.system3}, ${event.system3_EN})</p>
-				`;
-				
-				master3Link.appendChild(master3Item);
-				eventsContainer.appendChild(master3Link);
+				masterLink.appendChild(masterItem);
+				eventsContainer.appendChild(masterLink);
 			});
 		} else {
 			eventsContainer.innerHTML = `<p>此日期下沒有活動。</p>`;
@@ -639,20 +555,18 @@
 	}
 	
 	// 激活 events-container 中对应的活动链接
-	function activateEventLink(date, master) {
-		const masterNumber = master.replace('master', ''); // 提取 master 的数字部分
-		document.querySelectorAll('.event-link').forEach((link, index) => {
+	function activateEventLink(date, masterId) {
+		document.querySelectorAll('.event-link').forEach(link => {
 			link.classList.remove('active');
-			// 根据 master 的数字来激活对应的链接
-			if (index === parseInt(masterNumber) - 1) {
+			if (link.dataset.masterId === masterId) {
 				link.classList.add('active');
 			}
 		});
 	}
-	
+
 	// 處理瀏覽器的後退/前進按鈕，或直接訪問特定的 URL
 	window.addEventListener('popstate', function(event) {
-		if (event.state) {
+		if (event.state && event.state.date && event.state.master) {
 			displayDetailsByDate(event.state.date, event.state.master, false);
 		}
 	});
