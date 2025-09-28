@@ -186,7 +186,7 @@
                 const system = params.get('system');
                 const master = params.get('master');
 
-                if (system) {
+                if (date !==null && master !==null) {
                     // 根據網址指定系統名稱，自動顯示細節
                     displaySystemDetails(system, master,  date,true);
                 }
@@ -459,6 +459,7 @@
                     if (master) {
                         displayData = {
                             system: master.system,
+                            system_EN: master.system_EN,
                             quote: master.quote,
                             description: master.description,
                             author: master.name, // The master's name is the author in this context
@@ -474,6 +475,7 @@
                 if (system) {
                     displayData = {
                         system: system.system,
+                        system_EN: system.system_EN,
                         quote: system.Quote,
                         description: system.Description,
                         author: system.Author,
@@ -490,7 +492,7 @@
             }
 
             // Update DOM with displayData
-            document.getElementById('system-title').innerHTML = `《 ${displayData.system} 》`;
+            document.getElementById('system-title').innerHTML = `《 ${displayData.system} 》<br>《 ${displayData.system_EN} 》`;
             document.getElementById('system-quote').textContent = displayData.quote ? `“${displayData.quote}”` : "";
             document.getElementById('system-main-text').innerHTML = displayData.description || "";
             document.getElementById('system-signature').innerHTML = `本介紹文由 ${displayData.author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
@@ -536,8 +538,7 @@
 
                 const params = new URLSearchParams();
                 params.set('system', stateData.system);
-                if (stateData.date) params.set('date', stateData.date);
-                if (stateData.master) params.set('master', stateData.master);
+     
 
                 const newUrl = `${window.location.pathname}?${params.toString()}`;
                 if (newUrl !== window.location.href) {
