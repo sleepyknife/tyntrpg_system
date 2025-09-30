@@ -179,24 +179,6 @@
         let SystemDescriptionData = {};
 		const paramsOnLoad = new URLSearchParams(window.location.search);
 
-        window.addEventListener("DOMContentLoaded", () => {
-            loadJsonFromFolder().then(() => {
-                const params = new URLSearchParams(window.location.search);
-                const date = params.get('date');
-                const system = params.get('system');
-                const master = params.get('master');
-
-                if (date && master) {
-                    renderEventCards(date);
-                    displaySystemDetails(system, master, date, true);
-                }
-                else if (system) {
-                    displaySystemDetails(system, null,  null, true);
-                    document.getElementById('system-content-container')?.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-
 		//自動化精簡讀取json，如果需要追加修改json數量，一律去manifest.json改，讓html減肥
         async function loadJsonFromFolder(folderPath = 'data/') {
             try {
@@ -235,6 +217,23 @@
             }
         }
 
+        window.addEventListener("DOMContentLoaded", () => {
+            loadJsonFromFolder().then(() => {
+                const params = new URLSearchParams(window.location.search);
+                const date = params.get('date');
+                const system = params.get('system');
+                const master = params.get('master');
+
+                if (date && master) {
+                    renderEventCards(date);
+                    displaySystemDetails(system, master, date, true);
+                }
+                else if (system) {
+                    displaySystemDetails(system, null,  null, true);
+                    document.getElementById('system-content-container')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
 
 		// 動態生成日期下拉選單
         function generateCategorySelector(events) {
@@ -439,23 +438,31 @@
             const systemContentContainer = document.getElementById('system-content-container');
             let displayData = null;
             let masterInfo = null;
+            let system_EN = null;
 
             // If we have event details, find the master info.
             if (eventDate && masterId) {
                 const event = eventsData.find(e => e.date === eventDate);
                 if (event && event.masters) {
                     masterInfo = event.masters.find(m => m.id === masterId);
+                    if (masterInfo) {
+                        system_EN = masterInfo.system_EN;
+                    }
                 }
             }
 
-            // If systemName is missing, try to get it from the master info.
-            if (!systemName && masterInfo) {
-                systemName = masterInfo.system;
+            // If systemName is provided (e.g. from URL param or system list click) and we don't have system_EN yet,
+            // find the system_EN from systemData using the Chinese name.
+            if (systemName && !system_EN) {
+                 const system = systemData.find(s => clean(s.system).includes(clean(systemName)));
+                 if (system) {
+                    system_EN = system.system_EN;
+                 }
             }
 
-            // Now, find the system details from the main system list.
-            if (systemName) {
-                const system = systemData.find(s => clean(s.system).includes(clean(systemName)));
+            // Now, find the canonical system details from the main system list using system_EN.
+            if (system_EN) {
+                const system = systemData.find(s => clean(s.system_EN) === clean(system_EN));
                 if (system) {
                     // Use system data as a base
                     displayData = {
@@ -470,9 +477,8 @@
                 }
             }
 
-            // If we have master-specific info, use it to override.
+            // If we have master-specific info, use it to override the base data.
             if (masterInfo) {
-                // If there was no base system data, create an object
                 if (!displayData) {
                     displayData = {};
                 }
@@ -487,7 +493,7 @@
 
 
             if (!displayData) {
-                console.error("找不到系統資料:", { systemName, masterId, eventDate });
+                console.error("找不到系統資料:", { systemName, system_EN, masterId, eventDate });
                 systemContentContainer.style.display = 'none';
                 return;
             }
