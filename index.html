@@ -186,9 +186,13 @@
                 const system = params.get('system');
                 const master = params.get('master');
 
-                if (system) {
-                    // 根據網址指定系統名稱，自動顯示細節
-                    displaySystemDetails(system, master,  date,true);
+                if (date && master) {
+                    renderEventCards(date);
+                    displaySystemDetails(system, master, date, true);
+                }
+                else if (system) {
+                    displaySystemDetails(system, null,  null, true);
+                    document.getElementById('system-content-container')?.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         });
@@ -231,22 +235,6 @@
             }
         }
 
-		// 等待所有數據讀取完成後執行初始化
-        loadJsonFromFolder().then(() => {
-			// 讀取完後，檢查參數
-			const date = paramsOnLoad.get('date');
-			const master = paramsOnLoad.get('master');
-			const system = paramsOnLoad.get('system');
-
-			if (date && master) {
-                renderEventCards(date);
-                displaySystemDetails(system, master, date, true);
-			}
-			else if (system) {
-                displaySystemDetails(system, null,  null, true);
-                document.getElementById('system-content-container')?.scrollIntoView({ behavior: 'smooth' });
-			}
-		});
 
 		// 動態生成日期下拉選單
         function generateCategorySelector(events) {
@@ -450,32 +438,29 @@
         function displaySystemDetails(systemName, masterId, eventDate, shouldUpdateUrl = false) {
             const systemContentContainer = document.getElementById('system-content-container');
             let displayData = null;
+            let masterInfo = null;
 
-            // Case 1: An event is selected (date and masterId are provided)
+            // If we have event details, find the master info.
             if (eventDate && masterId) {
                 const event = eventsData.find(e => e.date === eventDate);
                 if (event && event.masters) {
-                    const master = event.masters.find(m => m.id === masterId);
-                    if (master) {
-                        displayData = {
-                            system: master.system,
-							system_EN: master.system_EN,
-                            quote: master.quote,
-                            description: master.description,
-                            author: master.name, // The master's name is the author in this context
-                            image1: master.image1,
-                            image2: master.image2,
-                        };
-                    }
+                    masterInfo = event.masters.find(m => m.id === masterId);
                 }
             }
-            // Case 2: A general system is selected from the list (only systemName is provided)
-            else if (systemName) {
+
+            // If systemName is missing, try to get it from the master info.
+            if (!systemName && masterInfo) {
+                systemName = masterInfo.system;
+            }
+
+            // Now, find the system details from the main system list.
+            if (systemName) {
                 const system = systemData.find(s => clean(s.system).includes(clean(systemName)));
                 if (system) {
+                    // Use system data as a base
                     displayData = {
                         system: system.system,
-						system_EN: system.system_EN,
+                        system_EN: system.system_EN,
                         quote: system.Quote,
                         description: system.Description,
                         author: system.Author,
@@ -484,6 +469,22 @@
                     };
                 }
             }
+
+            // If we have master-specific info, use it to override.
+            if (masterInfo) {
+                // If there was no base system data, create an object
+                if (!displayData) {
+                    displayData = {};
+                }
+                displayData.system = masterInfo.system || displayData.system;
+                displayData.system_EN = masterInfo.system_EN || displayData.system_EN;
+                displayData.quote = masterInfo.quote || displayData.quote;
+                displayData.description = masterInfo.description || displayData.description;
+                displayData.author = masterInfo.name; // Master's name always overrides author
+                displayData.image1 = masterInfo.image1 || displayData.image1;
+                displayData.image2 = masterInfo.image2 || displayData.image2;
+            }
+
 
             if (!displayData) {
                 console.error("找不到系統資料:", { systemName, masterId, eventDate });
