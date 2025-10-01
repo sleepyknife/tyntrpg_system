@@ -171,570 +171,468 @@
 	</div>
 	<button id="backToTopBtn">回到最上面</button>
 	<script>
+	// --- 全局變量 ---
+	let systemData = [];
+	let eventsData = [];
+	let SystemDescriptionData = {};
+
+	// --- 核心：統一的頁面初始化入口 ---
+	document.addEventListener("DOMContentLoaded", async () => {
+		try {
+			// 1. 首先，等待所有 JSON 資料載入完成
+			await loadJsonFromFolder();
+
+			// 2. 資料載入後，再初始化所有需要資料的 UI 元件
+			generateCategoryButtonsFromData(); // 根據 systemData 產生分類按鈕
+			generateCategorySelector(eventsData); // 根據 eventsData 產生日期下拉選單
+			initializeWordCloud("image"); // 初始化文字雲
+
+			// 3. 處理當前 URL 的參數，決定要顯示哪個系統/活動
+			handleUrlParametersOnLoad();
+
+			// 4. 綁定不需要等待資料載入的 UI 事件
+			setupEventListeners();
+
+		} catch (error) {
+			console.error("頁面初始化失敗:", error);
+			// 你可以在此處向用戶顯示錯誤訊息
+		}
+	});
+
+	// --- 資料載入 ---
+	async function loadJsonFromFolder(folderPath = 'data/') {
+		try {
+			// 加上 timestamp 防止 manifest.json 被快取
+			const manifestRes = await fetch(`${folderPath}manifest.json?t=${Date.now()}`);
+			const manifest = await manifestRes.json();
+			const jsonFiles = manifest.files;
+
+			const fetches = jsonFiles.map(filename =>
+				fetch(`${folderPath}${filename}?t=${Date.now()}`)
+				.then(res => {
+					if (!res.ok) throw new Error(`讀取失敗：${filename} (${res.status})`);
+					return res.json();
+				})
+			);
+
+			const results = await Promise.all(fetches);
+			
+			// 將讀取到的資料存入全局變量
+			systemData = results[0].details;
+			eventsData = results[1].events;
+			SystemDescriptionData = results[2].include;
+
+		} catch (error) {
+			console.error("讀取 JSON 資料時發生錯誤：", error);
+			throw error; // 拋出錯誤，讓外層的 try...catch 可以捕獲
+		}
+	}
+	
+	// --- 頁面啟動邏輯 ---
+	function handleUrlParametersOnLoad() {
+		const params = new URLSearchParams(window.location.search);
+		const date = params.get('date');
+		let system = params.get('system');
+		const master = params.get('master');
+
+		if (date && master) {
+			// 案例 1: URL 包含日期和主持人 ID (這是最高優先級)
+			// 我們從 eventsData 中反查系統名稱
+			if (!system) {
+				const event = eventsData.find(e => e.date === date);
+				if (event?.masters) {
+					const masterInfo = event.masters.find(m => m.id === master);
+					if (masterInfo) {
+						system = masterInfo.system; // 成功找到系統名稱
+					}
+				}
+			}
+			renderEventCards(date); // 渲染該日期的所有活動卡片
+			if (system) {
+				displaySystemDetails(system, master, date, true); // 顯示詳細資訊
+			} else {
+				console.warn(`在 ${date} 的活動中找不到主持人 ${master} 的系統資訊。`);
+			}
+
+		} else if (system) {
+			// 案例 2: URL 只包含系統名稱
+			displaySystemDetails(system, null, null, true);
+		}
+	}
+
+	// --- 事件綁定 ---
+	function setupEventListeners() {
+		// 回到頂部按鈕
+		const btn = document.getElementById('backToTopBtn');
+		window.addEventListener('scroll', () => {
+			btn.style.display = window.scrollY > 200 ? 'block' : 'none';
+		});
+		btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+		// 瀏覽器上一頁/下一頁事件
+		window.addEventListener('popstate', e => {
+			if (e.state?.system) {
+				// 修正了參數順序錯誤的問題
+				displaySystemDetails(
+					e.state.system,
+					e.state.master || null,
+					e.state.date || null,
+					false
+				);
+			}
+		});
+
+		// 文字雲模式切換按鈕
+		const modeButtons = {
+			"btn-image-mode": "image",
+			"btn-text-mode": "text",
+			"btn-random-pick": "random"
+		};
+		Object.entries(modeButtons).forEach(([btnId, mode]) => {
+			const btn = document.getElementById(btnId);
+			if (btn) {
+				btn.addEventListener("click", () => reloadCloud(mode));
+			}
+		});
 		
-		// 全局變量來存儲讀取的事件資料
-		let systemData = [];
-		let eventsData = [];
-		let uniqueCategories = new Set();
-        let SystemDescriptionData = {};
-		const paramsOnLoad = new URLSearchParams(window.location.search);
+		// 日期選擇器事件
+		const dateSelector = document.getElementById('event-date-selector');
+		dateSelector.addEventListener('change', function () {
+			const selectedDate = this.value;
+			renderEventCards(selectedDate);
+			const eventBlock = document.getElementById('events-container');
+			if (eventBlock) {
+				eventBlock.scrollIntoView({ behavior: 'smooth' });
+			}
+		});
+	}
 
-		//自動化精簡讀取json，如果需要追加修改json數量，一律去manifest.json改，讓html減肥
-        async function loadJsonFromFolder(folderPath = 'data/') {
-            try {
-                const manifestRes = await fetch(`${folderPath}manifest.json`);
-                const manifest = await manifestRes.json();
+	// --- UI 生成與更新 (以下是你的原始函式，稍作調整) ---
 
-                const jsonFiles = manifest.files;
+	function generateCategoryButtonsFromData() {
+        const categories = [...new Set(
+            systemData.flatMap(system =>
+                system.category.split('、').map(tag => tag.trim())
+            )
+        )].sort((a, b) => a.length - b.length);
+        categories.unshift("全部");
+        generateCategoryButtons(categories); // 呼叫你原有的函式
+    }
 
-                const fetches = jsonFiles.map(filename =>
-                    fetch(`${folderPath}${filename}?t=${Date.now()}`)
-                        .then(res => {
-                            if (!res.ok) throw new Error(`讀取失敗：${filename} (${res.status})`);
-                            return res.json();
-                        })
-                );
-
-				const results = await Promise.all(fetches);
-                // 對結果依照順序處理（可自行調整）
-                systemData = results[0].details;
-                eventsData = results[1].events; // from events.json
-                SystemDescriptionData = results[2].include;
-
-                // 處理資料
-                generateSystemTabs(systemData);
-                const Categories = [...new Set(
-                    systemData.flatMap(system =>
-                        system.category.split('、').map(tag => tag.trim())
-                    )
-				)].sort((a, b) => a.length - b.length);
-                Categories.unshift("全部");
-                generateCategoryButtons(Categories);
-                generateCategorySelector(eventsData);
-
-            } catch (error) {
-                console.error("讀取 JSON 資料時發生錯誤：", error);
-            }
-        }
-
-        window.addEventListener("DOMContentLoaded", () => {
-            loadJsonFromFolder().then(() => {
-                const params = new URLSearchParams(window.location.search);
-                const date = params.get('date');
-                const system = params.get('system');
-                const master = params.get('master');
-
-                if (date && master) {
-                    renderEventCards(date);
-                    displaySystemDetails(system, master, date, true);
-                }
-                else if (system) {
-                    displaySystemDetails(system, null,  null, true);
-                    document.getElementById('system-content-container')?.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-
-		// 動態生成日期下拉選單
-        function generateCategorySelector(events) {
-            const selector = document.getElementById('event-date-selector');
-            selector.innerHTML = '<option disabled selected>請選擇活動日期</option>'; 
-            // 建立唯一日期集合
-            const uniqueDates = [...new Set(events.map(e => e.date))];
-
-            uniqueDates.forEach(date => {
-                const option = document.createElement('option');
-                option.value = date;
-                option.textContent = date;
-                selector.appendChild(option);
-            });
-
-            selector.addEventListener('change', function () {
-                const eventBlock = document.getElementById('events-container');
-                if (eventBlock) {
-                    eventBlock.scrollIntoView({ behavior: 'smooth' });
-                }
+	function generateCategoryButtons(categories) {
+		const categoryContainer = document.getElementById("category-container");
+		categoryContainer.innerHTML = '';
+		categories.forEach(category => {
+			const button = document.createElement("button");
+			button.textContent = category;
+			button.className = "category-button";
+			button.addEventListener("click", () => {
+				ShowSystemStyleDescription(category);
 			});
+			categoryContainer.appendChild(button);
+		});
+	}
 
-            document.getElementById('event-date-selector').addEventListener('change', function () {
-                const selectedDate = this.value;
-                renderEventCards(selectedDate);
-            });
-        }	
-		
-		// 根據所選日期顯示對應的活動
-        function renderEventCards(TargetData) {
-            const container = document.getElementById('events-container');
-            container.innerHTML = ''; // 清空
+	function generateCategorySelector(events) {
+		const selector = document.getElementById('event-date-selector');
+		selector.innerHTML = '<option disabled selected>請選擇活動日期</option>';
+		const uniqueDates = [...new Set(events.map(e => e.date))];
+		uniqueDates.forEach(date => {
+			const option = document.createElement('option');
+			option.value = date;
+			option.textContent = date;
+			selector.appendChild(option);
+		});
+	}
+	
+	function initializeWordCloud(mode) {
+		const wordCloudElement = document.getElementById("word-cloud");
+		const parent = wordCloudElement.parentElement;
+		const parentWidth = parent.clientWidth;
+		const cloudSize = Math.min(parentWidth * 0.8, 600);
+		const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-            const event = eventsData.find(e => e.date === TargetData);
-            if (!event || !event.masters) {
-                container.innerHTML = '<p>此日期下沒有活動。</p>';
-                return;
-            }
-
-            event.masters.forEach(master => {
-                const card = document.createElement('a');
-                card.className = 'event-card';
-                card.innerHTML = `
-                    <span>主持人：${master.name}</span> <br>
-                    <span>系統：${master.system}（${master.system_EN}）</span>
-                `;
-                card.addEventListener('click', () => {
-                    displaySystemDetails(master.system, master.id, event.date, true);
-                    document.querySelectorAll('.event-card').forEach(c => c.classList.remove('active'));
-                    card.classList.add('active');
-                });
-                container.appendChild(card);
-            });
-        }
-		
-        // 處理瀏覽器返回時顯示活動詳情
-        window.addEventListener('popstate', e => {
-            if (e.state?.system) {
-                displaySystemDetails(
-                    e.state.master || null,
-                    e.state.system,
-                    e.state.date || null,
-                    false 
-                );
-            }
-        });
-        // 回到頂部按鈕功能
-        document.addEventListener('DOMContentLoaded', () => {
-            // 回到頂部按鈕功能
-            const btn = document.getElementById('backToTopBtn');
-            window.addEventListener('scroll', () => {
-                btn.style.display = window.scrollY > 200 ? 'block' : 'none';
-            });
-            btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-            
-            const params = new URLSearchParams(window.location.search);
-            const systemParam = params.get('system');
-
-            if (systemParam) {
-                displaySystemDetails(
-                    history.state?.master || null,
-                    systemParam,
-                    history.state?.date || null,
-                    false
-                );
-            }
-        });
-
-        // 顯示系統風格的介紹
-        function ShowSystemStyleDescription(SystemStyle) {
-
-            const match = SystemDescriptionData.find(data => data.name === SystemStyle);
-            if (match) {
-                const titleEl = document.getElementById("SystemStyle");
-                const descEl = document.getElementById("SystemStyle-Description");
-                if (match.name == "全部") { match.name = "小孩子才做選擇！我全都要！" };
-                fadeTextChange(titleEl, match.name);
-                fadeTextChange(descEl, match.description);
-            }
-
-            displaySystemsByCategory(SystemStyle);
-
-            //彈出系統列表
-            const sysContainer = document.getElementById("systems-container");
-            if (sysContainer && !sysContainer.classList.contains("active")) {
-                sysContainer.style.display = "block";
-                setTimeout(() => {
-                    sysContainer.classList.add("active");
-                }, 400);
-            }
-
-            //收起系統詳細介紹
-            const SysContenter = document.getElementById("system-content-container");
-            if (SysContenter) {
-                SysContenter.classList.add("hide");
-                setTimeout(() => {
-                    SysContenter.style.display = "none";
-                }, 500);
-
-            }
-        }
-
-        // 顯示所選分類的系統
-        function displaySystemsByCategory(category) {
-            const filtered = (category === "全部")
-                ? systemData
-                : systemData.filter(system => system.category.includes(category));
-
-            generateSystemTabs(filtered); // 根據過濾後的系統顯示細節
-        }
-
-		// 动态生成系统标签，Table
-        function generateSystemTabs(systems) {
-            const systemsContainer = document.getElementById('systems-container');
-            systemsContainer.innerHTML = '';
-
-            const table = document.createElement('table');
-            table.className = 'system-table';
-
-            // 標題列
-            const showAllRow = document.createElement('tr');
-            const showAllCell = document.createElement('td');
-            showAllCell.className = 'system-title-cell';
-            showAllCell.colSpan = 2;
-            showAllCell.textContent = '系統一覽';
-            showAllRow.appendChild(showAllCell);
-            table.appendChild(showAllRow);
-
-            let row;
-            systems.forEach((system, index) => {
-                if (index % 2 === 0) {
-                    row = document.createElement('tr');
-                    table.appendChild(row);
-                }
-
-                const cell = document.createElement('td');
-                cell.className = 'system-cell ' + (Math.floor(index / 2) % 2 === 0 ? 'system-row-even' : 'system-row-odd');
-                cell.setAttribute('data-system', system.system);
-
-                const textSpan = document.createElement('span');
-                textSpan.className = 'system-fade';
-                textSpan.textContent = `${system.system}《${system.system_EN}》`;
-                cell.appendChild(textSpan);
-
-                // 漸層顯示
-                setTimeout(() => textSpan.style.opacity = '1', 20 * index);
-
-                // 點擊事件
-                cell.addEventListener('click', () => {
-                    document.querySelectorAll('#systems-container td').forEach(td => {
-                        td.classList.remove('active');
-                        td.classList.remove('system-row-even', 'system-row-odd');
-                        const r = Math.floor([...td.parentNode.parentNode.children].indexOf(td.parentNode) - 1);
-                        if (r >= 0) {
-                            td.classList.add(r % 2 === 0 ? 'system-row-even' : 'system-row-odd');
-                        }
-                    });
-
-                    cell.classList.add('active');
-                    const container = document.getElementById('system-content-container');
-                    container.style.display = 'block';
-                    container.classList.remove('hide');
-                    displaySystemDetails(system.system, null,  system.update, true);
-                });
-
-                row.appendChild(cell);
-            });
-
-            systemsContainer.appendChild(table);
-        }
-		
-		function clean(str) {
-		  return str
-			?.toString()
-			.replace(/[\u200B-\u200D\uFEFF]/g, '') // 清掉零寬空白、FEFF、其他奇怪字元
-			.replace(/\s/g, '') // 清掉可見空白（半形、全形、tab）
-			.trim();
+		// 直接使用已載入的 systemData，不再重複 fetch
+		if (mode === "random") {
+			const randomSystem = systemData[Math.floor(Math.random() * systemData.length)];
+			displaySystemDetails(randomSystem.system, null, null, true);
+			return;
 		}
 
-		// 根据系统显示详细信息
-        function displaySystemDetails(systemName, masterId, eventDate, shouldUpdateUrl = false) {
-            const systemContentContainer = document.getElementById('system-content-container');
-            let displayData = null;
-            let masterInfo = null;
-            let system_EN = null;
+		const entries = systemData.map(system => {
+			if (mode === "text") {
+				return { label: `${system.system}《${system.system_EN}》`, systemName: system.system };
+			} else if (mode === "image") {
+				return {
+					image: './image/' + system.image1,
+					width: isMobile ? 80 : 140,
+					height: isMobile ? 80 : 140,
+					systemName: system.system
+				};
+			}
+		});
 
-            // If we have event details, find the master info.
-            if (eventDate && masterId) {
-                const event = eventsData.find(e => e.date === eventDate);
-                if (event && event.masters) {
-                    masterInfo = event.masters.find(m => m.id === masterId);
-                    if (masterInfo) {
-                        system_EN = masterInfo.system_EN;
-                    }
-                }
-            }
+		const settings = {
+			entries,
+			width: parentWidth,
+			height: isMobile ? cloudSize + 100 : cloudSize,
+			radius: '100%',
+			radiusMin: 75,
+			bgDraw: false,
+			opacityOver: 1.0,
+			opacityOut: 0.05,
+			opacitySpeed: 6,
+			fov: 800,
+			speed: isMobile ? 0.2 : 0.3,
+			fontFamily: "Arial, sans-serif",
+			fontSize: isMobile ? 13 : 18,
+			fontColor: "#fff",
+			fontWeight: "bold",
+			onClick(systemName) {
+				const parsed = systemName.split("《")[0].trim();
+				displaySystemDetails(parsed, null, null, true);
+			}
+		};
+		
+		new SVG3DTagCloud(wordCloudElement, settings);
+	}
 
-            // If systemName is provided (e.g. from URL param or system list click) and we don't have system_EN yet,
-            // find the system_EN from systemData using the Chinese name.
-            if (systemName && !system_EN) {
-                 const system = systemData.find(s => clean(s.system).includes(clean(systemName)));
-                 if (system) {
-                    system_EN = system.system_EN;
-                 }
-            }
-
-            // Now, find the canonical system details from the main system list using system_EN.
-            if (system_EN) {
-                const system = systemData.find(s => clean(s.system_EN) === clean(system_EN));
-                if (system) {
-                    // Use system data as a base
-                    displayData = {
-                        system: system.system,
-                        system_EN: system.system_EN,
-                        quote: system.Quote,
-                        description: system.Description,
-                        author: system.Author,
-                        image1: system.image1,
-                        image2: system.image2
-                    };
-                }
-            }
-
-            // If we have master-specific info, use it to override the base data.
-            if (masterInfo) {
-                if (!displayData) {
-                    displayData = {};
-                }
-                displayData.system = masterInfo.system || displayData.system;
-                displayData.system_EN = masterInfo.system_EN || displayData.system_EN;
-                displayData.quote = masterInfo.quote || displayData.quote;
-                displayData.description = masterInfo.description || displayData.description;
-                displayData.author = masterInfo.name; // Master's name always overrides author
-                displayData.image1 = masterInfo.image1 || displayData.image1;
-                displayData.image2 = masterInfo.image2 || displayData.image2;
-            }
+	// 共用刷新文字雲方法
+	let currentCloudMode = "image";
+	function reloadCloud(mode) {
+		currentCloudMode = mode;
+		const wordCloudElement = document.getElementById("word-cloud");
+		wordCloudElement.innerHTML = "";
+		initializeWordCloud(mode);
+	}
+	// 監聽視窗大小變化以重繪文字雲
+	window.addEventListener("resize", () => reloadCloud(currentCloudMode));
 
 
-            if (!displayData) {
-                console.error("找不到系統資料:", { systemName, system_EN, masterId, eventDate });
-                systemContentContainer.style.display = 'none';
-                return;
-            }
+	// --- 其他所有你的函式維持不變 ---
+	// (例如: displaySystemDetails, renderEventCards, ShowSystemStyleDescription, etc.)
+	// ... 將你其他的函式貼在這裡 ...
+	// function renderEventCards(TargetData) { ... }
+	// function ShowSystemStyleDescription(SystemStyle) { ... }
+	// ... etc ...
+	// 你的所有函式，例如 displaySystemDetails, clean, generateSystemTabs 等等，都可以原封不動地複製到這裡。
+	// 以下貼上你原有的函式，確保它們都能被呼叫到
 
-            // Update DOM with displayData
-            document.getElementById('system-title').innerHTML = ` ${displayData.system} <br>《${displayData.system_EN}》`;
-            document.getElementById('system-quote').textContent = displayData.quote ? `“${displayData.quote}”` : "";
-            document.getElementById('system-main-text').innerHTML = displayData.description || "";
-            document.getElementById('system-signature').innerHTML = `本介紹文由 ${displayData.author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+	function renderEventCards(TargetData) {
+		const container = document.getElementById('events-container');
+		container.innerHTML = ''; // 清空
+		const event = eventsData.find(e => e.date === TargetData);
+		if (!event || !event.masters) {
+			container.innerHTML = '<p>此日期下沒有活動。</p>';
+			return;
+		}
+		event.masters.forEach(master => {
+			const card = document.createElement('a');
+			card.className = 'event-card';
+			card.innerHTML = `
+				<span>主持人：${master.name}</span> <br>
+				<span>系統：${master.system}（${master.system_EN}）</span>
+			`;
+			card.addEventListener('click', () => {
+				displaySystemDetails(master.system, master.id, event.date, true);
+				document.querySelectorAll('.event-card').forEach(c => c.classList.remove('active'));
+				card.classList.add('active');
+			});
+			container.appendChild(card);
+		});
+	}
 
-            // Update images in swiper
-            const swiperWrapper = document.getElementById('system-swiper-wrapper');
-            swiperWrapper.innerHTML = ''; // Clear existing slides
+	function ShowSystemStyleDescription(SystemStyle) {
+		const match = SystemDescriptionData.find(data => data.name === SystemStyle);
+		if (match) {
+			const titleEl = document.getElementById("SystemStyle");
+			const descEl = document.getElementById("SystemStyle-Description");
+			let displayName = match.name;
+			if (displayName === "全部") { displayName = "小孩子才做選擇！我全都要！"; }
+			fadeTextChange(titleEl, displayName);
+			fadeTextChange(descEl, match.description);
+		}
+		displaySystemsByCategory(SystemStyle);
+		const sysContainer = document.getElementById("systems-container");
+		if (sysContainer && !sysContainer.classList.contains("active")) {
+			sysContainer.style.display = "block";
+			setTimeout(() => {
+				sysContainer.classList.add("active");
+			}, 400);
+		}
+		const SysContenter = document.getElementById("system-content-container");
+		if (SysContenter) {
+			SysContenter.classList.add("hide");
+			setTimeout(() => {
+				SysContenter.style.display = "none";
+			}, 500);
+		}
+	}
 
-            [displayData.image1, displayData.image2].forEach((imagePath, index) => {
-                if (imagePath) {
-                    const slide = document.createElement('div');
-                    slide.className = 'swiper-slide';
-                    const img = document.createElement('img');
-                    img.src = `image/${imagePath}`;
-                    img.alt = `image${index + 1}`;
-                    slide.appendChild(img);
-                    swiperWrapper.appendChild(slide);
-                }
-            });
+	function displaySystemsByCategory(category) {
+		const filtered = (category === "全部")
+			? systemData
+			: systemData.filter(system => system.category.includes(category));
+		generateSystemTabs(filtered);
+	}
 
-            // Re-initialize Swiper
-            if (window.systemSwiper) {
-                window.systemSwiper.destroy(true, true);
-            }
-            window.systemSwiper = new Swiper(".mySwiper", {
-                loop: true,
-                navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-                pagination: { el: ".swiper-pagination", clickable: true },
-                autoplay: { delay: 5000, disableOnInteraction: false }
-            });
+	function generateSystemTabs(systems) {
+		const systemsContainer = document.getElementById('systems-container');
+		systemsContainer.innerHTML = '';
+		const table = document.createElement('table');
+		table.className = 'system-table';
+		const showAllRow = document.createElement('tr');
+		const showAllCell = document.createElement('td');
+		showAllCell.className = 'system-title-cell';
+		showAllCell.colSpan = 2;
+		showAllCell.textContent = '系統一覽';
+		showAllRow.appendChild(showAllCell);
+		table.appendChild(showAllRow);
+		let row;
+		systems.forEach((system, index) => {
+			if (index % 2 === 0) {
+				row = document.createElement('tr');
+				table.appendChild(row);
+			}
+			const cell = document.createElement('td');
+			cell.className = 'system-cell ' + (Math.floor(index / 2) % 2 === 0 ? 'system-row-even' : 'system-row-odd');
+			cell.setAttribute('data-system', system.system);
+			const textSpan = document.createElement('span');
+			textSpan.className = 'system-fade';
+			textSpan.textContent = `${system.system}《${system.system_EN}》`;
+			cell.appendChild(textSpan);
+			setTimeout(() => textSpan.style.opacity = '1', 20 * index);
+			cell.addEventListener('click', () => {
+				document.querySelectorAll('#systems-container td').forEach(td => {
+					td.classList.remove('active');
+					td.classList.remove('system-row-even', 'system-row-odd');
+					const r = Math.floor([...td.parentNode.parentNode.children].indexOf(td.parentNode) - 1);
+					if (r >= 0) {
+						td.classList.add(r % 2 === 0 ? 'system-row-even' : 'system-row-odd');
+					}
+				});
+				cell.classList.add('active');
+				const container = document.getElementById('system-content-container');
+				container.style.display = 'block';
+				container.classList.remove('hide');
+				displaySystemDetails(system.system, null, system.update, true);
+			});
+			row.appendChild(cell);
+		});
+		systemsContainer.appendChild(table);
+	}
 
-            // Show container and scroll
-            systemContentContainer.style.display = 'block';
-            systemContentContainer.scrollIntoView({ behavior: 'smooth' });
+	function clean(str) {
+		return str
+			?.toString()
+			.replace(/[\u200B-\u200D\uFEFF]/g, '')
+			.replace(/\s/g, '')
+			.trim();
+	}
 
-            // Update URL
-            if (shouldUpdateUrl) {
-                const stateData = {
-                    system: displayData.system,
-                    date: eventDate || null,
-                    master: masterId || null
-                };
-
-                const params = new URLSearchParams();
-                params.set('system', stateData.system);
-                if (stateData.date) params.set('date', stateData.date);
-                if (stateData.master) params.set('master', stateData.master);
-
-                const newUrl = `${window.location.pathname}?${params.toString()}`;
-                if (newUrl !== window.location.href) {
-                     history.pushState(stateData, '', newUrl);
-                }
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            let currentMode = "image";
-            const wordCloudElement = document.getElementById("word-cloud");
-
-            // 判斷是否為手機
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-            // 初始化文字雲
-        function initializeWordCloud(mode) {
-                const parent = wordCloudElement.parentElement;
-                const parentWidth = parent.clientWidth;
-                const cloudSize = Math.min(parentWidth * 0.8, 600);
-
-                fetch('data/system.json')
-                    .then(res => res.json())
-                    .then(data => {
-                        const systemData = data.details;
-
-                        if (mode === "random") {
-                            const randomSystem = systemData[Math.floor(Math.random() * systemData.length)];
-                            window.displaySystemDetails(null, randomSystem.system, randomSystem.update, true);
-                            return;
-                        }
-
-                        const entries = systemData.map(system => {
-                            if (mode === "text") {
-                                return { label: `${system.system}《${system.system_EN}》`, systemName: system.system };
-                            } else if (mode === "image") {
-                                return {
-                                    image: './image/' + system.image1,
-                                    width: isMobile ? 80 : 140,
-                                    height: isMobile ? 80 : 140,
-                                    systemName: system.system
-                                };
-                            }
-                        });
-
-                        const settings = {
-                            entries,
-                            width: parentWidth,
-                            height: isMobile ? cloudSize + 100 : cloudSize,
-                            radius: '100%',
-                            radiusMin: 75,
-                            bgDraw: false,
-                            bgImage: "./image/word-cloud-bg.jpeg",
-                            opacityOver: 1.0,
-                            opacityOut: 0.05,
-                            opacitySpeed: 6,
-                            fov: 800,
-                            speed: isMobile ? 0.2 : 0.3,
-                            fontFamily: "Arial, sans-serif",
-                            fontSize: isMobile ? 13 : 18,
-                            fontColor: "#fff",
-                            fontWeight: "bold",
-                            fontStyle: "normal",
-                            fontStretch: "normal",
-                            fontToUpperCase: false,
-                            onClick(systemName) {
-                                const parsed = systemName.split("《")[0].trim();
-                                window.displaySystemDetails(parsed, null,  null, true);
-                            }
-                        };
-
-                        new SVG3DTagCloud(wordCloudElement, settings);
-                    })
-                    .catch(err => console.error("讀取 system.json 錯誤:", err));
-        }
-
-            // ✅ 共用刷新方法
-        function reloadCloud(mode) {
-                currentMode = mode;
-                wordCloudElement.innerHTML = "";
-                initializeWordCloud(mode);
-        }
-        // ✅ 初始載入與 resize
-        initializeWordCloud(currentMode);
-        window.addEventListener("resize", () => reloadCloud(currentMode));
-
-        // ✅ 綁定所有模式按鈕
-        const modeButtons = {
-                "btn-image-mode": "image",
-                "btn-text-mode": "text",
-                "btn-random-pick": "random"
-        };
-        Object.entries(modeButtons).forEach(([btnId, mode]) => {
-                const btn = document.getElementById(btnId);
-                if (btn) {
-                    btn.addEventListener("click", () => reloadCloud(mode));
-                }
-            });
-        });
-
-        const categorizedSystems = systemData.map(system => system.category); // 提取所有分類
-        const Categories = [...new Set(categorizedSystems)];
-
-        function generateCategoryButtons(categories) {
-            const categoryContainer = document.getElementById("category-container");
-            categoryContainer.innerHTML = '';
-
-            categories.forEach(category => {
-                const button = document.createElement("button");
-                button.textContent = category;
-                button.className = "category-button";
-
-                button.addEventListener("click", () => {
-                    ShowSystemStyleDescription(category);
-                });
-
-                categoryContainer.appendChild(button);
-            });
-        }  
-
-        // 顯示該分類的詳細介紹與系統名稱
-        function displayCategoryDetails(category) {
-            const systemsContainer = document.getElementById('SystemContent-container');
-			systemsContainer.innerHTML = '';  // 清空現有內容
-			debugger
-            const categoryTitle = document.createElement("h3");
-            categoryTitle.textContent = category.category;
-            systemsContainer.appendChild(categoryTitle);
-
-            const categoryDescription = document.createElement("p");
-            categoryDescription.textContent = category.description;
-            systemsContainer.appendChild(categoryDescription);
-
-            const table = document.createElement('table');
-            table.style.width = "100%";
-            table.style.borderCollapse = "collapse";
-
-            category.forEach(system => {
-                const row = document.createElement('tr');
-                const cell = document.createElement('td');
-                cell.textContent = system.system + "《" + system.system_EN + "》";
-                cell.style.border = "1px solid #ddd";
-                cell.style.padding = "10px";
-                cell.style.textAlign = "center";
-                row.appendChild(cell);
-                table.appendChild(row);
-            });
-
-			systemsContainer.appendChild(table);
-        }
-
-        // 展開或收起分類內容
-        function toggleCategoryContent(category) {
-            const systemsContainer = document.getElementById('systems-container');
-            const contentDiv = document.querySelector(`#systems-container h3:contains('${category}')`).parentElement;
-
-            // 如果該分類已經顯示，則隱藏它
-            if (contentDiv.style.display === "none") {
-                contentDiv.style.display = "block";
-            } else {
-                contentDiv.style.display = "none";
-            }
-        }       
-
-        function fadeTextChange(element, newText) {
-            if (!element) return;
-            element.classList.add('fade-out');
-            // 換文字並淡入
-            setTimeout(() => {
-                element.innerHTML  = newText;
-                element.classList.remove('fade-out');
-            }, 300); 
-		}       
-
-        // 切換模式樣式
-		function switchToMode(mode) {
-			document.querySelectorAll(".explore-btn").forEach(btn => btn.classList.remove("active"));
-			if (mode === "image") {
-				document.getElementById("btn-image-mode").classList.add("active");
-				// 這裡加上切換圖片的邏輯
-			} else {
-				document.getElementById("btn-text-mode").classList.add("active");
-				// 這裡加上切換文字的邏輯
+	function displaySystemDetails(systemName, masterId, eventDate, shouldUpdateUrl = false) {
+		const systemContentContainer = document.getElementById('system-content-container');
+		let displayData = null;
+		let masterInfo = null;
+		let system_EN = null;
+		if (eventDate && masterId) {
+			const event = eventsData.find(e => e.date === eventDate);
+			if (event && event.masters) {
+				masterInfo = event.masters.find(m => m.id === masterId);
+				if (masterInfo) {
+					system_EN = masterInfo.system_EN;
+				}
 			}
 		}
-
-       
-	</script>
+		if (systemName && !system_EN) {
+			const system = systemData.find(s => clean(s.system).includes(clean(systemName)));
+			if (system) {
+				system_EN = system.system_EN;
+			}
+		}
+		if (system_EN) {
+			const system = systemData.find(s => clean(s.system_EN) === clean(system_EN));
+			if (system) {
+				displayData = {
+					system: system.system,
+					system_EN: system.system_EN,
+					quote: system.Quote,
+					description: system.Description,
+					author: system.Author,
+					image1: system.image1,
+					image2: system.image2
+				};
+			}
+		}
+		if (masterInfo) {
+			if (!displayData) { displayData = {}; }
+			displayData.system = masterInfo.system || displayData.system;
+			displayData.system_EN = masterInfo.system_EN || displayData.system_EN;
+			displayData.quote = masterInfo.quote || displayData.quote;
+			displayData.description = masterInfo.description || displayData.description;
+			displayData.author = masterInfo.name;
+			displayData.image1 = masterInfo.image1 || displayData.image1;
+			displayData.image2 = masterInfo.image2 || displayData.image2;
+		}
+		if (!displayData) {
+			console.error("找不到系統資料:", { systemName, system_EN, masterId, eventDate });
+			systemContentContainer.style.display = 'none';
+			return;
+		}
+		document.getElementById('system-title').innerHTML = ` ${displayData.system} <br>《${displayData.system_EN}》`;
+		document.getElementById('system-quote').textContent = displayData.quote ? `“${displayData.quote}”` : "";
+		document.getElementById('system-main-text').innerHTML = displayData.description || "";
+		document.getElementById('system-signature').innerHTML = `本介紹文由 ${displayData.author} 撰寫。<br>本文用於桃園TRPG推廣會活動使用。`;
+		const swiperWrapper = document.getElementById('system-swiper-wrapper');
+		swiperWrapper.innerHTML = '';
+		[displayData.image1, displayData.image2].forEach((imagePath, index) => {
+			if (imagePath) {
+				const slide = document.createElement('div');
+				slide.className = 'swiper-slide';
+				const img = document.createElement('img');
+				img.src = `image/${imagePath}`;
+				img.alt = `image${index + 1}`;
+				slide.appendChild(img);
+				swiperWrapper.appendChild(slide);
+			}
+		});
+		if (window.systemSwiper) {
+			window.systemSwiper.destroy(true, true);
+		}
+		window.systemSwiper = new Swiper(".mySwiper", {
+			loop: true,
+			navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+			pagination: { el: ".swiper-pagination", clickable: true },
+			autoplay: { delay: 5000, disableOnInteraction: false }
+		});
+		systemContentContainer.style.display = 'block';
+		systemContentContainer.scrollIntoView({ behavior: 'smooth' });
+		if (shouldUpdateUrl) {
+			const stateData = {
+				system: displayData.system,
+				date: eventDate || null,
+				master: masterId || null
+			};
+			const params = new URLSearchParams();
+			params.set('system', stateData.system);
+			if (stateData.date) params.set('date', stateData.date);
+			if (stateData.master) params.set('master', stateData.master);
+			const newUrl = `${window.location.pathname}?${params.toString()}`;
+			if (newUrl !== window.location.href) {
+				history.pushState(stateData, '', newUrl);
+			}
+		}
+	}
+	
+	function fadeTextChange(element, newText) {
+		if (!element) return;
+		element.classList.add('fade-out');
+		setTimeout(() => {
+			element.innerHTML = newText;
+			element.classList.remove('fade-out');
+		}, 300);
+	}
+</script>
 
 </body>
 </html>
