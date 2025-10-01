@@ -221,10 +221,19 @@
             loadJsonFromFolder().then(() => {
                 const params = new URLSearchParams(window.location.search);
                 const date = params.get('date');
-                const system = params.get('system');
+                let system = params.get('system');
                 const master = params.get('master');
 
                 if (date && master) {
+                    if (!system) {
+                        const event = eventsData.find(e => e.date === date);
+                        if (event && event.masters) {
+                            const masterInfo = event.masters.find(m => m.id === master);
+                            if (masterInfo) {
+                                system = masterInfo.system;
+                            }
+                        }
+                    }
                     renderEventCards(date);
                     displaySystemDetails(system, master, date, true);
                 }
