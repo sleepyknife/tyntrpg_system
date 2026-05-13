@@ -134,6 +134,87 @@
 		.toggle-switch input:checked + .toggle-track::after {
 			transform: translateX(16px);
 		}
+
+		/* ── 夏日夜晚背景遮罩 ── */
+		#summer-night-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 5, 20, 0.84);
+			z-index: 9998;
+			pointer-events: none;
+			transition: opacity 0.6s;
+		}
+
+		/* ── 季節選擇觸發按鈕 ── */
+		.season-trigger-btn {
+			background: rgba(131, 94, 84, 0.12);
+			border: 1px solid #d6b8ae;
+			border-radius: 8px;
+			padding: 3px 9px;
+			font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+			font-size: 12px;
+			color: #835E54;
+			cursor: pointer;
+			transition: background 0.15s;
+			white-space: nowrap;
+			line-height: 1.6;
+		}
+		.season-trigger-btn:hover {
+			background: rgba(131, 94, 84, 0.22);
+		}
+
+		/* ── 季節選擇彈出面板 ── */
+		#season-popup {
+			position: fixed;
+			z-index: 100002;
+			background: rgba(255, 252, 250, 0.97);
+			border: 1px solid #d6b8ae;
+			border-radius: 12px;
+			padding: 8px;
+			box-shadow: 0 4px 20px rgba(131, 94, 84, 0.28);
+			backdrop-filter: blur(8px);
+			flex-direction: column;
+			gap: 3px;
+			min-width: 158px;
+			display: none;
+		}
+		#season-popup.open {
+			display: flex;
+		}
+
+		.season-opt {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 10px;
+			border: 1px solid transparent;
+			border-radius: 7px;
+			background: transparent;
+			cursor: pointer;
+			font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+			font-size: 13px;
+			color: #835E54;
+			transition: background 0.15s;
+			text-align: left;
+			width: 100%;
+		}
+		.season-opt:hover {
+			background: rgba(131, 94, 84, 0.10);
+		}
+		.season-opt.active {
+			background: rgba(131, 94, 84, 0.18);
+			border-color: #a07060;
+			font-weight: 600;
+		}
+
+		@media (max-width: 600px), (pointer: coarse) {
+			#season-popup {
+				right: auto !important;
+				left: 12px !important;
+				font-size: 12px;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -170,6 +251,7 @@
 		<button class="mobile-theme-btn" data-theme="8bit" role="option" aria-selected="false">🕹️ 8-bit</button>
 	</div>
 
+	<div id="summer-night-overlay"></div>
 	<canvas id="sakura-canvas"></canvas>
 	<div class="container">
 		<!--標題區域-->
@@ -861,8 +943,16 @@
 (function () {
 	const canvas = document.getElementById('sakura-canvas');
 	const ctx = canvas.getContext('2d');
+	const nightOverlay = document.getElementById('summer-night-overlay');
+
+	let currentSeason = 'spring';
+	let particles = [];
 
 	function rand(min, max) { return Math.random() * (max - min) + min; }
+
+	// ═══════════════════════════════════════════════
+	//  春　SPRING — 櫻花
+	// ═══════════════════════════════════════════════
 
 	// 樣式 1：橢圓單瓣（寬胖型）
 	function drawOvalPetal(ctx, x, y, size, angle, opacity) {
@@ -1033,15 +1123,8 @@
 	// 	ctx.restore();
 	// }
 
-	const DRAW_FNS = [drawOvalPetal, drawFullFlower, drawSlimPetal, drawHeartPetal, drawFanPetal];
-
-	const petals = [];
-	const PETAL_COUNT = 55;
-
-	function resize() {
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-	}
+	const SPRING_DRAW_FNS = [drawOvalPetal, drawFullFlower, drawSlimPetal, drawHeartPetal, drawFanPetal];
+	const SPRING_COUNT = 55;
 
 	function createPetal() {
 		return {
@@ -1056,51 +1139,318 @@
 			swaySpeed: rand(0.007, 0.022),
 			swayAmount: rand(0.5, 2.0),
 			opacity: rand(0.55, 0.95),
-			drawFn: DRAW_FNS[Math.floor(Math.random() * DRAW_FNS.length)],
+			drawFn: SPRING_DRAW_FNS[Math.floor(Math.random() * SPRING_DRAW_FNS.length)],
 		};
 	}
 
-	function initPetals() {
-		for (let i = 0; i < PETAL_COUNT; i++) {
+	function initSpring() {
+		particles = [];
+		for (let i = 0; i < SPRING_COUNT; i++) {
 			const p = createPetal();
 			p.y = rand(-100, canvas.height);
-			petals.push(p);
+			particles.push(p);
 		}
 	}
 
-	function update() {
-		for (let i = 0; i < petals.length; i++) {
-			const p = petals[i];
+	function updateSpring() {
+		for (let i = 0; i < particles.length; i++) {
+			const p = particles[i];
 			p.swayAngle += p.swaySpeed;
 			p.x += p.speedX + Math.sin(p.swayAngle) * p.swayAmount;
 			p.y += p.speedY;
 			p.rotation += p.rotationSpeed;
 			if (p.y > canvas.height + 30 || p.x < -100 || p.x > canvas.width + 100) {
-				petals[i] = createPetal();
+				particles[i] = createPetal();
 			}
 		}
 	}
 
-	function render() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		for (const p of petals) {
+	function drawSpring() {
+		for (const p of particles) {
 			p.drawFn(ctx, p.x, p.y, p.size, p.rotation, p.opacity);
 		}
 	}
 
-	function loop() {
-		if (window.sakuraEnabled !== false) {
-			update();
-			render();
-		} else {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// ═══════════════════════════════════════════════
+	//  夏　SUMMER — 螢火蟲
+	// ═══════════════════════════════════════════════
+
+	function createFirefly() {
+		return {
+			x: rand(0, canvas.width),
+			y: rand(50, canvas.height - 50),
+			dx: rand(-0.38, 0.38),
+			dy: rand(-0.28, 0.28),
+			opacity: rand(0.1, 0.85),
+			opacityDir: Math.random() > 0.5 ? 1 : -1,
+			opacitySpeed: rand(0.008, 0.022),
+			size: rand(1.5, 3.4),
+			glowMult: rand(4, 8),
+			cooldown: rand(60, 200),
+		};
+	}
+
+	function initSummer() {
+		particles = [];
+		for (let i = 0; i < 45; i++) particles.push(createFirefly());
+	}
+
+	function updateSummer() {
+		for (const f of particles) {
+			f.x += f.dx;
+			f.y += f.dy;
+			f.opacity += f.opacityDir * f.opacitySpeed;
+			if (f.opacity >= 0.88) { f.opacity = 0.88; f.opacityDir = -1; }
+			if (f.opacity <= 0.04) { f.opacity = 0.04; f.opacityDir = 1; }
+			f.cooldown--;
+			if (f.cooldown <= 0) {
+				f.dx = rand(-0.38, 0.38);
+				f.dy = rand(-0.28, 0.28);
+				f.cooldown = rand(60, 200);
+			}
+			if (f.x < -10) f.x = canvas.width + 10;
+			if (f.x > canvas.width + 10) f.x = -10;
+			if (f.y < -10) f.y = canvas.height + 10;
+			if (f.y > canvas.height + 10) f.y = -10;
 		}
+	}
+
+	function drawSummer() {
+		for (const f of particles) {
+			const r = f.size * f.glowMult;
+			const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
+			g.addColorStop(0,   `rgba(210, 255, 100, ${f.opacity})`);
+			g.addColorStop(0.3, `rgba(160, 230, 50,  ${f.opacity * 0.55})`);
+			g.addColorStop(1,   `rgba(80,  160, 20,  0)`);
+			ctx.beginPath();
+			ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+			ctx.fillStyle = g;
+			ctx.fill();
+			// 亮核
+			ctx.beginPath();
+			ctx.arc(f.x, f.y, f.size * 0.5, 0, Math.PI * 2);
+			ctx.fillStyle = `rgba(245, 255, 210, ${f.opacity})`;
+			ctx.fill();
+		}
+	}
+
+	// ═══════════════════════════════════════════════
+	//  秋　AUTUMN — 楓葉
+	// ═══════════════════════════════════════════════
+
+	const AUTUMN_COLORS = [
+		['rgba(220, 75, 18, 0.92)', 'rgba(170, 35, 8, 0.38)'],
+		['rgba(255, 125, 0, 0.92)', 'rgba(195, 72, 0, 0.38)'],
+		['rgba(198, 45, 12, 0.92)', 'rgba(140, 18, 5, 0.38)'],
+		['rgba(228, 158, 18, 0.92)', 'rgba(172, 95, 0, 0.38)'],
+		['rgba(185, 55, 28, 0.92)', 'rgba(130, 25, 12, 0.38)'],
+	];
+
+	function drawMapleLeaf(ctx, x, y, size, angle, opacity, cp) {
+		ctx.save();
+		ctx.translate(x, y);
+		ctx.rotate(angle);
+		ctx.globalAlpha = opacity;
+		const r = size;
+
+		ctx.beginPath();
+		ctx.moveTo(0, r * 0.52);
+		ctx.bezierCurveTo(-r * 0.14, r * 0.36, -r * 0.54, r * 0.24, -r * 0.74, r * 0.04);
+		ctx.bezierCurveTo(-r * 0.94, -r * 0.10, -r * 0.88, -r * 0.36, -r * 0.58, -r * 0.26);
+		ctx.bezierCurveTo(-r * 0.68, -r * 0.52, -r * 0.52, -r * 0.82, -r * 0.32, -r * 0.62);
+		ctx.bezierCurveTo(-r * 0.38, -r * 0.88, -r * 0.18, -r * 1.02, 0, -r * 0.88);
+		ctx.bezierCurveTo( r * 0.18, -r * 1.02,  r * 0.38, -r * 0.88,  r * 0.32, -r * 0.62);
+		ctx.bezierCurveTo( r * 0.52, -r * 0.82,  r * 0.68, -r * 0.52,  r * 0.58, -r * 0.26);
+		ctx.bezierCurveTo( r * 0.88, -r * 0.36,  r * 0.94, -r * 0.10,  r * 0.74,  r * 0.04);
+		ctx.bezierCurveTo( r * 0.54,  r * 0.24,  r * 0.14,  r * 0.36,  0, r * 0.52);
+		ctx.closePath();
+
+		const g = ctx.createRadialGradient(0, -r * 0.22, 0, 0, -r * 0.22, r * 1.15);
+		g.addColorStop(0, cp[0]);
+		g.addColorStop(1, cp[1]);
+		ctx.fillStyle = g;
+		ctx.fill();
+
+		// 葉脈
+		ctx.beginPath();
+		ctx.moveTo(0, r * 0.5);
+		ctx.lineTo(0, -r * 0.85);
+		ctx.moveTo(0, -r * 0.1);
+		ctx.lineTo(-r * 0.55, -r * 0.22);
+		ctx.moveTo(0, -r * 0.1);
+		ctx.lineTo( r * 0.55, -r * 0.22);
+		ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+		ctx.lineWidth = r * 0.055;
+		ctx.lineCap = 'round';
+		ctx.stroke();
+
+		// 葉柄
+		ctx.beginPath();
+		ctx.moveTo(0, r * 0.52);
+		ctx.lineTo(0, r * 0.88);
+		ctx.strokeStyle = cp[0].replace('0.92', '0.55');
+		ctx.lineWidth = r * 0.10;
+		ctx.stroke();
+
+		ctx.restore();
+	}
+
+	function createMapleLeaf() {
+		return {
+			x: rand(-50, canvas.width + 50),
+			y: rand(-120, -10),
+			size: rand(8, 20),
+			speedY: rand(0.8, 2.2),
+			speedX: rand(-0.7, 0.7),
+			rotation: rand(0, Math.PI * 2),
+			rotationSpeed: rand(-0.03, 0.03),
+			swayAngle: rand(0, Math.PI * 2),
+			swaySpeed: rand(0.008, 0.020),
+			swayAmount: rand(0.4, 1.8),
+			opacity: rand(0.60, 0.95),
+			cp: AUTUMN_COLORS[Math.floor(Math.random() * AUTUMN_COLORS.length)],
+		};
+	}
+
+	function initAutumn() {
+		particles = [];
+		for (let i = 0; i < 42; i++) {
+			const p = createMapleLeaf();
+			p.y = rand(-100, canvas.height);
+			particles.push(p);
+		}
+	}
+
+	function updateAutumn() {
+		for (let i = 0; i < particles.length; i++) {
+			const p = particles[i];
+			p.swayAngle += p.swaySpeed;
+			p.x += p.speedX + Math.sin(p.swayAngle) * p.swayAmount;
+			p.y += p.speedY;
+			p.rotation += p.rotationSpeed;
+			if (p.y > canvas.height + 30 || p.x < -100 || p.x > canvas.width + 100) {
+				particles[i] = createMapleLeaf();
+			}
+		}
+	}
+
+	function drawAutumn() {
+		for (const p of particles) {
+			drawMapleLeaf(ctx, p.x, p.y, p.size, p.rotation, p.opacity, p.cp);
+		}
+	}
+
+	// ═══════════════════════════════════════════════
+	//  冬　WINTER — 雪花
+	// ═══════════════════════════════════════════════
+
+	function drawSnowflake(ctx, x, y, size, angle, opacity) {
+		ctx.save();
+		ctx.translate(x, y);
+		ctx.rotate(angle);
+		ctx.globalAlpha = opacity;
+		const r = size;
+		ctx.strokeStyle = 'rgba(220, 238, 255, 1)';
+		ctx.lineWidth = Math.max(0.7, r * 0.18);
+		ctx.lineCap = 'round';
+		for (let i = 0; i < 6; i++) {
+			ctx.save();
+			ctx.rotate((Math.PI / 3) * i);
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.lineTo(0, -r);
+			if (r > 3) {
+				ctx.moveTo(0, -r * 0.48);
+				ctx.lineTo(-r * 0.28, -r * 0.68);
+				ctx.moveTo(0, -r * 0.48);
+				ctx.lineTo( r * 0.28, -r * 0.68);
+			}
+			ctx.stroke();
+			ctx.restore();
+		}
+		// 中心點
+		ctx.beginPath();
+		ctx.arc(0, 0, r * 0.14, 0, Math.PI * 2);
+		ctx.fillStyle = 'rgba(230, 245, 255, 0.85)';
+		ctx.fill();
+		ctx.restore();
+	}
+
+	function createSnowflake() {
+		return {
+			x: rand(-20, canvas.width + 20),
+			y: rand(-50, -5),
+			size: rand(2.5, 7),
+			speedY: rand(0.45, 1.6),
+			speedX: rand(-0.3, 0.3),
+			swayAngle: rand(0, Math.PI * 2),
+			swaySpeed: rand(0.008, 0.026),
+			swayAmount: rand(0.2, 1.0),
+			opacity: rand(0.45, 0.88),
+			rotation: rand(0, Math.PI / 3),
+			rotationSpeed: rand(-0.012, 0.012),
+		};
+	}
+
+	function initWinter() {
+		particles = [];
+		for (let i = 0; i < 100; i++) {
+			const p = createSnowflake();
+			p.y = rand(-50, canvas.height);
+			particles.push(p);
+		}
+	}
+
+	function updateWinter() {
+		for (let i = 0; i < particles.length; i++) {
+			const p = particles[i];
+			p.swayAngle += p.swaySpeed;
+			p.x += p.speedX + Math.sin(p.swayAngle) * p.swayAmount;
+			p.y += p.speedY;
+			p.rotation += p.rotationSpeed;
+			if (p.y > canvas.height + 20 || p.x < -50 || p.x > canvas.width + 50) {
+				particles[i] = createSnowflake();
+			}
+		}
+	}
+
+	function drawWinter() {
+		for (const p of particles) {
+			drawSnowflake(ctx, p.x, p.y, p.size, p.rotation, p.opacity);
+		}
+	}
+
+	// ═══════════════════════════════════════════════
+	//  核心控制
+	// ═══════════════════════════════════════════════
+
+	function resize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+
+	function loop() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if      (currentSeason === 'spring') { updateSpring(); drawSpring(); }
+		else if (currentSeason === 'summer') { updateSummer(); drawSummer(); }
+		else if (currentSeason === 'autumn') { updateAutumn(); drawAutumn(); }
+		else if (currentSeason === 'winter') { updateWinter(); drawWinter(); }
 		requestAnimationFrame(loop);
 	}
 
+	window.setSeason = function (season) {
+		currentSeason = season;
+		nightOverlay.style.display = 'none';
+		if      (season === 'spring') initSpring();
+		else if (season === 'summer') initSummer();
+		else if (season === 'autumn') initAutumn();
+		else if (season === 'winter') initWinter();
+		else particles = [];
+	};
+
 	window.addEventListener('resize', resize);
 	resize();
-	initPetals();
+	initSpring();
 	loop();
 })();
 </script>
@@ -1118,27 +1468,77 @@
 		</label>
 	</div>
 	<div class="effect-row">
-		<label for="toggle-sakura">🌸 櫻花飄落</label>
-		<label class="toggle-switch">
-			<input type="checkbox" id="toggle-sakura" checked>
-			<span class="toggle-track"></span>
-		</label>
+		<span>🌿 季節風格</span>
+		<button id="season-trigger-btn" class="season-trigger-btn">🌸 春 ▾</button>
 	</div>
 </div>
 
+<!-- 季節選擇彈出面板 -->
+<div id="season-popup" role="listbox" aria-label="選擇背景動畫季節">
+	<button class="season-opt" data-season="null"   role="option">🚫 關閉</button>
+	<button class="season-opt active" data-season="spring" role="option">🌸 春（櫻花）</button>
+	<button class="season-opt" data-season="summer" role="option">🌙 夏（螢火蟲）</button>
+	<button class="season-opt" data-season="autumn" role="option">🍂 秋（楓葉）</button>
+	<button class="season-opt" data-season="winter" role="option">❄️ 冬（雪花）</button>
+</div>
+
 <script>
-	(function () {
-		var thunderToggle = document.getElementById('toggle-thunder');
-		var sakuraToggle = document.getElementById('toggle-sakura');
+(function () {
+	// 雷之呼吸 toggle
+	document.getElementById('toggle-thunder').addEventListener('change', function () {
+		window.thunderEnabled = this.checked;
+	});
 
-		thunderToggle.addEventListener('change', function () {
-			window.thunderEnabled = this.checked;
-		});
+	// 季節選擇器
+	var trigger = document.getElementById('season-trigger-btn');
+	var popup   = document.getElementById('season-popup');
+	var opts    = popup.querySelectorAll('.season-opt');
 
-		sakuraToggle.addEventListener('change', function () {
-			window.sakuraEnabled = this.checked;
+	var SEASON_LABELS = {
+		'null':   '🚫 關',
+		'spring': '🌸 春',
+		'summer': '🌙 夏',
+		'autumn': '🍂 秋',
+		'winter': '❄️ 冬',
+	};
+
+	function positionPopup() {
+		var panelRect   = document.getElementById('effects-panel').getBoundingClientRect();
+		popup.style.bottom = (window.innerHeight - panelRect.top + 8) + 'px';
+		popup.style.right  = (window.innerWidth  - panelRect.right)  + 'px';
+	}
+
+	function openPopup() {
+		positionPopup();
+		popup.classList.add('open');
+		trigger.setAttribute('aria-expanded', 'true');
+	}
+
+	function closePopup() {
+		popup.classList.remove('open');
+		trigger.setAttribute('aria-expanded', 'false');
+	}
+
+	trigger.addEventListener('click', function (e) {
+		e.stopPropagation();
+		popup.classList.contains('open') ? closePopup() : openPopup();
+	});
+
+	opts.forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var season = btn.dataset.season;
+			opts.forEach(function (b) { b.classList.remove('active'); });
+			btn.classList.add('active');
+			trigger.textContent = (SEASON_LABELS[season] || '🌿') + ' ▾';
+			window.setSeason(season === 'null' ? null : season);
+			closePopup();
 		});
-	})();
+	});
+
+	document.addEventListener('click', function (e) {
+		if (!popup.contains(e.target) && e.target !== trigger) closePopup();
+	});
+})();
 </script>
 </body>
 </html>
