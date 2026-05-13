@@ -915,9 +915,9 @@ body.theme-8bit #SystemStyle {
 body.theme-8bit #SystemStyle-Description,
 body.theme-8bit #Description {
     color: #c8c8ff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.65rem;
-    line-height: 2.2;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    line-height: 2;
 }
 
 /* 類別按鈕 */
@@ -999,31 +999,31 @@ body.theme-8bit #system-title {
 }
 body.theme-8bit #system-quote {
     color: #44cf6c;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    line-height: 2;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
     opacity: 1;
 }
 body.theme-8bit #system-main-text {
     color: #c8c8ff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    line-height: 2.2;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
     opacity: 1;
 }
 body.theme-8bit #system-signature {
     color: #00b4d8;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.55rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
     opacity: 1;
 }
 
 /* 文字區塊 */
 body.theme-8bit .text-section p {
     color: #c8c8ff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    line-height: 2.2;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
 }
 body.theme-8bit .quote  { color: #44cf6c; }
 body.theme-8bit .signature { color: #00b4d8; }
@@ -1082,7 +1082,7 @@ body.theme-8bit .event-section {
     box-shadow: 6px 6px 0 #000;
     border-radius: 0 !important;
 }
-body.theme-8bit .section-description { color: #a0a0d0; font-size: 0.55rem; }
+body.theme-8bit .section-description { color: #a0a0d0; font-family: 'Noto Sans TC', sans-serif; font-size: 1rem; }
 body.theme-8bit .event-card {
     background: #0d0d28;
     border: 3px solid #00b4d8;
@@ -1103,9 +1103,9 @@ body.theme-8bit .event-card.active {
 }
 body.theme-8bit .event-card p {
     color: #c8c8ff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.55rem;
-    line-height: 2;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
 }
 body.theme-8bit .event-date-selector {
     background: #000030;
