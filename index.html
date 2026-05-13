@@ -31,6 +31,92 @@
 			pointer-events: none;
 			z-index: 9999;
 		}
+
+		/* ── 視覺效果開關面板 ── */
+		#effects-panel {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			z-index: 100000;
+			background: rgba(255, 252, 250, 0.92);
+			border: 1px solid #d6b8ae;
+			border-radius: 12px;
+			padding: 10px 14px;
+			box-shadow: 0 2px 12px rgba(131, 94, 84, 0.18);
+			backdrop-filter: blur(6px);
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+			font-size: 13px;
+			color: #835E54;
+			min-width: 140px;
+		}
+
+		#effects-panel .panel-title {
+			font-size: 11px;
+			color: #b08878;
+			letter-spacing: 0.05em;
+			margin-bottom: 2px;
+			user-select: none;
+		}
+
+		.effect-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+		}
+
+		.effect-row label {
+			cursor: default;
+			user-select: none;
+			white-space: nowrap;
+		}
+
+		/* Toggle switch */
+		.toggle-switch {
+			position: relative;
+			width: 36px;
+			height: 20px;
+			flex-shrink: 0;
+		}
+
+		.toggle-switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+			position: absolute;
+		}
+
+		.toggle-track {
+			position: absolute;
+			inset: 0;
+			border-radius: 20px;
+			background: #d6b8ae;
+			cursor: pointer;
+			transition: background 0.25s;
+		}
+
+		.toggle-track::after {
+			content: '';
+			position: absolute;
+			top: 3px;
+			left: 3px;
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			background: #fff;
+			transition: transform 0.25s;
+		}
+
+		.toggle-switch input:checked + .toggle-track {
+			background: #835E54;
+		}
+
+		.toggle-switch input:checked + .toggle-track::after {
+			transform: translateX(16px);
+		}
 	</style>
 </head>
 <body>
@@ -878,8 +964,12 @@
 	}
 
 	function loop() {
-		update();
-		render();
+		if (window.sakuraEnabled !== false) {
+			update();
+			render();
+		} else {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		}
 		requestAnimationFrame(loop);
 	}
 
@@ -891,5 +981,39 @@
 </script>
 
 <script src="js/thunder-breathing.js"></script>
+
+<!-- 視覺效果開關面板 -->
+<div id="effects-panel">
+	<div class="panel-title">視覺效果</div>
+	<div class="effect-row">
+		<label for="toggle-thunder">⚡ 雷之呼吸</label>
+		<div class="toggle-switch">
+			<input type="checkbox" id="toggle-thunder" checked>
+			<span class="toggle-track"></span>
+		</div>
+	</div>
+	<div class="effect-row">
+		<label for="toggle-sakura">🌸 櫻花飄落</label>
+		<div class="toggle-switch">
+			<input type="checkbox" id="toggle-sakura" checked>
+			<span class="toggle-track"></span>
+		</div>
+	</div>
+</div>
+
+<script>
+	(function () {
+		var thunderToggle = document.getElementById('toggle-thunder');
+		var sakuraToggle = document.getElementById('toggle-sakura');
+
+		thunderToggle.addEventListener('change', function () {
+			window.thunderEnabled = this.checked;
+		});
+
+		sakuraToggle.addEventListener('change', function () {
+			window.sakuraEnabled = this.checked;
+		});
+	})();
+</script>
 </body>
 </html>

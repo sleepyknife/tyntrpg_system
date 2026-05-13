@@ -68,7 +68,7 @@
       const vy = (mouseY - lastMouseY) / dt;
       speed = Math.sqrt(vx * vx + vy * vy);
 
-      if (now - mountTime >= MOUNT_DELAY_MS) {
+      if (now - mountTime >= MOUNT_DELAY_MS && window.thunderEnabled !== false) {
         handleVelocity();
       }
     }
@@ -242,6 +242,14 @@
     ctx.resetTransform();
     ctx.scale(pixelRatio, pixelRatio);
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    if (window.thunderEnabled === false) {
+      boltList.length = 0;
+      screenFlashAlpha = 0;
+      lastStrikePos = null;
+      requestAnimationFrame(loop);
+      return;
+    }
 
     if (screenFlashAlpha > 0.01) {
       ctx.globalCompositeOperation = 'source-over';
