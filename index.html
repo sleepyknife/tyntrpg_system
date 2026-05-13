@@ -21,8 +21,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/SystemStyle.css">
 	<title>桃園TRPG推廣會系統介紹</title>
+	<style>
+		#sakura-canvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 9999;
+		}
+	</style>
 </head>
 <body>
+	<canvas id="sakura-canvas"></canvas>
 	<div class="container">
 		<!--標題區域-->
 		<div class="header-container ">
@@ -632,6 +644,153 @@
 			element.classList.remove('fade-out');
 		}, 300);
 	}
+</script>
+
+<script>
+(function () {
+	const canvas = document.getElementById('sakura-canvas');
+	const ctx = canvas.getContext('2d');
+
+	// 花瓣形狀的路徑（兩片花瓣組成一片）
+	function drawPetal(ctx, x, y, size, angle, opacity) {
+		ctx.save();
+		ctx.translate(x, y);
+		ctx.rotate(angle);
+		ctx.globalAlpha = opacity;
+
+		const r = size;
+		ctx.beginPath();
+		// 使用貝茲曲線畫花瓣
+		ctx.moveTo(0, 0);
+		ctx.bezierCurveTo(r * 0.5, -r * 0.8, r * 1.2, -r * 0.5, r, 0);
+		ctx.bezierCurveTo(r * 1.2, r * 0.5, r * 0.5, r * 0.8, 0, 0);
+
+		const grad = ctx.createRadialGradient(r * 0.4, 0, 0, r * 0.4, 0, r * 1.1);
+		grad.addColorStop(0, 'rgba(255, 220, 230, 1)');
+		grad.addColorStop(0.5, 'rgba(255, 182, 205, 0.9)');
+		grad.addColorStop(1, 'rgba(255, 150, 180, 0.4)');
+		ctx.fillStyle = grad;
+		ctx.fill();
+
+		// 花瓣紋路
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.bezierCurveTo(r * 0.3, -r * 0.3, r * 0.7, -r * 0.2, r, 0);
+		ctx.strokeStyle = 'rgba(220, 130, 160, 0.3)';
+		ctx.lineWidth = 0.5;
+		ctx.stroke();
+
+		ctx.restore();
+	}
+
+	function drawSakuraPetal(ctx, x, y, size, rotation, opacity) {
+		ctx.save();
+		ctx.translate(x, y);
+		ctx.rotate(rotation);
+		ctx.globalAlpha = opacity;
+
+		// 五片花瓣
+		for (let i = 0; i < 5; i++) {
+			ctx.save();
+			ctx.rotate((Math.PI * 2 / 5) * i);
+			const r = size;
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.bezierCurveTo(r * 0.4, -r * 0.6, r * 0.9, -r * 0.4, r * 0.7, 0);
+			ctx.bezierCurveTo(r * 0.9, r * 0.4, r * 0.4, r * 0.6, 0, 0);
+
+			const grad = ctx.createRadialGradient(r * 0.3, 0, 0, r * 0.3, 0, r);
+			grad.addColorStop(0, 'rgba(255, 230, 235, 1)');
+			grad.addColorStop(0.6, 'rgba(255, 192, 210, 0.85)');
+			grad.addColorStop(1, 'rgba(240, 160, 190, 0.3)');
+			ctx.fillStyle = grad;
+			ctx.fill();
+			ctx.restore();
+		}
+
+		// 花心
+		ctx.beginPath();
+		ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2);
+		ctx.fillStyle = 'rgba(255, 240, 200, 0.9)';
+		ctx.fill();
+
+		ctx.restore();
+	}
+
+	const petals = [];
+	const PETAL_COUNT = 40;
+
+	function resize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+
+	function rand(min, max) {
+		return Math.random() * (max - min) + min;
+	}
+
+	function createPetal() {
+		return {
+			x: rand(-50, canvas.width + 50),
+			y: rand(-100, -10),
+			size: rand(6, 16),
+			speedY: rand(1.2, 2.8),
+			speedX: rand(-0.8, 0.8),
+			rotation: rand(0, Math.PI * 2),
+			rotationSpeed: rand(-0.02, 0.02),
+			swayAngle: rand(0, Math.PI * 2),
+			swaySpeed: rand(0.008, 0.02),
+			swayAmount: rand(0.6, 1.8),
+			opacity: rand(0.6, 0.95),
+			type: Math.random() > 0.4 ? 'full' : 'single',
+		};
+	}
+
+	function initPetals() {
+		for (let i = 0; i < PETAL_COUNT; i++) {
+			const p = createPetal();
+			// 初始時散佈在整個畫面
+			p.y = rand(-100, canvas.height);
+			petals.push(p);
+		}
+	}
+
+	function update() {
+		for (let i = 0; i < petals.length; i++) {
+			const p = petals[i];
+			p.swayAngle += p.swaySpeed;
+			p.x += p.speedX + Math.sin(p.swayAngle) * p.swayAmount;
+			p.y += p.speedY;
+			p.rotation += p.rotationSpeed;
+
+			if (p.y > canvas.height + 20 || p.x < -80 || p.x > canvas.width + 80) {
+				petals[i] = createPetal();
+			}
+		}
+	}
+
+	function render() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		for (const p of petals) {
+			if (p.type === 'full') {
+				drawSakuraPetal(ctx, p.x, p.y, p.size, p.rotation, p.opacity);
+			} else {
+				drawPetal(ctx, p.x, p.y, p.size, p.rotation, p.opacity);
+			}
+		}
+	}
+
+	function loop() {
+		update();
+		render();
+		requestAnimationFrame(loop);
+	}
+
+	window.addEventListener('resize', resize);
+	resize();
+	initPetals();
+	loop();
+})();
 </script>
 
 </body>
