@@ -9,6 +9,7 @@
 <html lang="en">
 <head>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 	<script src="js/svg3DTagCloud.js"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<!-- Swiper CSS -->
@@ -150,6 +151,9 @@
 		</button>
 		<button class="style-tab-btn" data-theme="medieval" role="tab" aria-selected="false" title="中古奇幻風格">
 			⚔️ 中古奇幻
+		</button>
+		<button class="style-tab-btn" data-theme="8bit" role="tab" aria-selected="false" title="8-bit 像素風格">
+			🕹️ 8-bit
 		</button>
 	</div>
 
@@ -767,7 +771,7 @@
 	// ── 風格切換器 ──
 	(function () {
 		const STORAGE_KEY = 'tyntrpg-theme';
-		const themeClasses = ['theme-y2k', 'theme-cyberpunk', 'theme-medieval'];
+		const themeClasses = ['theme-y2k', 'theme-cyberpunk', 'theme-medieval', 'theme-8bit'];
 
 		function applyTheme(theme) {
 			// 移除所有主題 class
