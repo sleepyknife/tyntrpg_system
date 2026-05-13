@@ -773,7 +773,10 @@ body.theme-medieval .event-date-selector {
 body.theme-medieval .text-section p { color: #3d2200; font-family: Georgia, serif; line-height: 1.8; }
 body.theme-medieval .quote { color: #5c1e00; font-family: Georgia, serif; }
 body.theme-medieval .signature { color: #8b6914; font-family: Georgia, serif; }
-body.theme-medieval #system-title { color: #5c1e00; font-family: Georgia, serif; }
+body.theme-medieval #system-title  { color: #3b0e00; font-family: Georgia, serif; font-weight: bold; }
+body.theme-medieval #system-quote  { color: #5c1e00; font-family: Georgia, serif; opacity: 1; }
+body.theme-medieval #system-main-text  { color: #2a1200; font-family: Georgia, serif; opacity: 1; }
+body.theme-medieval #system-signature  { color: #5a3e00; font-family: Georgia, serif; opacity: 1; }
 
 /* Medieval effects panel */
 body.theme-medieval #effects-panel {
