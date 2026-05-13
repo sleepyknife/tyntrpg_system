@@ -139,6 +139,7 @@
 <body>
 	<!-- 頁面風格切換器 -->
 	<div id="style-switcher" role="tablist" aria-label="頁面風格切換">
+		<!-- PC：標籤列 -->
 		<span class="switcher-label">🎨 風格</span>
 		<button class="style-tab-btn active" data-theme="default" role="tab" aria-selected="true" title="預設風格">
 			🌸 預設
@@ -155,6 +156,18 @@
 		<button class="style-tab-btn" data-theme="8bit" role="tab" aria-selected="false" title="8-bit 像素風格">
 			🕹️ 8-bit
 		</button>
+		<!-- 手機：單一觸發按鈕 -->
+		<button id="style-mobile-trigger" aria-haspopup="listbox" aria-expanded="false">
+			🎨 <span id="style-current-label">預設</span> <span class="trigger-arrow">▾</span>
+		</button>
+	</div>
+	<!-- 手機下拉選單 -->
+	<div id="style-mobile-menu" role="listbox" aria-label="選擇頁面風格">
+		<button class="mobile-theme-btn active" data-theme="default" role="option" aria-selected="true">🌸 預設</button>
+		<button class="mobile-theme-btn" data-theme="y2k" role="option" aria-selected="false">💿 Y2K</button>
+		<button class="mobile-theme-btn" data-theme="cyberpunk" role="option" aria-selected="false">⚡ Cyberpunk</button>
+		<button class="mobile-theme-btn" data-theme="medieval" role="option" aria-selected="false">⚔️ 中古奇幻</button>
+		<button class="mobile-theme-btn" data-theme="8bit" role="option" aria-selected="false">🕹️ 8-bit</button>
 	</div>
 
 	<canvas id="sakura-canvas"></canvas>
@@ -773,23 +786,33 @@
 		const STORAGE_KEY = 'tyntrpg-theme';
 		const themeClasses = ['theme-y2k', 'theme-cyberpunk', 'theme-medieval', 'theme-8bit'];
 
-		function applyTheme(theme) {
-			// 移除所有主題 class
+		function applyTheme(theme, closeMenu = true) {
 			document.body.classList.remove(...themeClasses);
 			if (theme && theme !== 'default') {
 				document.body.classList.add('theme-' + theme);
 			}
-			// 更新 tab 按鈕 active 狀態
+			// PC tab 按鈕
 			document.querySelectorAll('.style-tab-btn').forEach(btn => {
 				const isActive = btn.dataset.theme === theme;
 				btn.classList.toggle('active', isActive);
 				btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
 			});
-			// 儲存偏好
+			// 手機下拉選項
+			document.querySelectorAll('.mobile-theme-btn').forEach(btn => {
+				const isActive = btn.dataset.theme === theme;
+				btn.classList.toggle('active', isActive);
+				btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+			});
+			// 更新手機觸發按鈕顯示文字
+			const activeBtn = document.querySelector(`.style-tab-btn[data-theme="${theme}"]`);
+			const labelEl = document.getElementById('style-current-label');
+			if (labelEl && activeBtn) {
+				labelEl.textContent = activeBtn.textContent.trim();
+			}
+			if (closeMenu) closeMobileMenu();
 			try { localStorage.setItem(STORAGE_KEY, theme); } catch (_) {}
 		}
 
-		// 讀取儲存的主題偏好
 		function loadSavedTheme() {
 			try {
 				const saved = localStorage.getItem(STORAGE_KEY);
@@ -798,13 +821,38 @@
 			return 'default';
 		}
 
+		function closeMobileMenu() {
+			const menu = document.getElementById('style-mobile-menu');
+			const trigger = document.getElementById('style-mobile-trigger');
+			if (menu) menu.classList.remove('open');
+			if (trigger) trigger.setAttribute('aria-expanded', 'false');
+		}
+
 		document.addEventListener('DOMContentLoaded', () => {
-			// 綁定切換按鈕
+			// PC tab 按鈕
 			document.querySelectorAll('.style-tab-btn').forEach(btn => {
 				btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
 			});
+			// 手機下拉選項
+			document.querySelectorAll('.mobile-theme-btn').forEach(btn => {
+				btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+			});
+			// 手機觸發按鈕
+			const trigger = document.getElementById('style-mobile-trigger');
+			const menu = document.getElementById('style-mobile-menu');
+			trigger.addEventListener('click', e => {
+				e.stopPropagation();
+				const isOpen = menu.classList.toggle('open');
+				trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+			});
+			// 點選選單外側關閉
+			document.addEventListener('click', e => {
+				if (!menu.contains(e.target) && e.target !== trigger) {
+					closeMobileMenu();
+				}
+			});
 			// 套用儲存的主題
-			applyTheme(loadSavedTheme());
+			applyTheme(loadSavedTheme(), false);
 		});
 	})();
 </script>
