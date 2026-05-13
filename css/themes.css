@@ -370,6 +370,12 @@ body.theme-cyberpunk #system-overview {
     background: #08081a;
 }
 
+body.theme-cyberpunk #system-content-container {
+    background: rgba(5,5,20,0.95);
+    border: 1px solid #00ffe033;
+    box-shadow: 0 0 30px rgba(0,255,224,0.08);
+}
+
 body.theme-cyberpunk .system-section {
     background: rgba(8,8,20,0.95);
     border: 1px solid #00ffe033;
@@ -599,6 +605,14 @@ body.theme-medieval #system-overview {
     background: linear-gradient(135deg, #2a1a0a, #1a2a0a);
     background-image:
         radial-gradient(ellipse at center, rgba(139,90,43,0.15) 0%, transparent 70%);
+}
+
+body.theme-medieval #system-content-container {
+    background: linear-gradient(135deg, #fdf5e8, #f7ecda);
+    border: 2px solid #8b4513;
+    border-radius: 4px;
+    box-shadow: 0 8px 30px rgba(42,26,10,0.3);
+    padding: 20px;
 }
 
 body.theme-medieval .system-section {
