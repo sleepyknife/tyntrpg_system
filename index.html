@@ -53,8 +53,8 @@
 			min-width: 140px;
 		}
 
-		/* 手機窄螢幕：移到左下角，避免與右下角按鈕重疊 */
-		@media (max-width: 600px) {
+		/* 手機窄螢幕：移到左下角，避免與右下角按鈕重疊；隱藏僅限PC的雷之呼吸列 */
+		@media (max-width: 600px), (pointer: coarse) {
 			#effects-panel {
 				bottom: 20px;
 				right: auto;
@@ -62,6 +62,9 @@
 				font-size: 12px;
 				padding: 8px 12px;
 				min-width: 0;
+			}
+			#thunder-row {
+				display: none;
 			}
 		}
 
@@ -997,7 +1000,7 @@
 <!-- 視覺效果開關面板 -->
 <div id="effects-panel">
 	<div class="panel-title">視覺效果</div>
-	<div class="effect-row">
+	<div class="effect-row" id="thunder-row">
 		<label for="toggle-thunder">⚡ 雷之呼吸</label>
 		<label class="toggle-switch">
 			<input type="checkbox" id="toggle-thunder" checked>
