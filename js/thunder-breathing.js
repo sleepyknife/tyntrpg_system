@@ -102,6 +102,46 @@
     }
   }
 
+  // ── Touch support (mobile) ──
+  // 手機改用距離觸發，不需速度門檻（拖動本身即為意圖）
+  if (isMobile) {
+    document.addEventListener('touchstart', function (e) {
+      var touch = e.touches[0];
+      mouseX = touch.clientX;
+      mouseY = touch.clientY;
+      lastMouseX = mouseX;
+      lastMouseY = mouseY;
+      lastMouseTime = performance.now();
+      lastStrikePos = null;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function (e) {
+      if (window.thunderEnabled === false) return;
+      var touch = e.touches[0];
+      mouseX = touch.clientX;
+      mouseY = touch.clientY;
+
+      var currentPos = { x: mouseX, y: mouseY };
+      if (lastStrikePos) {
+        var dx = currentPos.x - lastStrikePos.x;
+        var dy = currentPos.y - lastStrikePos.y;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance >= MIN_STRIKE_DISTANCE) {
+          var palette = COLOR_PALETTE_LIST[Math.floor(Math.random() * COLOR_PALETTE_LIST.length)];
+          strike(lastStrikePos, currentPos, palette);
+          lastStrikePos = currentPos;
+        }
+      } else {
+        lastStrikePos = { x: currentPos.x, y: currentPos.y };
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', function () {
+      lastStrikePos = null;
+      speed = 0;
+    }, { passive: true });
+  }
+
   // ── Lightning path generation (midpoint displacement) ──
   function generateBoltPath(start, end, displacement, minSeg) {
     var xList = [start.x, end.x];
