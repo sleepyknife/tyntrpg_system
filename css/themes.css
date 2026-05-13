@@ -806,12 +806,33 @@ body.theme-medieval .swiper-button-prev { color: #8b4513; }
    🕹️ 8-bit 像素風格  body.theme-8bit
    ================================================================ */
 
+/* ── 8-bit 中文像素字型 ──
+   優先順序：俐方體11號 → 精品點陣體9x9 → Unifont → Press Start 2P（英文）
+   ──────────────────────────────────────────────────────── */
+@font-face {
+    font-family: 'Cubic 11';
+    src: url('https://cdn.jsdelivr.net/gh/ACh-K/Cubic-11@main/Cubic_11_1.013_R.ttf') format('truetype');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Zpix';
+    src: url('https://cdn.jsdelivr.net/npm/zpix-pixel-font/dist/zpix.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/zpix-pixel-font/dist/zpix.ttf') format('truetype');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Unifont';
+    src: url('https://cdn.jsdelivr.net/npm/unifont/unifont.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/unifont/unifont.ttf') format('truetype');
+    font-display: swap;
+}
+
 /* 8-bit tab button */
 .style-tab-btn[data-theme="8bit"] {
     background: #000;
     color: #ffd700;
     border-right: 1px solid #ffd70044;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 10px;
     letter-spacing: 0.05em;
     image-rendering: pixelated;
@@ -832,7 +853,7 @@ body.theme-8bit {
     background-size: 8px 8px;
     background-attachment: fixed;
     color: #e0e0e0;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 12px;
     line-height: 2;
     image-rendering: pixelated;
@@ -866,7 +887,7 @@ body.theme-8bit .date-container {
 body.theme-8bit .header-title {
     color: #ffd700;
     text-shadow: 3px 3px 0 #b8860b, 6px 6px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     letter-spacing: 0.04em;
     font-size: clamp(0.8rem, 1.5vw + 0.5rem, 1.4rem);
 }
@@ -894,7 +915,7 @@ body.theme-8bit .system-section {
 body.theme-8bit .title-text {
     color: #ffd700;
     text-shadow: 2px 2px 0 #8b6914, 4px 4px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: clamp(0.6rem, 1vw + 0.4rem, 1rem);
     letter-spacing: 0.03em;
 }
@@ -902,14 +923,14 @@ body.theme-8bit .title-text {
 body.theme-8bit .section-title {
     color: #44cf6c;
     text-shadow: 2px 2px 0 #1a5c2e, 4px 4px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: clamp(0.5rem, 0.8vw + 0.4rem, 0.9rem);
 }
 
 body.theme-8bit #SystemStyle {
     color: #00ffff;
     text-shadow: 2px 2px 0 #006666, 4px 4px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: clamp(0.55rem, 0.9vw + 0.3rem, 0.85rem);
 }
 body.theme-8bit #SystemStyle-Description,
@@ -927,7 +948,7 @@ body.theme-8bit .category-button {
     border: 3px solid #ffd700;
     border-radius: 0 !important;
     box-shadow: 4px 4px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.04em;
     transition: none;
@@ -954,7 +975,7 @@ body.theme-8bit .system-title-cell {
     color: #ffffff;
     text-shadow: 2px 2px 0 #000;
     border: 2px solid #00b4d8;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 0.7rem;
     letter-spacing: 0.05em;
     border-radius: 0 !important;
@@ -964,7 +985,7 @@ body.theme-8bit .system-row-odd  { background-color: #0a0a22; }
 body.theme-8bit .system-cell {
     color: #c8c8ff;
     border: 1px solid #00b4d833;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 0.55rem;
     line-height: 1.8;
     border-radius: 0 !important;
@@ -993,7 +1014,7 @@ body.theme-8bit #system-content-container {
 body.theme-8bit #system-title {
     color: #ffd700;
     text-shadow: 2px 2px 0 #8b6914, 4px 4px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: clamp(0.6rem, 1vw + 0.3rem, 0.85rem);
     line-height: 2;
 }
@@ -1041,7 +1062,7 @@ body.theme-8bit .Word-Cloud::before {
     top: 10px; left: 0; right: 0;
     text-align: center;
     color: #ffd700;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 11px;
     letter-spacing: 4px;
     pointer-events: none;
@@ -1055,7 +1076,7 @@ body.theme-8bit .explore-btn {
     border: 3px solid #ffd700;
     border-radius: 0 !important;
     box-shadow: 4px 4px 0 #000;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.03em;
     transition: none;
@@ -1112,7 +1133,7 @@ body.theme-8bit .event-date-selector {
     color: #ffd700;
     border: 3px solid #ffd700;
     border-radius: 0 !important;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 0.6rem;
     box-shadow: 4px 4px 0 #000;
 }
@@ -1124,7 +1145,7 @@ body.theme-8bit #effects-panel {
     box-shadow: 4px 4px 0 #000;
     color: #ffd700;
     border-radius: 0 !important;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 10px;
 }
 body.theme-8bit #effects-panel .panel-title { color: #ffd70099; }
@@ -1135,7 +1156,7 @@ body.theme-8bit #style-switcher {
 }
 body.theme-8bit #style-switcher .switcher-label {
     color: #ffd700;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Cubic 11', 'Zpix', 'Unifont', 'Press Start 2P', monospace;
     font-size: 9px;
 }
 
