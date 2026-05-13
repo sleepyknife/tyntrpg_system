@@ -102,9 +102,9 @@
     }
   }
 
-  // ── Touch support (mobile) ──
-  // 手機改用距離觸發，不需速度門檻（拖動本身即為意圖）
-  if (isMobile) {
+  // ── Touch support ──
+  // 無條件註冊，桌機無觸控就不會觸發；DevTools 模擬也能正常運作
+  {
     document.addEventListener('touchstart', function (e) {
       var touch = e.touches[0];
       mouseX = touch.clientX;
