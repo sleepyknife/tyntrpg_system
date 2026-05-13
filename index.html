@@ -20,6 +20,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/SystemStyle.css">
+	<link rel="stylesheet" href="css/themes.css">
 	<title>桃園TRPG推廣會系統介紹</title>
 	<style>
 		#sakura-canvas {
@@ -135,6 +136,23 @@
 	</style>
 </head>
 <body>
+	<!-- 頁面風格切換器 -->
+	<div id="style-switcher" role="tablist" aria-label="頁面風格切換">
+		<span class="switcher-label">🎨 風格</span>
+		<button class="style-tab-btn active" data-theme="default" role="tab" aria-selected="true" title="預設風格">
+			🌸 預設
+		</button>
+		<button class="style-tab-btn" data-theme="y2k" role="tab" aria-selected="false" title="Y2K 千禧風格">
+			💿 Y2K
+		</button>
+		<button class="style-tab-btn" data-theme="cyberpunk" role="tab" aria-selected="false" title="賽博龐克風格">
+			⚡ Cyberpunk
+		</button>
+		<button class="style-tab-btn" data-theme="medieval" role="tab" aria-selected="false" title="中古奇幻風格">
+			⚔️ 中古奇幻
+		</button>
+	</div>
+
 	<canvas id="sakura-canvas"></canvas>
 	<div class="container">
 		<!--標題區域-->
@@ -745,6 +763,46 @@
 			element.classList.remove('fade-out');
 		}, 300);
 	}
+
+	// ── 風格切換器 ──
+	(function () {
+		const STORAGE_KEY = 'tyntrpg-theme';
+		const themeClasses = ['theme-y2k', 'theme-cyberpunk', 'theme-medieval'];
+
+		function applyTheme(theme) {
+			// 移除所有主題 class
+			document.body.classList.remove(...themeClasses);
+			if (theme && theme !== 'default') {
+				document.body.classList.add('theme-' + theme);
+			}
+			// 更新 tab 按鈕 active 狀態
+			document.querySelectorAll('.style-tab-btn').forEach(btn => {
+				const isActive = btn.dataset.theme === theme;
+				btn.classList.toggle('active', isActive);
+				btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+			});
+			// 儲存偏好
+			try { localStorage.setItem(STORAGE_KEY, theme); } catch (_) {}
+		}
+
+		// 讀取儲存的主題偏好
+		function loadSavedTheme() {
+			try {
+				const saved = localStorage.getItem(STORAGE_KEY);
+				if (saved) return saved;
+			} catch (_) {}
+			return 'default';
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			// 綁定切換按鈕
+			document.querySelectorAll('.style-tab-btn').forEach(btn => {
+				btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+			});
+			// 套用儲存的主題
+			applyTheme(loadSavedTheme());
+		});
+	})();
 </script>
 
 <script>

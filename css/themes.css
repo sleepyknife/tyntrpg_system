@@ -1,0 +1,795 @@
+/* ============================================================
+   頁面風格主題 — Y2K / Cyberpunk / 中古奇幻
+   用法：在 <body> 上加 class="theme-y2k" / "theme-cyberpunk" / "theme-medieval"
+   ============================================================ */
+
+/* ──────────────────────────────
+   風格切換器 Tab 樣式 (通用)
+   ────────────────────────────── */
+#style-switcher {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    background: rgba(255, 252, 250, 0.95);
+    border-bottom: 2px solid #d6b8ae;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    min-height: 44px;
+}
+
+#style-switcher .switcher-label {
+    font-size: 12px;
+    color: #835E54;
+    font-weight: 500;
+    padding: 0 12px 0 16px;
+    white-space: nowrap;
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+}
+
+.style-tab-btn {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+    position: relative;
+    outline: none;
+}
+
+/* 預設（無主題）tab */
+.style-tab-btn[data-theme="default"] {
+    background: #f6ede8;
+    color: #835E54;
+    border-right: 1px solid #d6b8ae;
+}
+.style-tab-btn[data-theme="default"]:hover,
+.style-tab-btn[data-theme="default"].active {
+    background: #835E54;
+    color: #fff;
+}
+
+/* body 上移給固定 bar 讓空間 */
+body {
+    padding-top: 44px;
+}
+
+/* ──────────────────────────────
+   🌸 Y2K 風格
+   ────────────────────────────── */
+.style-tab-btn[data-theme="y2k"] {
+    background: linear-gradient(135deg, #ff79c6, #bd93f9, #8be9fd);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    border-right: 1px solid rgba(255,255,255,0.3);
+}
+.style-tab-btn[data-theme="y2k"]:hover,
+.style-tab-btn[data-theme="y2k"].active {
+    background: linear-gradient(135deg, #ff4da6, #9f6de0, #50c8e8);
+    box-shadow: 0 0 12px rgba(255,121,198,0.7), inset 0 -2px 0 rgba(0,0,0,0.15);
+}
+
+/* ⚡ Cyberpunk tab */
+.style-tab-btn[data-theme="cyberpunk"] {
+    background: #0d0d1a;
+    color: #00ffe0;
+    text-shadow: 0 0 6px #00ffe0;
+    border-right: 1px solid #00ffe044;
+    letter-spacing: 0.08em;
+    font-family: 'Courier New', monospace;
+}
+.style-tab-btn[data-theme="cyberpunk"]:hover,
+.style-tab-btn[data-theme="cyberpunk"].active {
+    background: #1a0030;
+    color: #ff00ff;
+    text-shadow: 0 0 8px #ff00ff, 0 0 16px #ff00ff;
+    box-shadow: inset 0 -2px 0 #ff00ff;
+}
+
+/* ⚔️ 中古奇幻 tab */
+.style-tab-btn[data-theme="medieval"] {
+    background: linear-gradient(135deg, #4a2810, #2d5016);
+    color: #daa520;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    border-right: 1px solid #daa52044;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+.style-tab-btn[data-theme="medieval"]:hover,
+.style-tab-btn[data-theme="medieval"].active {
+    background: linear-gradient(135deg, #6b3d18, #3d6e1f);
+    color: #ffd700;
+    text-shadow: 0 0 6px #daa520;
+    box-shadow: inset 0 -2px 0 #daa520;
+}
+
+
+/* ================================================================
+   🌸 Y2K 主題  body.theme-y2k
+   ================================================================ */
+body.theme-y2k {
+    background: linear-gradient(135deg, #ffe0f7 0%, #e8d5ff 30%, #d0f0ff 60%, #ffe8f0 100%);
+    background-attachment: fixed;
+    font-family: 'Noto Sans TC', 'Comic Sans MS', 'Segoe UI', sans-serif;
+}
+
+/* Y2K holographic shimmer overlay */
+body.theme-y2k::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(255,255,255,0.04) 3px,
+        rgba(255,255,255,0.04) 4px
+    );
+    z-index: 9998;
+}
+
+body.theme-y2k .header-container,
+body.theme-y2k .date-container {
+    background: linear-gradient(135deg, #fff0fb, #f0e8ff, #e8f8ff);
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, #ff79c6, #bd93f9, #8be9fd) 1;
+    box-shadow: 0 4px 20px rgba(255,121,198,0.2);
+}
+
+body.theme-y2k .header-title {
+    color: transparent;
+    background: linear-gradient(135deg, #ff4da6, #9f6de0, #00b4d8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 4px rgba(255,100,200,0.4));
+}
+
+body.theme-y2k .tab-content,
+body.theme-y2k .system-introduction {
+    background: linear-gradient(135deg, rgba(255,240,255,0.9), rgba(240,232,255,0.9));
+    border: 2px solid rgba(189,147,249,0.4);
+    box-shadow: 0 8px 32px rgba(189,147,249,0.2), 0 0 0 1px rgba(255,121,198,0.1);
+    border-radius: 16px;
+}
+
+body.theme-y2k #system-overview {
+    background: linear-gradient(135deg, #fff5fe, #f5efff, #eff8ff);
+}
+
+body.theme-y2k .system-section {
+    background: rgba(255, 248, 255, 0.92);
+    border: 2px solid rgba(189,147,249,0.5);
+    box-shadow: 0 8px 40px rgba(255,121,198,0.15), 0 0 60px rgba(189,147,249,0.1);
+    border-radius: 20px;
+}
+
+body.theme-y2k .title-text {
+    color: transparent;
+    background: linear-gradient(135deg, #d946ef, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+body.theme-y2k .section-title {
+    color: #d946ef;
+    text-shadow: 0 0 20px rgba(217,70,239,0.3);
+}
+
+/* Y2K Category Buttons */
+body.theme-y2k .category-button {
+    background: linear-gradient(135deg, #ff79c6, #bd93f9);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(255,121,198,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+body.theme-y2k .category-button:hover:not(.active) {
+    background: linear-gradient(135deg, #ff4da6, #9f6de0);
+    color: #fff;
+    border: none;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,121,198,0.5);
+}
+body.theme-y2k .category-button.active {
+    background: linear-gradient(135deg, #c026d3, #7c3aed);
+    box-shadow: 0 0 0 3px rgba(192,38,211,0.4), 0 4px 12px rgba(124,58,237,0.4);
+}
+
+/* Y2K System Table */
+body.theme-y2k .system-title-cell {
+    background: linear-gradient(135deg, #c026d3, #7c3aed);
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+body.theme-y2k .system-row-even { background-color: #fff0fe; }
+body.theme-y2k .system-row-odd  { background-color: #f0e8ff; }
+body.theme-y2k .system-cell     { color: #5b21b6; }
+body.theme-y2k .system-cell:hover:not(.active) {
+    background-color: #f0abfc !important;
+    color: #fff;
+}
+body.theme-y2k .system-cell.active {
+    background-color: #d946ef !important;
+    color: #fff !important;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+}
+
+/* Y2K Word Cloud */
+body.theme-y2k .Word-Cloud {
+    background: linear-gradient(135deg, #1e003d, #003050);
+    position: relative;
+    overflow: hidden;
+}
+body.theme-y2k .Word-Cloud::before {
+    content: '✦ ★ ✨ ⭐ ✦ ★ ✨ ⭐ ✦ ★ ✨ ⭐ ✦ ★ ✨ ⭐ ✦ ★ ✨';
+    position: absolute;
+    top: 10px; left: 0; right: 0;
+    text-align: center;
+    color: rgba(255,215,0,0.4);
+    font-size: 20px;
+    letter-spacing: 8px;
+    pointer-events: none;
+}
+body.theme-y2k .Word-Cloud span { color: #f0abfc; }
+body.theme-y2k .title-text { /* already handled above */ }
+
+body.theme-y2k .explore-btn {
+    background: linear-gradient(135deg, #ff79c6, #bd93f9);
+    color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(255,121,198,0.4);
+    border: none;
+}
+body.theme-y2k .explore-btn:hover {
+    background: linear-gradient(135deg, #ff4da6, #9f6de0);
+    transform: scale(1.05);
+}
+body.theme-y2k .explore-btn.active {
+    background: linear-gradient(135deg, #c026d3, #7c3aed);
+    color: #fff;
+}
+
+/* Y2K Event Section */
+body.theme-y2k .event-section {
+    background: linear-gradient(135deg, #fff0fb, #f0e8ff);
+    border: 2px solid rgba(189,147,249,0.4);
+    box-shadow: 0 8px 32px rgba(189,147,249,0.15);
+}
+body.theme-y2k .event-card {
+    background: linear-gradient(135deg, rgba(255,240,255,0.95), rgba(240,232,255,0.95));
+    border: 1px solid rgba(189,147,249,0.4);
+    box-shadow: 0 4px 15px rgba(189,147,249,0.2);
+    border-radius: 16px;
+}
+body.theme-y2k .event-card:hover {
+    background: linear-gradient(135deg, rgba(255,230,255,0.98), rgba(230,220,255,0.98));
+    box-shadow: 0 8px 25px rgba(217,70,239,0.25);
+    transform: translateY(-2px);
+}
+body.theme-y2k .event-card.active {
+    background: linear-gradient(135deg, #fce7ff, #ede9ff);
+    border-left: 4px solid #d946ef;
+}
+body.theme-y2k .event-card p { color: #7c3aed; }
+body.theme-y2k .event-date-selector {
+    border-color: #bd93f9;
+    background-color: #fdf4ff;
+    color: #7c3aed;
+}
+
+/* Y2K text colors */
+body.theme-y2k .text-section p { color: #7c3aed; }
+body.theme-y2k .quote { color: #c026d3; }
+body.theme-y2k .signature { color: #9f6de0; }
+
+/* Y2K effects panel */
+body.theme-y2k #effects-panel {
+    background: rgba(255,240,255,0.92);
+    border-color: #bd93f9;
+    color: #7c3aed;
+}
+body.theme-y2k #style-switcher {
+    background: linear-gradient(90deg, #fff0fb, #f0e8ff, #e8f8ff, #fff0fb);
+    border-bottom: 2px solid #bd93f9;
+}
+
+
+/* ================================================================
+   ⚡ Cyberpunk 主題  body.theme-cyberpunk
+   ================================================================ */
+body.theme-cyberpunk {
+    background-color: #05050f;
+    background-image:
+        linear-gradient(rgba(0,255,224,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,224,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-attachment: fixed;
+    color: #c8f0ff;
+    font-family: 'Courier New', 'Consolas', monospace;
+}
+
+/* Cyberpunk scanline effect */
+body.theme-cyberpunk::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+    );
+    z-index: 9997;
+}
+
+body.theme-cyberpunk .header-container,
+body.theme-cyberpunk .date-container {
+    background: linear-gradient(90deg, #0a0a1a, #0d0d20);
+    border-bottom: 1px solid #00ffe0;
+    box-shadow: 0 0 20px rgba(0,255,224,0.15), 0 4px 40px rgba(0,0,0,0.8);
+}
+
+body.theme-cyberpunk .header-title {
+    color: #00ffe0;
+    text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0, 0 0 40px rgba(0,255,224,0.5);
+    letter-spacing: 0.05em;
+    animation: cp-flicker 8s infinite;
+}
+
+@keyframes cp-flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.7; }
+    97% { opacity: 1; }
+    98% { opacity: 0.5; }
+    99% { opacity: 1; }
+}
+
+body.theme-cyberpunk .tab-content,
+body.theme-cyberpunk .system-introduction {
+    background: rgba(5,5,20,0.92);
+    border: 1px solid #00ffe044;
+    box-shadow: 0 0 30px rgba(0,255,224,0.08), inset 0 0 30px rgba(0,0,0,0.5);
+    border-radius: 4px;
+}
+
+body.theme-cyberpunk #system-overview {
+    background: #08081a;
+}
+
+body.theme-cyberpunk .system-section {
+    background: rgba(8,8,20,0.95);
+    border: 1px solid #00ffe033;
+    box-shadow: 0 0 40px rgba(0,255,224,0.1), 0 0 80px rgba(255,0,255,0.05);
+    border-radius: 4px;
+}
+
+body.theme-cyberpunk .title-text {
+    color: #00ffe0;
+    text-shadow: 0 0 8px #00ffe0;
+    letter-spacing: 0.05em;
+}
+
+body.theme-cyberpunk .section-title {
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff, 0 0 20px rgba(255,0,255,0.4);
+}
+
+body.theme-cyberpunk #SystemStyle {
+    color: #00ffe0;
+    text-shadow: 0 0 8px #00ffe0;
+}
+body.theme-cyberpunk #SystemStyle-Description,
+body.theme-cyberpunk #Description { color: #8af0e0; }
+
+/* Cyberpunk Category Buttons */
+body.theme-cyberpunk .category-button {
+    background: transparent;
+    color: #00ffe0;
+    border: 1px solid #00ffe0;
+    border-radius: 2px;
+    text-shadow: 0 0 6px #00ffe0;
+    box-shadow: 0 0 8px rgba(0,255,224,0.2), inset 0 0 8px rgba(0,255,224,0.05);
+    letter-spacing: 0.05em;
+    font-family: 'Courier New', monospace;
+}
+body.theme-cyberpunk .category-button:hover:not(.active) {
+    background: rgba(0,255,224,0.15);
+    color: #00ffe0;
+    border-color: #00ffe0;
+    box-shadow: 0 0 15px rgba(0,255,224,0.4), inset 0 0 15px rgba(0,255,224,0.1);
+    transform: none;
+}
+body.theme-cyberpunk .category-button.active {
+    background: rgba(0,255,224,0.2);
+    color: #fff;
+    border-color: #00ffe0;
+    box-shadow: 0 0 20px rgba(0,255,224,0.6), inset 0 0 20px rgba(0,255,224,0.15);
+}
+
+/* Cyberpunk System Table */
+body.theme-cyberpunk .system-title-cell {
+    background: linear-gradient(90deg, #0a001a, #001a0a);
+    color: #00ffe0;
+    text-shadow: 0 0 8px #00ffe0;
+    border: 1px solid #00ffe033;
+    letter-spacing: 0.1em;
+}
+body.theme-cyberpunk .system-row-even { background-color: #070712; }
+body.theme-cyberpunk .system-row-odd  { background-color: #090918; }
+body.theme-cyberpunk .system-cell     {
+    color: #8af0e0;
+    border: 1px solid #00ffe011;
+}
+body.theme-cyberpunk .system-cell:hover:not(.active) {
+    background-color: rgba(255,0,255,0.12) !important;
+    color: #ff80ff;
+    box-shadow: inset 0 0 10px rgba(255,0,255,0.1);
+    text-shadow: 0 0 6px #ff80ff;
+}
+body.theme-cyberpunk .system-cell.active {
+    background-color: rgba(0,255,224,0.2) !important;
+    color: #00ffe0 !important;
+    border: 1px solid #00ffe0 !important;
+    text-shadow: 0 0 8px #00ffe0;
+    box-shadow: inset 0 0 15px rgba(0,255,224,0.15);
+}
+
+/* Cyberpunk Word Cloud */
+body.theme-cyberpunk .Word-Cloud {
+    background: linear-gradient(180deg, #05050f, #0a001a);
+    border-top: 1px solid #00ffe022;
+    border-bottom: 1px solid #00ffe022;
+}
+body.theme-cyberpunk .Word-Cloud span { color: #ff80ff; }
+body.theme-cyberpunk .Word-Cloud .title-text { color: #00ffe0; }
+
+body.theme-cyberpunk .explore-btn {
+    background: transparent;
+    color: #ff00ff;
+    border: 1px solid #ff00ff;
+    border-radius: 2px;
+    text-shadow: 0 0 6px #ff00ff;
+    box-shadow: 0 0 8px rgba(255,0,255,0.2);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
+}
+body.theme-cyberpunk .explore-btn:hover {
+    background: rgba(255,0,255,0.15);
+    box-shadow: 0 0 15px rgba(255,0,255,0.4);
+    transform: none;
+}
+body.theme-cyberpunk .explore-btn.active {
+    background: rgba(255,0,255,0.25);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255,0,255,0.5);
+}
+
+/* Cyberpunk Event Section */
+body.theme-cyberpunk .event-section {
+    background: #08081a;
+    border: 1px solid #00ffe022;
+    box-shadow: none;
+}
+body.theme-cyberpunk .event-card {
+    background: rgba(5,5,20,0.9);
+    border: 1px solid #00ffe033;
+    box-shadow: 0 0 12px rgba(0,255,224,0.08);
+    border-radius: 2px;
+}
+body.theme-cyberpunk .event-card:hover {
+    background: rgba(0,255,224,0.05);
+    box-shadow: 0 0 20px rgba(0,255,224,0.15);
+    transform: none;
+}
+body.theme-cyberpunk .event-card.active {
+    background: rgba(0,255,224,0.1);
+    border-left: 3px solid #00ffe0;
+    box-shadow: 0 0 20px rgba(0,255,224,0.2);
+}
+body.theme-cyberpunk .event-card p { color: #8af0e0; }
+body.theme-cyberpunk .event-date-selector {
+    background-color: #0a0a1a;
+    color: #00ffe0;
+    border-color: #00ffe044;
+    font-family: 'Courier New', monospace;
+}
+
+/* Cyberpunk text */
+body.theme-cyberpunk .text-section p { color: #8af0e0; }
+body.theme-cyberpunk .quote { color: #ff80ff; font-style: normal; }
+body.theme-cyberpunk .signature { color: #00ffe088; }
+body.theme-cyberpunk #system-title { color: #00ffe0; text-shadow: 0 0 8px #00ffe0; }
+
+/* Cyberpunk effects panel */
+body.theme-cyberpunk #effects-panel {
+    background: rgba(5,5,20,0.95);
+    border-color: #00ffe044;
+    color: #00ffe0;
+}
+body.theme-cyberpunk #effects-panel .panel-title { color: #00ffe066; }
+body.theme-cyberpunk #style-switcher {
+    background: rgba(5,5,20,0.98);
+    border-bottom: 1px solid #00ffe044;
+}
+body.theme-cyberpunk #style-switcher .switcher-label { color: #00ffe0; }
+
+/* Cyberpunk accordion */
+body.theme-cyberpunk .accordion-content {
+    background-color: #08081a;
+    border-color: #00ffe033;
+    color: #8af0e0;
+}
+
+/* Cyberpunk swiper buttons */
+body.theme-cyberpunk .swiper-button-next,
+body.theme-cyberpunk .swiper-button-prev { color: #00ffe0; }
+
+
+/* ================================================================
+   ⚔️ 中古奇幻 主題  body.theme-medieval
+   ================================================================ */
+body.theme-medieval {
+    background-color: #2a1a0a;
+    background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(139,90,43,0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(45,80,22,0.2) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: #3d2200;
+    font-family: Georgia, 'Times New Roman', 'Palatino Linotype', serif;
+}
+
+body.theme-medieval .header-container,
+body.theme-medieval .date-container {
+    background: linear-gradient(135deg, #f4e4c1, #eddcb4);
+    border-bottom: 3px solid #8b4513;
+    box-shadow: 0 4px 20px rgba(42,26,10,0.4);
+    position: relative;
+}
+body.theme-medieval .header-container::after {
+    content: '❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧';
+    display: block;
+    text-align: center;
+    color: #8b4513;
+    font-size: 14px;
+    padding: 2px 0;
+    letter-spacing: 4px;
+    background: #8b4513;
+    color: #daa520;
+}
+
+body.theme-medieval .header-title {
+    color: #5c1e00;
+    text-shadow: 1px 1px 0 rgba(218,165,32,0.5), 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.02em;
+}
+
+body.theme-medieval .tab-content,
+body.theme-medieval .system-introduction {
+    background: linear-gradient(135deg, #fdf5e8, #f7ecda);
+    border: 2px solid #8b4513;
+    box-shadow: 0 8px 30px rgba(42,26,10,0.3), inset 0 0 30px rgba(139,69,19,0.05);
+    border-radius: 4px;
+    position: relative;
+}
+body.theme-medieval .system-introduction::before,
+body.theme-medieval .system-introduction::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px solid rgba(139,69,19,0.25);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+body.theme-medieval #system-overview {
+    background: linear-gradient(135deg, #2a1a0a, #1a2a0a);
+    background-image:
+        radial-gradient(ellipse at center, rgba(139,90,43,0.15) 0%, transparent 70%);
+}
+
+body.theme-medieval .system-section {
+    background: linear-gradient(135deg, #fdf5e8, #f7ecda);
+    border: 2px solid #8b4513;
+    box-shadow: 0 8px 40px rgba(42,26,10,0.4), inset 0 0 40px rgba(139,69,19,0.05);
+    border-radius: 4px;
+}
+
+body.theme-medieval .title-text {
+    color: #5c1e00;
+    text-shadow: 1px 1px 0 rgba(218,165,32,0.4);
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.02em;
+}
+
+body.theme-medieval .section-title {
+    color: #2d5016;
+    text-shadow: 1px 1px 0 rgba(218,165,32,0.3);
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+body.theme-medieval #SystemStyle {
+    color: #5c1e00;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+body.theme-medieval #SystemStyle-Description,
+body.theme-medieval #Description {
+    color: #3d2200;
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 2;
+}
+
+/* Medieval Category Buttons */
+body.theme-medieval .category-button {
+    background: linear-gradient(135deg, #6b3d18, #4a2810);
+    color: #daa520;
+    border: 2px solid #daa520;
+    border-radius: 3px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 3px 8px rgba(42,26,10,0.5), inset 0 1px 0 rgba(218,165,32,0.2);
+    font-family: Georgia, serif;
+    letter-spacing: 0.03em;
+}
+body.theme-medieval .category-button:hover:not(.active) {
+    background: linear-gradient(135deg, #8b5e2a, #6b3d18);
+    color: #ffd700;
+    border-color: #ffd700;
+    box-shadow: 0 4px 12px rgba(42,26,10,0.6), 0 0 8px rgba(218,165,32,0.3);
+    transform: translateY(-1px);
+}
+body.theme-medieval .category-button.active {
+    background: linear-gradient(135deg, #2d5016, #1d3a0e);
+    color: #ffd700;
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(218,165,32,0.4), inset 0 0 8px rgba(45,80,22,0.3);
+}
+
+/* Medieval System Table */
+body.theme-medieval .system-title-cell {
+    background: linear-gradient(135deg, #5c1e00, #2d5016);
+    color: #daa520;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    border: 1px solid #daa52044;
+    font-family: Georgia, serif;
+    letter-spacing: 0.05em;
+}
+body.theme-medieval .system-row-even { background-color: #fdf5e8; }
+body.theme-medieval .system-row-odd  { background-color: #f5e8d0; }
+body.theme-medieval .system-cell     {
+    color: #3d2200;
+    font-family: Georgia, serif;
+    border: 1px solid rgba(139,69,19,0.15);
+}
+body.theme-medieval .system-cell:hover:not(.active) {
+    background-color: #daa52030 !important;
+    color: #5c1e00;
+}
+body.theme-medieval .system-cell.active {
+    background-color: #8b4513 !important;
+    color: #fdf5e8 !important;
+    border: 1px solid #daa520 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Medieval Word Cloud */
+body.theme-medieval .Word-Cloud {
+    background: linear-gradient(135deg, #1a0a03, #0a1a03);
+    border-top: 2px solid #8b4513;
+    border-bottom: 2px solid #2d5016;
+    position: relative;
+}
+body.theme-medieval .Word-Cloud::before {
+    content: '⚔ ☩ ⚔ ☩ ⚔ ☩ ⚔ ☩ ⚔ ☩ ⚔';
+    position: absolute;
+    top: 8px; left: 0; right: 0;
+    text-align: center;
+    color: rgba(218,165,32,0.4);
+    font-size: 16px;
+    letter-spacing: 12px;
+    pointer-events: none;
+}
+body.theme-medieval .Word-Cloud span { color: #daa520; }
+
+body.theme-medieval .explore-btn {
+    background: linear-gradient(135deg, #4a2810, #2d5016);
+    color: #daa520;
+    border: 2px solid #daa520;
+    border-radius: 3px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 3px 8px rgba(42,26,10,0.5);
+    font-family: Georgia, serif;
+}
+body.theme-medieval .explore-btn:hover {
+    background: linear-gradient(135deg, #6b3d18, #3d6e1f);
+    color: #ffd700;
+    box-shadow: 0 4px 12px rgba(42,26,10,0.6), 0 0 8px rgba(218,165,32,0.3);
+    transform: translateY(-1px);
+}
+body.theme-medieval .explore-btn.active {
+    background: linear-gradient(135deg, #2d5016, #1d3a0e);
+    color: #ffd700;
+    box-shadow: 0 0 12px rgba(218,165,32,0.4);
+}
+
+/* Medieval Event Section */
+body.theme-medieval .event-section {
+    background: linear-gradient(135deg, #2a1a0a, #1a2a0a);
+    border: 2px solid #8b4513;
+    box-shadow: 0 8px 30px rgba(42,26,10,0.5);
+}
+body.theme-medieval .section-description { color: #c8a870; }
+body.theme-medieval .event-card {
+    background: linear-gradient(135deg, #fdf5e8, #f7ecda);
+    border: 1px solid rgba(139,69,19,0.4);
+    box-shadow: 0 3px 10px rgba(42,26,10,0.3);
+    border-radius: 3px;
+    position: relative;
+}
+body.theme-medieval .event-card:hover {
+    background: linear-gradient(135deg, #f7ecda, #f0e0c0);
+    box-shadow: 0 6px 20px rgba(42,26,10,0.4), 0 0 8px rgba(218,165,32,0.2);
+    transform: translateY(-2px);
+}
+body.theme-medieval .event-card.active {
+    background: linear-gradient(135deg, #ede0c0, #e5d5aa);
+    border-left: 4px solid #8b4513;
+}
+body.theme-medieval .event-card p { color: #3d2200; font-family: Georgia, serif; }
+body.theme-medieval .event-date-selector {
+    background-color: #fdf5e8;
+    color: #5c1e00;
+    border-color: #8b4513;
+    font-family: Georgia, serif;
+}
+
+/* Medieval text */
+body.theme-medieval .text-section p { color: #3d2200; font-family: Georgia, serif; line-height: 1.8; }
+body.theme-medieval .quote { color: #5c1e00; font-family: Georgia, serif; }
+body.theme-medieval .signature { color: #8b6914; font-family: Georgia, serif; }
+body.theme-medieval #system-title { color: #5c1e00; font-family: Georgia, serif; }
+
+/* Medieval effects panel */
+body.theme-medieval #effects-panel {
+    background: rgba(253,245,232,0.95);
+    border-color: #8b4513;
+    color: #5c1e00;
+}
+body.theme-medieval #effects-panel .panel-title { color: #8b6914; }
+body.theme-medieval #style-switcher {
+    background: linear-gradient(90deg, #f4e4c1, #eddcb4, #f4e4c1);
+    border-bottom: 2px solid #8b4513;
+}
+body.theme-medieval #style-switcher .switcher-label { color: #5c1e00; }
+
+/* Medieval accordion */
+body.theme-medieval .accordion-content {
+    background-color: #fdf5e8;
+    border-color: rgba(139,69,19,0.3);
+    color: #3d2200;
+}
+
+/* Medieval swiper */
+body.theme-medieval .swiper-button-next,
+body.theme-medieval .swiper-button-prev { color: #8b4513; }
+
+/* ──────────────────────────────
+   動畫：主題切換淡入
+   ────────────────────────────── */
+body {
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease;
+}
