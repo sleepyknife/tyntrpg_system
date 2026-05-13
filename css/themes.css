@@ -14,7 +14,8 @@
     z-index: 99999;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
+    flex-wrap: nowrap;
     gap: 0;
     padding: 0;
     background: rgba(255, 252, 250, 0.95);
@@ -22,19 +23,26 @@
     backdrop-filter: blur(8px);
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     min-height: 44px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
+#style-switcher::-webkit-scrollbar { display: none; }
 
 #style-switcher .switcher-label {
     font-size: 12px;
     color: #835E54;
     font-weight: 500;
-    padding: 0 12px 0 16px;
+    padding: 0 8px 0 12px;
     white-space: nowrap;
     font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .style-tab-btn {
-    padding: 10px 20px;
+    padding: 10px 14px;
     font-size: 13px;
     font-weight: bold;
     border: none;
@@ -44,6 +52,12 @@
     letter-spacing: 0.03em;
     position: relative;
     outline: none;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    #style-switcher .switcher-label { display: none; }
+    .style-tab-btn { padding: 10px 12px; font-size: 12px; }
 }
 
 /* 預設（無主題）tab */
