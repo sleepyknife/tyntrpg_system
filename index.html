@@ -35,7 +35,7 @@
 		/* ── 視覺效果開關面板 ── */
 		#effects-panel {
 			position: fixed;
-			bottom: 20px;
+			bottom: 70px; /* 回到頂端按鈕高度 (~40px) + 10px 間距 + 20px 基準 */
 			right: 20px;
 			z-index: 100000;
 			background: rgba(255, 252, 250, 0.92);
@@ -51,6 +51,18 @@
 			font-size: 13px;
 			color: #835E54;
 			min-width: 140px;
+		}
+
+		/* 手機窄螢幕：移到左下角，避免與右下角按鈕重疊 */
+		@media (max-width: 600px) {
+			#effects-panel {
+				bottom: 20px;
+				right: auto;
+				left: 12px;
+				font-size: 12px;
+				padding: 8px 12px;
+				min-width: 0;
+			}
 		}
 
 		#effects-panel .panel-title {
