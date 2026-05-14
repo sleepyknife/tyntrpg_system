@@ -378,6 +378,18 @@ body.theme-y2k .text-section p { color: #7c3aed; }
 body.theme-y2k .quote { color: #c026d3; }
 body.theme-y2k .signature { color: #9f6de0; }
 
+/* Y2K 標題列：全彩漸層霓虹框 */
+body.theme-y2k #system-title {
+    background: linear-gradient(135deg, rgba(255,121,198,0.22), rgba(189,147,249,0.22), rgba(139,233,253,0.18));
+    border-left: 5px solid #d946ef;
+    border-radius: 14px;
+    color: #6d28d9;
+    text-shadow: 0 0 8px rgba(217,70,239,0.35);
+    box-shadow: 0 4px 18px rgba(189,147,249,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+    font-size: 1.1em;
+    padding: 12px 20px;
+}
+
 /* Y2K effects panel */
 body.theme-y2k #effects-panel {
     background: rgba(255,240,255,0.92);
@@ -611,7 +623,26 @@ body.theme-cyberpunk .event-date-selector {
 body.theme-cyberpunk .text-section p { color: #8af0e0; }
 body.theme-cyberpunk .quote { color: #ff80ff; font-style: normal; }
 body.theme-cyberpunk .signature { color: #00ffe088; }
-body.theme-cyberpunk #system-title { color: #00ffe0; text-shadow: 0 0 8px #00ffe0; }
+
+/* Cyberpunk 標題列：終端機風格霓虹框 */
+body.theme-cyberpunk #system-title {
+    background: rgba(0,255,224,0.07);
+    border: 1px solid #00ffe044;
+    border-left: 4px solid #00ffe0;
+    border-radius: 0;
+    color: #00ffe0;
+    text-shadow: 0 0 10px #00ffe0, 0 0 20px rgba(0,255,224,0.4);
+    font-family: 'Courier New', 'Consolas', monospace;
+    letter-spacing: 0.06em;
+    box-shadow: 0 0 18px rgba(0,255,224,0.15), inset 0 0 18px rgba(0,255,224,0.04);
+    font-size: 1em;
+    padding: 10px 16px;
+}
+body.theme-cyberpunk #system-title::before {
+    content: '▶ ';
+    color: #ff00ff;
+    text-shadow: 0 0 8px #ff00ff;
+}
 
 /* Cyberpunk effects panel */
 body.theme-cyberpunk #effects-panel {
@@ -880,10 +911,32 @@ body.theme-medieval .event-date-selector {
 body.theme-medieval .text-section p { color: #3d2200; font-family: Georgia, serif; line-height: 1.8; }
 body.theme-medieval .quote { color: #5c1e00; font-family: Georgia, serif; }
 body.theme-medieval .signature { color: #8b6914; font-family: Georgia, serif; }
-body.theme-medieval #system-title  { color: #3b0e00; font-family: Georgia, serif; font-weight: bold; }
 body.theme-medieval #system-quote  { color: #5c1e00; font-family: Georgia, serif; opacity: 1; }
 body.theme-medieval #system-main-text  { color: #2a1200; font-family: Georgia, serif; opacity: 1; }
 body.theme-medieval #system-signature  { color: #5a3e00; font-family: Georgia, serif; opacity: 1; }
+
+/* Medieval 標題列：羊皮卷軸風格 */
+body.theme-medieval #system-title {
+    background: linear-gradient(135deg, #f4e4c1, #ede0b4);
+    border: 2px solid #8b4513;
+    border-left: 6px solid #daa520;
+    border-radius: 3px;
+    color: #3b0e00;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-shadow: 1px 1px 0 rgba(218,165,32,0.35);
+    box-shadow: 0 3px 12px rgba(42,26,10,0.28), inset 0 1px 0 rgba(218,165,32,0.25);
+    padding: 10px 18px;
+}
+body.theme-medieval #system-title::before {
+    content: '❧ ';
+    color: #daa520;
+}
+body.theme-medieval #system-title::after {
+    content: ' ❧';
+    color: #daa520;
+}
 
 /* Medieval effects panel */
 body.theme-medieval #effects-panel {
@@ -1110,12 +1163,24 @@ body.theme-8bit #system-content-container {
     border-radius: 0 !important;
     padding: 20px;
 }
+/* 8-bit 標題列：像素遊戲標題框 */
 body.theme-8bit #system-title {
-    color: #ffd700;
-    text-shadow: 2px 2px 0 #8b6914, 4px 4px 0 #000;
+    background: #000080;
+    border: 3px solid #ffd700;
+    box-shadow: 4px 4px 0 #000000, inset 0 0 0 1px rgba(255,255,255,0.15);
+    border-radius: 0 !important;
+    color: #ffffff;
+    text-shadow: 2px 2px 0 #000;
     font-family: 'Press Start 2P', 'DotGothic16', monospace;
-    font-size: clamp(0.6rem, 1vw + 0.3rem, 0.85rem);
-    line-height: 2;
+    font-size: clamp(0.5rem, 0.9vw + 0.3rem, 0.78rem);
+    line-height: 2.2;
+    letter-spacing: 0.03em;
+    padding: 8px 14px;
+}
+body.theme-8bit #system-title::before {
+    content: '▶ ';
+    color: #ffd700;
+    text-shadow: 1px 1px 0 #000;
 }
 body.theme-8bit #system-quote {
     color: #44cf6c;

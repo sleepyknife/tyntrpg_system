@@ -99,6 +99,20 @@
     font-weight: 400;
 }
 
+/* ── 系統標題列（預設風格）── */
+#system-title {
+    display: block;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 1.25em;
+    line-height: 1.6;
+    padding: 10px 16px;
+    border-left: 5px solid #c09080;
+    border-radius: 0 6px 6px 0;
+    background: rgba(214, 184, 174, 0.2);
+    color: #5c3020;
+}
+
 /* 簽名：縮小、靠右、加淡色 */
 .signature {
     font-size: 0.9rem;
