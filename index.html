@@ -64,7 +64,8 @@
 				padding: 8px 12px;
 				min-width: 0;
 			}
-			#thunder-row {
+			#thunder-row,
+			#vapor-row {
 				display: none;
 			}
 		}
@@ -163,7 +164,9 @@
 			background: rgba(131, 94, 84, 0.22);
 		}
 
-		/* ── 季節選擇彈出面板 ── */
+		/* ── 效果選擇彈出面板（通用） ── */
+		#thunder-popup,
+		#vapor-popup,
 		#season-popup {
 			position: fixed;
 			z-index: 100002;
@@ -178,6 +181,8 @@
 			min-width: 158px;
 			display: none;
 		}
+		#thunder-popup.open,
+		#vapor-popup.open,
 		#season-popup.open {
 			display: flex;
 		}
@@ -208,6 +213,8 @@
 		}
 
 		@media (max-width: 600px), (pointer: coarse) {
+			#thunder-popup,
+			#vapor-popup,
 			#season-popup {
 				right: auto !important;
 				left: 12px !important;
@@ -1455,21 +1462,35 @@
 </script>
 
 <script src="js/thunder-breathing.js"></script>
+<script src="js/vapor-effect.js"></script>
 
 <!-- 視覺效果開關面板 -->
 <div id="effects-panel">
 	<div class="panel-title">視覺效果</div>
 	<div class="effect-row" id="thunder-row">
-		<label for="toggle-thunder">⚡ 雷之呼吸</label>
-		<label class="toggle-switch">
-			<input type="checkbox" id="toggle-thunder" checked>
-			<span class="toggle-track"></span>
-		</label>
+		<span>⚡ 雷之呼吸</span>
+		<button id="thunder-trigger-btn" class="season-trigger-btn">⚡ 開 ▾</button>
+	</div>
+	<div class="effect-row" id="vapor-row">
+		<span>💨 水氣飄散</span>
+		<button id="vapor-trigger-btn" class="season-trigger-btn">💧 開 ▾</button>
 	</div>
 	<div class="effect-row">
 		<span>🌿 季節風格</span>
 		<button id="season-trigger-btn" class="season-trigger-btn">🌸 春 ▾</button>
 	</div>
+</div>
+
+<!-- 雷之呼吸彈出面板 -->
+<div id="thunder-popup" role="listbox" aria-label="雷之呼吸開關">
+	<button class="season-opt active" data-thunder="on"  role="option">⚡ 開啟</button>
+	<button class="season-opt"        data-thunder="off" role="option">🚫 關閉</button>
+</div>
+
+<!-- 水氣飄散彈出面板 -->
+<div id="vapor-popup" role="listbox" aria-label="水氣飄散開關">
+	<button class="season-opt active" data-vapor="on"  role="option">💧 開啟</button>
+	<button class="season-opt"        data-vapor="off" role="option">🚫 關閉</button>
 </div>
 
 <!-- 季節選擇彈出面板 -->
@@ -1483,9 +1504,55 @@
 
 <script>
 (function () {
-	// 雷之呼吸 toggle
-	document.getElementById('toggle-thunder').addEventListener('change', function () {
-		window.thunderEnabled = this.checked;
+	// ── 通用下拉選單工廠 ──
+	function makeDropdown(triggerId, popupId, opts, onSelect) {
+		var trigger = document.getElementById(triggerId);
+		var popup   = document.getElementById(popupId);
+		var buttons = popup.querySelectorAll('[role="option"]');
+
+		function positionPopup() {
+			var panelRect = document.getElementById('effects-panel').getBoundingClientRect();
+			popup.style.bottom = (window.innerHeight - panelRect.top + 8) + 'px';
+			popup.style.right  = (window.innerWidth  - panelRect.right)  + 'px';
+		}
+		function openPopup() { positionPopup(); popup.classList.add('open'); trigger.setAttribute('aria-expanded', 'true'); }
+		function closePopup() { popup.classList.remove('open'); trigger.setAttribute('aria-expanded', 'false'); }
+
+		trigger.addEventListener('click', function (e) {
+			e.stopPropagation();
+			// 關掉其他所有 popup
+			document.querySelectorAll('#thunder-popup,#vapor-popup,#season-popup').forEach(function (p) {
+				if (p !== popup) p.classList.remove('open');
+			});
+			popup.classList.contains('open') ? closePopup() : openPopup();
+		});
+
+		buttons.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				buttons.forEach(function (b) { b.classList.remove('active'); });
+				btn.classList.add('active');
+				onSelect(btn, trigger);
+				closePopup();
+			});
+		});
+
+		document.addEventListener('click', function (e) {
+			if (!popup.contains(e.target) && e.target !== trigger) closePopup();
+		});
+	}
+
+	// 雷之呼吸 dropdown
+	makeDropdown('thunder-trigger-btn', 'thunder-popup', null, function (btn, trigger) {
+		var on = btn.dataset.thunder === 'on';
+		window.thunderEnabled = on;
+		trigger.textContent = (on ? '⚡ 開' : '🚫 關') + ' ▾';
+	});
+
+	// 水氣飄散 dropdown
+	makeDropdown('vapor-trigger-btn', 'vapor-popup', null, function (btn, trigger) {
+		var on = btn.dataset.vapor === 'on';
+		window.vaporEnabled = on;
+		trigger.textContent = (on ? '💧 開' : '🚫 關') + ' ▾';
 	});
 
 	// 季節選擇器
@@ -1520,6 +1587,9 @@
 
 	trigger.addEventListener('click', function (e) {
 		e.stopPropagation();
+		document.querySelectorAll('#thunder-popup,#vapor-popup,#season-popup').forEach(function (p) {
+			if (p !== popup) p.classList.remove('open');
+		});
 		popup.classList.contains('open') ? closePopup() : openPopup();
 	});
 
