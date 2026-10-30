@@ -944,7 +944,7 @@
 	const ctx = canvas.getContext('2d');
 	const nightOverlay = document.getElementById('summer-night-overlay');
 
-	let currentSeason = 'spring';
+	let currentSeason = 'autumn';
 	let particles = [];
 
 	function rand(min, max) { return Math.random() * (max - min) + min; }
@@ -1449,7 +1449,7 @@
 
 	window.addEventListener('resize', resize);
 	resize();
-	initSpring();
+	initAutumn();
 	loop();
 })();
 </script>
@@ -1468,16 +1468,16 @@
 	</div>
 	<div class="effect-row">
 		<span>🌿 季節風格</span>
-		<button id="season-trigger-btn" class="season-trigger-btn">🌸 春 ▾</button>
+		<button id="season-trigger-btn" class="season-trigger-btn">🍂 秋 ▾</button>
 	</div>
 </div>
 
 <!-- 季節選擇彈出面板 -->
 <div id="season-popup" role="listbox" aria-label="選擇背景動畫季節">
 	<button class="season-opt" data-season="null"   role="option">🚫 關閉</button>
-	<button class="season-opt active" data-season="spring" role="option">🌸 春（櫻花）</button>
+	<button class="season-opt" data-season="spring" role="option">🌸 春（櫻花）</button>
 	<button class="season-opt" data-season="summer" role="option">🌙 夏（螢火蟲）</button>
-	<button class="season-opt" data-season="autumn" role="option">🍂 秋（楓葉）</button>
+	<button class="season-opt active" data-season="autumn" role="option">🍂 秋（楓葉）</button>
 	<button class="season-opt" data-season="winter" role="option">❄️ 冬（雪花）</button>
 </div>
 
